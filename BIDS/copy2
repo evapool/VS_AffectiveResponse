@@ -1,0 +1,21 @@
+#!/bin/bash
+home=$(eval echo ~$user)
+
+for subj in 01 02 03 04 05 06 07 09 10 11 12 13 14 15 16 17 18 20 21 22 23 24 25 26
+  do
+  #mv ${home}/SAVED/RAW/${subj}/second/sub-${subj}_ses-second_run-01_sbref.nii.gz ${home}/REWOD/sub-${subj}/ses-second/anat
+
+  #mkdir ${home}/REWOD/SOURCEDATA/behav/${subj}
+  #mv ${home}/REWOD/SOURCEDATA/physio/s${subj}* ${home}/REWOD/SOURCEDATA/physio/${subj}/
+  #cp ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-second/func/sub-${subj}_task-PIT_run-01_smoothBold.nii /home/cisa/REWOD/DERIVATIVES/ANALYSIS/CONN/func_PIT/
+  #mkdir /home/cisa/REWOD/DERIVATIVES/ANALYSIS/CONN/1stLEVEL/sub-${subj}
+
+  # construct the mask
+  gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-second/anat/sub-${subj}_ses-second_run-01_T1w_reoriented_brain_mask.nii.gz
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-first/behav ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-first/beh
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-first/beh/behav  ${home}/REWOD/sub-${subj}/ses-first/beh
+  #mv ${home}/SAVED/RAW/${subj}/second/sub-${subj}_ses-second_run-01_fmap_magnitude.json ${home}/REWOD/sub-${subj}/ses-second/fmap/sub-${subj}_ses-second_run-01_magnitude.json
+  #mv ${home}/SAVED/RAW/${subj}/second/sub-${subj}_ses-second_run-01_fmap_magnitude.nii.gz ${home}/REWOD/sub-${subj}/ses-second/fmap/sub-${subj}_ses-second_run-01_magnitude.nii.gz
+  #mv ${home}/SAVED/RAW/${subj}/second/sub-${subj}_ses-second_run-01_fmap_phasediff.json ${home}/REWOD/sub-${subj}/ses-second/fmap/sub-${subj}_ses-second_run-01_phasediff.json
+  #mv ${home}/SAVED/RAW/${subj}/second/sub-${subj}_ses-second_run-01_fmap_phasediff.nii.gz ${home}/REWOD/sub-${subj}/ses-second/fmap/sub-${subj}_ses-second_run-01_phasediff.nii.gz
+done
