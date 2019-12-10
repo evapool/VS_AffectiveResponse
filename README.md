@@ -1,6 +1,6 @@
 These are the the codes used for preprocessing and analyzing behavioral and functional MRI data used for the following two studies:
 
-Flow chart od the pipeline:
+Flow chart of the pipeline:
 
 ![preproc](https://github.com/evapool/REWOD/blob/master/PREPROC/Figure_preproc.png)
 
