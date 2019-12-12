@@ -138,8 +138,8 @@ p_rob
 
 #weights
 
-R_NoR_df$weights = weights
-R_NoR_df$weights = I(R_NoR_df$weights)
+R_NoR_df$OFC_Right_sphere_weights = weights
+R_NoR_df$OFC_Right_sphere_weights = I(R_NoR_df$OFC_Right_sphere_weights)
 
 
 # check = lmRob(R_NoR_df$cm_OFC_Right_sphere_betas~R_NoR_df$lik)
@@ -155,11 +155,11 @@ grob0 <- grobTree(textGrob("WLS:", x=0.8,  y=0.15, hjust=0,
 grob1 <- grobTree(textGrob(bquote(paste(r^2," = ",.(signif(rsq,2)))), x=0.8,  y=0.1, hjust=0,
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
-grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_par,2)))), x=0.8,  y=0.05, hjust=0,
+grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0.05, hjust=0,
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 P1 <- ggplot(R_NoR_df, aes(lik, cm_OFC_Right_sphere_betas)) + #A2
-  geom_point(aes(alpha=R_NoR_df$weights)) +
+  geom_point(aes(alpha=R_NoR_df$OFC_Right_sphere_weights)) +
   geom_smooth(method = "rlm",  col = "blue") +
   #geom_smooth(lm(R_NoR_df$cm_OFC_Right_sphere_betas~R_NoR_df$lik, w = 1/R_NoR_df$cm_OFC_Right_sphere_betas^2)
   scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2, 2)) +
@@ -186,7 +186,7 @@ stat_1 = paste("r² = ", signif(rsq,3),  ", 90% CI [", signif(CI$LCL,3), ",", si
 #  _R2_ 
 rsq =summary(lm(R_NoR_df$cm_OFC_Right_sphere_betas~lik))$r.squared
 
-grob0 <- grobTree(textGrob("WLS:", x=0.8,  y=0.15, hjust=0,
+grob0 <- grobTree(textGrob("LS:", x=0.8,  y=0.15, hjust=0,
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 grob1 <- grobTree(textGrob(bquote(paste(r^2," = ",.(signif(rsq,2)))), x=0.8,  y=0.1, hjust=0,
@@ -238,8 +238,8 @@ p_per
 p_rob
 
 
-CSp_df$weights = weights
-CSp_df$weights = I(CSp_df$weights)
+CSp_df$OFC_Right_sphere_weights = weights
+CSp_df$OFC_Right_sphere_weights = I(CSp_df$OFC_Right_sphere_weights)
 
 
 
@@ -263,8 +263,8 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 P3 <- ggplot(CSp_df, aes(eff, cm_OFC_Right_sphere_betas)) + #A2
-  geom_point(aes(alpha=CSp_df$weights)) +
-  geom_smooth(method = "rlm",  col = "mediumspringgreen") +
+  geom_point(aes(alpha=CSp_df$OFC_Right_sphere_weights)) +
+  geom_smooth(method = "rlm",  col = "green") +
   #geom_smooth(lm(CSp_df$cm_OFC_Right_sphere_betas~CSp_df$eff, w = 1/CSp_df$cm_OFC_Right_sphere_betas^2)
   scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.2, 0.3), breaks=c(seq.int(-0.2,0.3, by = 0.1))) +
@@ -292,7 +292,7 @@ stat_3 = paste("r² = ", signif(rsq,3),  ", 90% CI [", signif(CI$LCL,3), ",", si
 # R2_ 
 rsq =summary(lm(CSp_df$cm_OFC_Right_sphere_betas~eff))$r.squared
 
-grob0 <- grobTree(textGrob("WLS:", x=0.8,  y=0.15, hjust=0,
+grob0 <- grobTree(textGrob("LS:", x=0.8,  y=0.15, hjust=0,
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 grob1 <- grobTree(textGrob(bquote(paste(r^2," = ",.(signif(rsq,2)))), x=0.8,  y=0.1, hjust=0,
@@ -303,7 +303,7 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_par,2)))), x=0.8,  y=0
 
 P4 <- ggplot(CSp_df, aes(eff, cm_OFC_Right_sphere_betas)) + #A2
   geom_point() +
-  geom_smooth(method = "lm",  col = "mediumspringgreen") +
+  geom_smooth(method = "lm",  col = "green") +
   #geom_smooth(lm(CSp_df$cm_OFC_Right_sphere_betas~CSp_df$eff, w = 1/CSp_df$cm_OFC_Right_sphere_betas^2)
   scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.2, 0.3), breaks=c(seq.int(-0.2,0.3, by = 0.1))) +
@@ -348,8 +348,8 @@ p_rob
 
 #weights
 
-R_NoR_df$weights = weights
-R_NoR_df$weights = I(R_NoR_df$weights)
+R_NoR_df$OFC_sphere_weights = weights
+R_NoR_df$OFC_sphere_weights = I(R_NoR_df$OFC_sphere_weights)
 
 
 
@@ -365,10 +365,11 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 P5 <- ggplot(R_NoR_df, aes(lik, cm_OFC_sphere_betas)) + #A2
-  geom_point(aes(alpha=R_NoR_df$weights)) +
+  geom_point(aes(alpha=R_NoR_df$OFC_sphere_weights)) +
   geom_smooth(method = "rlm",  col = "blue") +
   #geom_smooth(lm(R_NoR_df$cm_OFC_sphere_betas~R_NoR_df$lik, w = 1/R_NoR_df$cm_OFC_sphere_betas^2)
-  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2, 2)) +
+  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 2.5), breaks=c(seq.int(-2.5,2.5, by = 1))) +
+  #scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2, 2)) +
   scale_y_continuous(expression(paste(beta, "  Reward > No Reward")), expand = c(0, 0), limits=c(-0.8, 1.2), breaks=c(seq.int(-0.8,1.2, by = 0.5))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -404,7 +405,7 @@ P6 <- ggplot(R_NoR_df, aes(lik, cm_OFC_sphere_betas)) + #A2
   geom_point() +
   geom_smooth(method = "lm",  col = "blue") +
   #geom_smooth(lm(R_NoR_df$cm_OFC_sphere_betas~R_NoR_df$lik, w = 1/R_NoR_df$cm_OFC_sphere_betas^2)
-  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2, 2)) +
+  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 2.5), breaks=c(seq.int(-2.5,2.5, by = 1))) +
   scale_y_continuous(expression(paste(beta, "  Reward > No Reward")), expand = c(0, 0), limits=c(-0.8, 1.2), breaks=c(seq.int(-0.8,1.2, by = 0.5))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -445,8 +446,8 @@ p_per
 p_rob
 
 
-CSp_df$weights = weights
-CSp_df$weights = I(CSp_df$weights)
+CSp_df$OFC_sphere_weights = weights
+CSp_df$OFC_sphere_weights = I(CSp_df$OFC_sphere_weights)
 
 
 
@@ -472,10 +473,10 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0
 
 
 P7 <- ggplot(CSp_df, aes(eff, cm_OFC_sphere_betas)) + #A2
-  geom_point(aes(alpha=CSp_df$weights)) +
-  geom_smooth(method = "rlm",  col = "mediumspringgreen") +
+  geom_point(aes(alpha=CSp_df$OFC_sphere_weights)) +
+  geom_smooth(method = "rlm",  col = "green") +
   #geom_smooth(lm(CSp_df$cm_OFC_sphere_betas~CSp_df$eff, w = 1/CSp_df$cm_OFC_sphere_betas^2)
-  scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
+  scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 2.5), breaks=c(seq.int(-2.5,2.5, by = 1))) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.2, 0.3), breaks=c(seq.int(-0.2,0.3, by = 0.1))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -504,7 +505,7 @@ stat_7 = paste("r²   = ", signif(rsq,3),  ", 90% CI [", signif(CI$LCL,3), ",", 
 rsq =summary(lm(CSp_df$cm_OFC_sphere_betas~eff))$r.squared
 
 
-grob0 <- grobTree(textGrob("WLS:", x=0.8,  y=0.15, hjust=0,
+grob0 <- grobTree(textGrob("LS:", x=0.8,  y=0.15, hjust=0,
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 grob1 <- grobTree(textGrob(bquote(paste(r^2," = ",.(signif(rsq,2)))), x=0.8,  y=0.1, hjust=0,
@@ -515,9 +516,9 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_par,2)))), x=0.8,  y=0
 
 P8 <- ggplot(CSp_df, aes(eff, cm_OFC_sphere_betas)) + #A2
   geom_point() +
-  geom_smooth(method = "lm",  col = "mediumspringgreen") +
+  geom_smooth(method = "lm",  col = "green") +
   #geom_smooth(lm(CSp_df$cm_OFC_sphere_betas~CSp_df$eff, w = 1/CSp_df$cm_OFC_sphere_sphere_betas^2)
-  scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
+  scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 2.5), breaks=c(seq.int(-2.5,2.5, by = 1))) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.2, 0.3), breaks=c(seq.int(-0.2,0.3, by = 0.1))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
                 panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -569,3 +570,11 @@ stat_5
 stat_6
 stat_7
 stat_8
+
+
+figure9 <- ggarrange(P5,P6,P7,P8,
+                     labels = c( " A",   " B"   ,  " C", " D"  ),
+                     ncol = 2, nrow = 2,
+                     vjust=2, hjust=0) 
+
+figure9 # cmOFC

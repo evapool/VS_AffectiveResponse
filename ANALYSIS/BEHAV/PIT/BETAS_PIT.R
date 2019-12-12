@@ -137,8 +137,8 @@ p_per
 p_rob
 
 
-CSp_df$weights = weights^3
-CSp_df$weights = I(CSp_df$weights)
+CSp_df$BLVP_weights = weights^3
+CSp_df$BLVP_weights = I(CSp_df$BLVP_weights)
 
 
 
@@ -158,8 +158,8 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 P1 <- ggplot(CSp_df, aes(eff, LEFT_BLVP_betas)) + #A2
-  geom_point(aes(alpha=CSp_df$weights)) +
-  geom_smooth(method = "rlm",  col = "mediumspringgreen") +
+  geom_point(aes(alpha=CSp_df$BLVP_weights)) +
+  geom_smooth(method = "rlm",  col = "green") +
   #geom_smooth(lm(CSp_df$LEFT_BLVP_betas~CSp_df$eff, w = 1/CSp_df$LEFT_BLVP_betas^2)
   scale_x_continuous(name="Pavlovian-Instrumental index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.3, 0.4), breaks=c(seq.int(-0.5,0.4, by = 0.1))) +
@@ -199,7 +199,7 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_par,2)))), x=0.8,  y=0
 
 P2 <- ggplot(CSp_df, aes(eff, LEFT_BLVP_betas)) + #A2
   geom_point() +
-  geom_smooth(method = "lm",  col = "mediumspringgreen") +
+  geom_smooth(method = "lm",  col = "green") +
   #geom_smooth(lm(CSp_df$LEFT_BLVP_betas~CSp_df$eff, w = 1/CSp_df$LEFT_BLVP_betas^2)
   scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.3, 0.4), breaks=c(seq.int(-0.5,0.4, by = 0.1))) +
@@ -245,8 +245,8 @@ p_per
 p_rob
 
 
-CSp_df$weights = weights^2
-CSp_df$weights = I(CSp_df$weights)
+CSp_df$pcore_weights = weights^2
+CSp_df$pcore_weights = I(CSp_df$pcore_weights)
 
 # check = lmRob(CSp_df$pcore_RIGHT_betas~CSp_df$eff)
 # summary(check)  #this one is not conservator at all it just leaves out the points BAAD robustness
@@ -266,8 +266,8 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0
 
 #RLM
 P3 <- ggplot(CSp_df, aes(eff, pcore_RIGHT_betas)) + #A2
-  geom_point(aes(alpha = CSp_df$weights)) +
-  geom_smooth(method = "rlm",  col = "mediumspringgreen") +
+  geom_point(aes(alpha = CSp_df$pcore_weights)) +
+  geom_smooth(method = "rlm",  col = "green") +
   scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.3, 0.4), breaks=c(seq.int(-0.5,0.4, by = 0.1))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
@@ -308,7 +308,7 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_par,2)))), x=0.8,  y=0
 
 P4 <- ggplot(CSp_df, aes(eff, pcore_RIGHT_betas)) + #A2
   geom_point() +
-  geom_smooth(method = "lm",  col = "mediumspringgreen") +
+  geom_smooth(method = "lm",  col = "green") +
   scale_x_continuous(name="Pavlovian-Instrumental Index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  CS+ > CS-")), expand = c(0, 0), limits=c(-0.3, 0.4), breaks=c(seq.int(-0.5,0.4, by = 0.1))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
@@ -353,8 +353,8 @@ p_rob
 
 #weights
 
-R_NoR_df$weights = weights
-R_NoR_df$weights = I(R_NoR_df$weights)
+R_NoR_df$BLVP_weights = weights
+R_NoR_df$BLVP_weights = I(R_NoR_df$BLVP_weights)
 
 
 # check = lmRob(R_NoR_df$LEFT_BLVP_betas~R_NoR_df$lik)
@@ -374,10 +374,10 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0
                            gp=gpar(col="black", fontsize=9, fontface="italic")))
 
 P5 <- ggplot(R_NoR_df, aes(lik, LEFT_BLVP_betas)) + #A2
-  geom_point(aes(alpha=R_NoR_df$weights)) +
+  geom_point(aes(alpha=R_NoR_df$BLVP_weights)) +
   geom_smooth(method = "rlm",  col = "blue") +
   #geom_smooth(lm(R_NoR_df$LEFT_BLVP_betas~R_NoR_df$lik, w = 1/R_NoR_df$LEFT_BLVP_betas^2)
-  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
+  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  Reward > No Reward")), expand = c(0, 0), limits=c(-1.5, 1.5), breaks=c(seq.int(-1.5,1.5, by = 0.5))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -414,7 +414,7 @@ P6 <- ggplot(R_NoR_df, aes(lik, LEFT_BLVP_betas)) + #A2
   geom_point() +
   geom_smooth(method = "lm",  col = "blue") +
   #geom_smooth(lm(R_NoR_df$LEFT_BLVP_betas~R_NoR_df$lik, w = 1/R_NoR_df$LEFT_BLVP_betas^2)
-  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
+  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  Reward > No Reward")), expand = c(0, 0), limits=c(-1.5, 1.5), breaks=c(seq.int(-1.5,1.5, by = 0.5))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -454,8 +454,8 @@ p_rob
 #weights
 
 
-R_NoR_df$weights = weights
-R_NoR_df$Eweights = I(R_NoR_df$weights)
+R_NoR_df$pcore_weights = weights
+R_NoR_df$pcore_weights = I(R_NoR_df$pcore_weights)
 # check = lmRob(R_NoR_df$pcore_RIGHT_betas~R_NoR_df$lik)
 # summary(check)  #this one is not conservator at all it just leaves out the points
 
@@ -472,10 +472,10 @@ grob2 <- grobTree(textGrob(bquote(paste("p = ",.(signif(p_rob,2)))), x=0.8,  y=0
 
 
 P7 <- ggplot(R_NoR_df, aes(lik, pcore_RIGHT_betas)) + #A2
-  geom_point(aes(alpha=R_NoR_df$weights)) +
+  geom_point(aes(alpha=R_NoR_df$pcore_weights)) +
   geom_smooth(method = "rlm",  col = "blue") +
   #geom_smooth(lm(R_NoR_df$pcore_RIGHT_betas~R_NoR_df$lik, w = 1/R_NoR_df$pcore_RIGHT_betas^2)
-  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
+  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  Reward > No Reward")), expand = c(0, 0), limits=c(-1.5, 2), breaks=c(seq.int(-1.5,2, by = 0.5))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -516,7 +516,7 @@ P8 <- ggplot(R_NoR_df, aes(lik, pcore_RIGHT_betas)) + #A2
   geom_point() +
   geom_smooth(method = "lm",  col = "blue") +
   #geom_smooth(lm(R_NoR_df$pcore_RIGHT_betas~R_NoR_df$lik, w = 1/R_NoR_df$pcore_RIGHT_betas^2)
-  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 2.5)) +
+  scale_x_continuous(name="Pleasantness Index", expand = c(0, 0), limits=c(-2.5, 3)) +
   scale_y_continuous(expression(paste(beta, "  Reward > No Reward")), expand = c(0, 0), limits=c(-1.5, 2), breaks=c(seq.int(-1.5,2, by = 0.5))) +
   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)  +
@@ -542,3 +542,26 @@ stat_5   #blvp lik _ rob
 stat_6   #blvp lik
 stat_7   #pcore_lik _rob
 stat_8  #pcore
+
+
+
+figure9 <- ggarrange(P1,P2,P5,P6,
+                     labels = c( " A",   " B"   ,  " C", " D"  ),
+                     ncol = 2, nrow = 2,
+                     vjust=2, hjust=0) 
+
+figure9 # BLVP
+
+
+figure10 <- ggarrange(P3,P4,P7,P8,
+                     labels = c( " A",   " B"   ,  " C", " D"  ),
+                     ncol = 2, nrow = 2,
+                     vjust=2, hjust=0) 
+
+figure10 # pcore
+
+
+
+
+
+
