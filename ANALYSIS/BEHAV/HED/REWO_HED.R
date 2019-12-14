@@ -163,60 +163,166 @@ ggplot(dfINT, aes(x = trialxcondition, y = perceived_intensity, color=Condition)
 
 ####CHECK ASSUMPTIONS
 
+# 
+# dfINT$perceived_liking = dfLIK$perceived_liking
+# df = dfINT
+# 
+# ggplot(df, aes(x = perceived_liking, y = perceived_intensity, color=Condition)) +
+#   #geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
+#   geom_point() +
+#   theme_classic() +
+#   theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
+#         axis.title.y = element_text(size=16),  legend.title=element_blank()) 
+# 
+# df <- filter(df,  Condition == "Reward")
+# 
+# cor(df$perceived_intensity,df$perceived_liking)  #yikes!
+# 
+# 
+# x = REWOD_HED$perceived_liking[REWOD_HED$Condition2 == 'Reward']
+# y = REWOD_HED$perceived_liking[REWOD_HED$Condition2 == 'NoReward']
+# #Compute Leven test for homgeneity of variance
+# leveneTest(REWOD_HED$perceived_liking ~ REWOD_HED$Condition)
+# 
+# Dummy <- data.frame(numbers = 1:432)
+# Dummy2 <- data.frame(numbers = 1:864)
+# Dummy$'Reward pleasantness ratings' =  x
+# Dummy2$'No Reward pleasantness ratings' =  y
+# 
+# 
+# 
+# 
+# ggplot(Dummy, aes('Reward pleasantness ratings')) +
+# geom_density() + 
+# theme_classic() +
+# theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
+#         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)
+# 
+# d <- density(Dummy$'Reward pleasantness ratings' ) + theme_classic() +
+#   theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
+#         panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)
+# 
+# plot(d)
+# 
+# 
+# 
+# # plot densities
+# sm.density.compare(REWOD_HED$perceived_liking, REWOD_HED$Condition,  xlab="Pleasantness ratings")
+# 
+# 
+# # add legend via mouse click
+# colfill<-c(2:(2+length(levels(REWOD_HED$Condition))))
+# legend(locator(1), levels(REWOD_HED$Condition), fill=colfill)
+# 
+# df <- summarySE(REWOD_HED, measurevar="perceived_liking", groupvars=c("id", "Condition"))
+# 
+# # inspecting variance  control ###
+# 
+# REWOD_check<- filter(REWOD_HED,  id != "3" & id !='4' & id !='13' & id != '20' & id != '23')
+# 
+# 
+# # plot densities
+# sm.density.compare(REWOD_check$perceived_liking, REWOD_check$Condition,  xlab="Pleasantness ratings")
+# colfill<-c(2:(2+length(levels(REWOD_check$Condition))))
+# legend(locator(1), levels(REWOD_check$Condition), fill=colfill)
+# 
+# df2 <- summarySE(REWOD_check, measurevar="perceived_liking", groupvars=c("id", "Condition"))
+# 
+# 
+# dfLIK3 <- summarySEwithin(df2,
+#                           measurevar = "perceived_liking",
+#                           withinvars = c("Condition"), 
+#                           idvar = "id")
+# 
+# dfLIK3 <- summarySEwithin(df2,
+#                           measurevar = "perceived_liking",
+#                           withinvars = c("Condition"), 
+#                           idvar = "id")
+# 
+# # get means by participant 
+# bs2 = ddply(REWOD_check, .(id, trialxcondition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE))
+# bsLIK2 = ddply(REWOD_check, .(id, Condition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE))
+# 
+# 
+# 
+# dfLIK3$Condition <- as.factor(dfLIK3$Condition)
+# bsLIK2$Condition <- as.factor(bsLIK2$Condition)
+# 
+# dfLIK3$Condition = factor(dfLIK2$Condition,levels(dfLIK3$Condition)[c(3,2,1)])
+# bsLIK2$Condition = factor(bsLIK$Condition,levels(bsLIK2$Condition)[c(3,2,1)])  
+# 
+# ggplot(bsLIK2, aes(x = Condition, y = perceived_liking, fill = Condition)) +
+#   geom_jitter(width = 0.02, color="black",alpha=0.5, size = 0.5) +
+#   geom_bar(data=dfLIK3, stat="identity", alpha=0.6, width=0.35, position = position_dodge(width = 0.01)) +
+#   geom_flat_violin(alpha = .5, position = position_nudge(x = .25, y = 0), adjust = 1.5, trim = F, color = NA) + 
+#   scale_fill_manual("legend", values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
+#   geom_line(aes(x=Condition, y=perceived_liking, group=id), col="grey", alpha=0.4) +
+#   geom_errorbar(data=dfLIK3, aes(x = Condition, ymax = perceived_liking + se, ymin = perceived_liking - se), width=0.1, colour="black", alpha=1, size=0.4)+
+#   scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 20)), limits = c(0,100)) +
+#   theme_classic() +
+#   theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"),  axis.title.x = element_text(size=16), axis.text.x = element_text(size=12),
+#         axis.title.y = element_text(size=16), legend.position = "none", axis.ticks.x = element_blank(), axis.line.x = element_line(color = "white")) +
+#   labs(
+#     x = "Odor Stimulus",
+#     y = "Plesantness Ratings"
+#   )
+# 
+# 
+# # inspecting variance NEUTRAL ###
+# 
+# REWOD_check<- filter(REWOD_HED,  id != "23" )
+# 
+# 
+# # plot densities
+# sm.density.compare(REWOD_check$perceived_liking, REWOD_check$Condition,  xlab="Pleasantness ratings")
+# colfill<-c(2:(2+length(levels(REWOD_check$Condition))))
+# legend(locator(1), levels(REWOD_check$Condition), fill=colfill)
+# 
+# df2 <- summarySE(REWOD_check, measurevar="perceived_liking", groupvars=c("id", "Condition"))
+# 
+# 
+# dfLIK3 <- summarySEwithin(df2,
+#                           measurevar = "perceived_liking",
+#                           withinvars = c("Condition"), 
+#                           idvar = "id")
+# 
+# dfLIK3 <- summarySEwithin(df2,
+#                           measurevar = "perceived_liking",
+#                           withinvars = c("Condition"), 
+#                           idvar = "id")
+# 
+# # get means by participant 
+# bs2 = ddply(REWOD_check, .(id, trialxcondition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE))
+# bsLIK2 = ddply(REWOD_check, .(id, Condition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE))
+# 
+# 
+# 
+# dfLIK3$Condition <- as.factor(dfLIK3$Condition)
+# bsLIK2$Condition <- as.factor(bsLIK2$Condition)
+# 
+# dfLIK3$Condition = factor(dfLIK2$Condition,levels(dfLIK3$Condition)[c(3,2,1)])
+# bsLIK2$Condition = factor(bsLIK$Condition,levels(bsLIK2$Condition)[c(3,2,1)])  
+# 
+# ggplot(bsLIK2, aes(x = Condition, y = perceived_liking, fill = Condition)) +
+#   geom_jitter(width = 0.02, color="black",alpha=0.5, size = 0.5) +
+#   geom_bar(data=dfLIK3, stat="identity", alpha=0.6, width=0.35, position = position_dodge(width = 0.01)) +
+#   geom_flat_violin(alpha = .5, position = position_nudge(x = .25, y = 0), adjust = 1.5, trim = F, color = NA) + 
+#   scale_fill_manual("legend", values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
+#   geom_line(aes(x=Condition, y=perceived_liking, group=id), col="grey", alpha=0.4) +
+#   geom_errorbar(data=dfLIK3, aes(x = Condition, ymax = perceived_liking + se, ymin = perceived_liking - se), width=0.1, colour="black", alpha=1, size=0.4)+
+#   scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 20)), limits = c(0,100)) +
+#   theme_classic() +
+#   theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"),  axis.title.x = element_text(size=16), axis.text.x = element_text(size=12),
+#         axis.title.y = element_text(size=16), legend.position = "none", axis.ticks.x = element_blank(), axis.line.x = element_line(color = "white")) +
+#   labs(
+#     x = "Odor Stimulus",
+#     y = "Plesantness Ratings"
+#   )
 
-dfINT$perceived_liking = dfLIK$perceived_liking
-df = dfINT
-
-ggplot(df, aes(x = perceived_liking, y = perceived_intensity, color=Condition)) +
-  #geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
-  geom_point() +
-  theme_classic() +
-  theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
-        axis.title.y = element_text(size=16),  legend.title=element_blank()) 
-
-df <- filter(df,  Condition == "Reward")
-
-cor(df$perceived_intensity,df$perceived_liking)  #yikes!
-
-
-x = REWOD_HED$perceived_liking[REWOD_HED$Condition2 == 'Reward']
-y = REWOD_HED$perceived_liking[REWOD_HED$Condition2 == 'NoReward']
-#Compute Leven test for homgeneity of variance
-leveneTest(REWOD_HED$perceived_liking ~ REWOD_HED$Condition)
-
-Dummy <- data.frame(numbers = 1:432)
-Dummy2 <- data.frame(numbers = 1:864)
-Dummy$'Reward pleasantness ratings' =  x
-Dummy2$'No Reward pleasantness ratings' =  y
-
-
-
-
-ggplot(Dummy, aes('Reward pleasantness ratings')) +
-geom_density() + 
-theme_classic() +
-theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)
-
-d <- density(Dummy$'Reward pleasantness ratings' ) + theme_classic() +
-  theme(plot.subtitle = element_text(size = 8, vjust = -90, hjust =1), panel.grid.major = element_blank(), legend.position = "none", panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"), margin = NULL, aspect.ratio=1)
-
-plot(d)
-
-
-
-# plot densities
-sm.density.compare(REWOD_HED$perceived_liking, REWOD_HED$Condition,  xlab="Pleasantness ratings")
-title(main="MPG Distribution by Car Cylinders")
-
-# add legend via mouse click
-colfill<-c(2:(2+length(levels(REWOD_HED$Condition))))
-#legend(locator(1), levels(REWOD_HED$Condition), fill=colfill)
 
 
 #ratings
-df <- summarySE(REWOD_HED, measurevar="perceived_liking", groupvars=c("id", "Condition"))
+
 
 dfLIK2 <- summarySEwithin(df,
                           measurevar = "perceived_liking",

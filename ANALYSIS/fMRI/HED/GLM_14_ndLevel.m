@@ -1,4 +1,4 @@
-function GLM_02_ndLevel()
+function GLM_14_ndLevel()
 
 % intended for REWOD HED
 % get onsets for main model
@@ -25,7 +25,7 @@ homedir = [home '/REWOD/'];
 
 
 mdldir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
-name_ana = 'GLM-02'; % output folder for this analysis 
+name_ana = 'GLM-14'; % output folder for this analysis 
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 
@@ -46,14 +46,12 @@ if do_ttest
     
 
     % These contrast names become folders
-    contrastNames = {'odor_reward'%1
-        'odor_neutral'%2
-        'odor_control'};%4
+    contrastNames = {'reward-neutral'%1
+        'reward-neutral_lik'};%4
     
     
-    conImages = {'con_0007'
-        'con_0008'
-        'con_0009'};
+    conImages = {'con_0001'
+        'con_0002'};
       
     
     %% prepare batch for each contrasts

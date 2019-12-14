@@ -10,9 +10,9 @@ function GLM_09_ndLevel()
 
 %does t-test and full_factorial
 do_covariate = 1;
-remove = 0;
-removesub = {'sub-24'} ;
-removedsub = '24';
+remove = 1;
+removesub = {'sub-03';'sub-04';'sub-13';'sub-20'} ;
+removedsub = 'no variance control';
 
 
 %% define task variable
@@ -46,33 +46,22 @@ spm_jobman('initcfg');
 %% define constrasts and constrasts names
 if do_covariate % covariate of interest name become folder
 
-   covariateNames = {'Odor1-NoOdor1_lik_meancent'
+   covariateNames = {
 'reward1-control1_lik_meancent'
 'reward1-control2_lik_meancent'
-'reward1-neutral1_lik_meancent'
-'reward1-neutral2_lik_meancent'
-'Reward1_NoReward1_lik_meancent'
-'Reward1_NoReward2_lik_meancent'}; 
+}; 
 
 
     % These contrast names become folders
     contrastNames = {'reward1-control1'%1
-        'reward1-neutral1'%2
-        'Reward1-NoReward1'%3
         'reward1-control2'%4
-        'reward1-neutral2'%5
-        'Reward1-NoReward2'%6
-        'reward1-NoReward1and2'};%7
+};%7
     
     
     
-    conImages = {'con_0001'
+    conImages = {
         'con_0002'
-        'con_0003'
-        'con_0004'
-        'con_0005'
-        'con_0006'
-        'con_0007'};
+        'con_0003'};
     
     
   %% prepare batch for each contrasts
@@ -110,7 +99,7 @@ if do_covariate % covariate of interest name become folder
             if remove 
                 contrastFolder = fullfile (groupdir, 'covariate', covariateX, ['removing-' removedsub], contrastX);
             else
-                contrastFolder = fullfile (groupdir, 'covariate', covariateX, 'all', contrastX);
+                contrastFolder = fullfile (groupdir, 'covariate', covariateX, 'all3', contrastX);
             end
             
             mkdir(contrastFolder);

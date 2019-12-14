@@ -1,15 +1,10 @@
-function GLM_09_stLevel(subID) 
+function GLM_14_stLevel(subID) 
 
 % intended for REWOD HED
-% get onsets for model with 1st level modulators
-% GLM whitch median split
-% Durations =1 
-% Model on ONSETs (start, 3*odor + 2*questions)
-% 10 contrast odor*liking & odor*intensity,
-% last modified on July 2019 by David Munoz
+% neutral vs reward modulated liking without number 23
 
 %% What to do
-firstLevel    = 0;
+firstLevel    = 1;
 contrasts    = 1;
 copycontrasts = 1;
 
@@ -26,7 +21,7 @@ homedir = [home '/REWOD/'];
 
 mdldir   = fullfile(homedir, '/DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-09'; % output folder for this analysis
+name_ana = 'GLM-14'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
@@ -40,7 +35,7 @@ spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters
-subj       = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       =  subID; %'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
@@ -54,23 +49,18 @@ for i = 1:length(param.task)
     % represent a line in Cnam, and the conditions correspond to a item in the line
     % these names must correspond identically to the names from your ONS*mat.
     param.Cnam{i} = {'start',... %1
-        'reward1',...%2
-        'control1',...%3
-        'neutral1',...%4
-        'reward2',...%2
-        'control2',...%3
-        'neutral2',...%4
+        'reward',...
+        'neutral',...
+        'control',...
         'liking',...%5 
         'intensity'};%6
 
         
+           
      param.onset{i} = {'ONS.onsets.trialstart',... %1
-        'ONS.onsets.odor.reward1',...%2
-        'ONS.onsets.odor.control1',...%3
-        'ONS.onsets.odor.neutral1',...%4
-        'ONS.onsets.odor.reward2',...%2
-        'ONS.onsets.odor.control2',...%3
-        'ONS.onsets.odor.neutral2',...%4
+        'ONS.onsets.odor.reward',...%2
+        'ONS.onsets.odor.control',...%3
+        'ONS.onsets.odor.neutral',...%4
         'ONS.onsets.liking',...%5 
         'ONS.onsets.intensity'};%6
 
@@ -78,14 +68,36 @@ for i = 1:length(param.task)
     % duration of the blocks (if events, put '0'). Specify it for each condition of each session
     % the values must be included in your onsets in seconds
     param.duration{i} = {'ONS.durations.trialstart',...
-        'ONS.durations.odor.reward1',...
-        'ONS.durations.odor.control1',...
-        'ONS.durations.odor.neutral1',... 
-        'ONS.durations.odor.reward2',...
-        'ONS.durations.odor.control2',...
-        'ONS.durations.odor.neutral2',... 
+        'ONS.durations.odor.reward',...
+        'ONS.durations.odor.control',...
+        'ONS.durations.odor.neutral',... 
         'ONS.durations.liking',...
         'ONS.durations.intensity'};
+
+    
+    % parametric modulation of your events or blocks (ex: linear time, or emotional value, or pupillary size, ...)
+    % If you have a parametric modulation
+    param.modulName{i} = {'none',...%1
+        'likng',...%2
+        'likng',...%2
+        'none',...%3
+        'none',...%3
+        'none'}; %6
+    
+    param.modul{i} = {'none',...%1
+        'ONS.modulators.odor.reward',... %2
+        'ONS.modulators.odor.neutral',... %2
+        'none',... %3
+        'none',... %3
+        'none'}; %6
+    
+    % value of the modulators, If you have a parametric modulation
+    param.time{i} = {'0',... %1
+        '1',... %2
+        '1',... %2
+        '0',... %3
+        '0',... %3
+        '0'};%6
     
     
 end
@@ -161,11 +173,7 @@ end
         smoothfolder       = [subjfuncdir '/func'];
         targetscan         = dir (fullfile(smoothfolder, [im_style '*' taskX '*' param.im_format]));
         tmp{ses}           = spm_select('List',smoothfolder,targetscan.name);
-       
-         
-        Maskimage = [subjfuncdir '/anat/sub-' subjX '_ses-second_run-01_T1w_reoriented_brain_mask.nii'];
-        
-        
+
         % get the number of EPI for each session
         cd (smoothfolder);
         V         = dir(fullfile(smoothfolder, targetscan.name));
@@ -337,10 +345,10 @@ end
         
         % set threshold of mask!!
         %==========================================================================
-        %SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
-        SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
-        SPM.xM.VM  =  spm_vol(Maskimage);
-        SPM.xM.I   =  0.1;
+        SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
+        %SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
+        %SPM.xM.VM  =  spm_vol(Maskimage);
+        %SPM.xM.I   =  0.1;
         % Configure design matrix
         %==========================================================================
         SPM = spm_fmri_spm_ui(SPM);
@@ -383,62 +391,25 @@ end
         
         %%
         
-%         % con1
-%         Ctnames{1} = 'reward1-control1';
-%         weightPos  = ismember(conditionName, {'task-hed.reward1'}) * 1; %
-%         weightNeg  = ismember(conditionName, {'task-hed.control1'})* -1;%
-%         Ct(1,:)    = weightPos+weightNeg;
-%         
-%         % con2
-%         Ctnames{2} = 'reward1-neutral1';
-%         weightPos  = ismember(conditionName, {'task-hed.reward1'}) * 1;
-%         weightNeg  = ismember(conditionName, {'task-hed.neutral1'})* -1;
-%         Ct(2,:)    = weightPos+weightNeg; 
-%         
-%         % con3
-%         Ctnames{3} = 'Reward1-NoReward1';
-%         weightPos  = ismember(conditionName, {'task-hed.reward1'}) * 2;
-%         weightNeg  = ismember(conditionName, {'task-hed.control1', 'task-hed.neutral1'}) * -1;
-%         Ct(3,:)    = weightPos+weightNeg;
-%         
-%         
-%          % con4
-%         Ctnames{4} = 'reward1-control2';
-%         weightPos  = ismember(conditionName, {'task-hed.reward1'}) * 1; %
-%         weightNeg  = ismember(conditionName, {'task-hed.control2'})* -1;%
-%         Ct(4,:)    = weightPos+weightNeg;
-%         
-%         % con5
-%         Ctnames{5} = 'reward1-neutral2';
-%         weightPos  = ismember(conditionName, {'task-hed.reward1'}) * 1;
-%         weightNeg  = ismember(conditionName, {'task-hed.neutral2'})* -1;
-%         Ct(5,:)    = weightPos+weightNeg; 
-%         
-%         % con6
-%         Ctnames{6} = 'Reward1-NoReward2';
-%         weightPos  = ismember(conditionName, {'task-hed.reward1'}) * 2;
-%         weightNeg  = ismember(conditionName, {'task-hed.control2', 'task-hed.neutral2'}) * -1;
-%         Ct(6,:)    = weightPos+weightNeg;
-%         
-%         
-%         % con7
-%         Ctnames{7} = 'Reward1-NoReward1and2';
-%         weightPos  = ismember(conditionName, {'task-hed.reward1'}) * 4;
-%         weightNeg  = ismember(conditionName, {'task-hed.control1', 'task-hed.neutral1', 'task-hed.control2', 'task-hed.neutral2'}) * -1;
-%         Ct(7,:)    = weightPos+weightNeg;
-%         
-%         
-%         
-%       
-
         % con1
-        Ctnames{1} = 'Reward1&2-NoReward';
-        weightPos  = ismember(conditionName, {'task-hed.reward1', 'task-hed.reward2'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-hed.control1', 'task-hed.neutral1'}) * -1;
-        Ct(1,:)    = weightPos+weightNeg;
+        Ctnames{1} = 'reward-neutral';
+        weightPos  = ismember(conditionName, {'task-hed.reward'}) * 1; 
+        weightNeg  = ismember(conditionName, {'task-hed.neutral'}) * -1; 
+        Ct(1,:)    = weightPos +   weightNeg ;
+        
+        % con1
+        Ctnames{2} = 'reward-neutral_lik';
+        weightPos  = ismember(conditionName, {'task-hed.rewardxlik^1'}) * 1; 
+        weightNeg  = ismember(conditionName, {'task-hed.neutralxlik^1'}) * -1; 
+        Ct(2,:)    = weightPos +   weightNeg ;
+        
+     
+
         
 
-        % define F contrasts
+        
+
+%         % define F contrasts
 %         %------------------------------------------------------------------
 %         Cf = []; Cfnames = [];
 %         
@@ -458,7 +429,7 @@ end
             jobs{1}.stats{1}.con.consess{icon}.tcon.name = Ctnames{icon};
             jobs{1}.stats{1}.con.consess{icon}.tcon.convec = Ct(icon,:);
         end
-%         
+        
 %          % F contrats
 %          for iconf = 1:1 % until the number of F contrast computed
 %              jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};

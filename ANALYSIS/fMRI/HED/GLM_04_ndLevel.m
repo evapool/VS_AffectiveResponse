@@ -10,9 +10,9 @@ function GLM_04_ndLevel()
 
 %does t-test and full_factorial
 do_covariate = 1;
-remove = 0;
-removesub = {'sub-24'} ;
-removedsub = '24';
+remove = 1;
+removesub = {'sub-23'} ;
+removedsub = 'no variance neutral';
 
 
 %% define task variable
@@ -47,29 +47,20 @@ spm_jobman('initcfg');
 if do_covariate % covariate of interest name become folder
 
    covariateNames = {'reward-neutral_lik_meancent' %1
-  'reward-control_lik_meancent' %2
-  'Odor-NoOdor_lik_meancent' %3
-  'Odor_presence_lik_meancent'%4
-  'Reward_NoReward_lik_meancent'
-  'reward-neutral_int_meancent' %5
-  'reward-control_int_meancent' %6
-  'Odor-NoOdor_int_meancent'%7
-  'Odor_presence_int_meancent'
-  'Reward_NoReward_int_meancent'}; %9
+  'Reward_NoReward_lik_meancent'}; %9
 
 
     % These contrast names become folders
-    contrastNames = {'reward-control'%1
+    contrastNames = {
         'reward-neutral'%2
-        'Odor-NoOdor'%3
-        'odor_presence'
+        
+
         'Reward-NoReward'};%4
     
     
-    conImages = {'con_0001'
+    conImages = {
         'con_0002'
-        'con_0003'
-        'con_0004'
+
         'con_0005'};
     
     
