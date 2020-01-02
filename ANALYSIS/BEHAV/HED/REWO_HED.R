@@ -439,14 +439,14 @@ delta_BIC
 
 
 #
-ems = emmeans(main.model.lik, list(pairwise ~ condition), adjust = "tukey")
-confint(emmeans(main.model.lik, list(pairwise ~ condition)), level = .95, type = "response", adjust = "tukey")
+ems = emmeans(main.model.lik, list(pairwise ~ condition), adjust = "none")
+confint(emmeans(main.model.lik, list(pairwise ~ condition)), level = .95, type = "response", adjust = "none")
 plot(ems)
 ems
 
 #compute ptukey because ems rounds everything !!
-pR_N = 1 - ptukey(11.692 * sqrt(2), 3, 25.04)
-pR_C = 1 - ptukey(12.652 * sqrt(2), 3, 25.04)
+#pR_N = 1 - ptukey(11.692 * sqrt(2), 3, 25.04)
+#pR_C = 1 - ptukey(12.652 * sqrt(2), 3, 25.04)
 
 # Neutral VS Control (so we do that to be less bias and more conservator)
 # playing against ourselvees
@@ -488,17 +488,17 @@ summary(main.model.int)
 null.model.int = lmer(perceived_intensity ~ trialxcondition + (1+condition|id), data = REWOD_HED, REML=FALSE)
 
 testint = anova(main.model.int, null.model.int, test = 'Chisq')
-test
+testint
 #sentence => main.intensity is 'signifincatly' better than the null model wihtout condition a fixe effect
 # condition affected intensity rating (χ2 (1)= 868.41, p<2.20×10ˆ-16), rising reward ratings by 17.63 points ± 0.57 (SEE) compared to neutral condition and,
 # 17.63 ± 0.56 (SEE) compared to the control condition.
 
 #Δ BIC = XX
-delta_BIC = test$BIC[1] -test$BIC[2] 
+delta_BIC = testint$BIC[1] -testint$BIC[2] 
 delta_BIC
 
 ems = emmeans(main.model.int, list(pairwise ~ condition), adjust = "tukey")
-confint(emmeans(main.model.int,"condition"), level = .95, type = "response", adjust = "tukey")
+confint(emmeans(main.model.int,list(pairwise ~ condition)), level = .95, type = "response", adjust = "tukey")
 plot(ems)
 ems
 

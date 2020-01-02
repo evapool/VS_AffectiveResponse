@@ -281,7 +281,7 @@ delta_BIC
 # pairw
 
 #emmeans
-ems = emmeans(main.model, list(pairwise ~ condition), adjust = "tukey")
+ems = emmeans(main.model, list(pairwise ~ condition), adjust = "none")
 confint(emmeans(main.model, list(pairwise ~ condition)) level = .95, type = "response", adjust = "tukey")
 plot(ems)
 ems

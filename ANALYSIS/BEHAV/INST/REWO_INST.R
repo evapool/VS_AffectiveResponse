@@ -81,39 +81,13 @@ inst.aov <- aov_car(n_grips ~ trial + Error(id/trial), data = REWOD_INST, anova_
 inst.aov
 inst.aov_sum <- summary(inst.aov)
 inst.aov_sum
+
+
+
 #spher = GG corr
 #get the same F and all so I just use anova_model to calculate Omega and CI becuase its easier
 
 # effect sizes ------------------------------------------------------------
-
-# dfm = anova_model$ANOVA$DFn[2]
-# dfe = anova_model$ANOVA$DFd[2]
-# msm = anova_model$ANOVA$SSn[2] / anova_model$ANOVA$DFn[2]
-# mse = anova_model$ANOVA$SSd[2] / anova_model$ANOVA$DFd[2]
-# mss = anova_model$ANOVA$SSd[1] / anova_model$ANOVA$DFd[1]
-# ssm = anova_model$ANOVA$SSn[2]
-# sse = anova_model$ANOVA$SSd[2]
-# sss = anova_model$ANOVA$SSd[1]
-# a = .1
-# 
-# f = msm/mse
-# 
-# partial_omega = (f-1)/(f + (dfe +1)/dfm)
-# limits <- ci.R2(R2 = partial_omega, df.1 = dfm, df.2 = dfe, conf.level = (1-a))
-# partial_omega
-# limits$Lower.Conf.Limit.R2
-# limits$Upper.Conf.Limit.R2
-# 
-# limits <- ci.R2(R2 = partial_omega, df.1 = dfm, df.2 = dfe, conf.level = (1-a))
-# partial_omega
-# limits$Lower.Conf.Limit.R2
-# limits$Upper.Conf.Limit.R2
-# 
-# 
-# conf.limits.ncf(F.value = f, 
-#                 conf.level = 0.95,
-#                 df.1 <- dfm,
-#                 df.2 <- dfe)
 
 source('~/REWOD/CODE/ANALYSIS/BEHAV/my_tools/pes_ci.R')
 
@@ -121,6 +95,20 @@ pes_ci(n_grips ~ trial + Error(id/trial),  REWOD_INST, 0.95,"GG", "III")
 
 
 #contrasts (1 VS 5 first)
+
+# 
+# # 1 VS first 5
+# cont = emmeans(inst.aov, ~ trial)
+# x <- coef(pairs(cont))[c("c.1")]
+# #contr_mat = x + c(0, 0, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+# contr_mat = x + c(0, 0, -1, -1 ,-1, -1, -1 ,-1, -1, -1, -1, -1 ,-1 ,-1, -1 ,-1, -1, -1 ,-1, -1 ,-1, -1, -1, -1)
+# 
+# emmeans(inst.aov, ~ trial, contr = contr_mat, adjust = "none")$contrasts
+# 
+# 
+# 
+# confint(emmeans(main.model.lik, ~ condition, contr = contr_mat, adjust = "none")$contrasts)
+
 
 
 REWOD_INST$time <- rep(0, (length(REWOD_INST$trial)))
@@ -133,12 +121,18 @@ REWOD_INST$time[REWOD_INST$trial== '4']     <- -1
 REWOD_INST$time[REWOD_INST$trial== '5']     <- -1
 
 
-insttim.aov <- aov_car(n_grips ~ time + Error(id/trial), data = REWOD_INST, anova_table = list(es = "pes"))
-#emmeans(insttim.aov, list(pairwise ~ time), adjust = "bonferroni")
+REWOD_INST$time        <- factor(REWOD_INST$time)
+inst.aovtime <- aov_car(n_grips ~ time + Error(id/time), data = REWOD_INST, anova_table = list(es = "pes"))
+inst.aovtime
+inst.aovtime_sum <- summary(inst.aovtime)
+inst.aovtime_sum
+
+#extrcat corrcted p-value
+ems = emmeans(inst.aovtime, list(pairwise ~ time), adjust = "none")
+ems$`pairwise differences of time`[2]
+0.0029 * 5
+
+pes_ci(n_grips ~ time + Error(id/time),  REWOD_INST, 0.90, "III")
 
 
-insttim.aov_sum$pval.adjustments[2]*2
 
-pes_ci(n_grips ~ time + Error(id/time),  REWOD_INST, 0.95,"GG", "III")
-
-  

@@ -2,28 +2,27 @@
 
 %HEDONIC
 
-%does t-test and full_factorial
+%%does t-test and full_factorial
 do_ttest = 1;
-remove = 1;
-removesub = {'sub-23'} ; %because 23 neutral_int zero var
-removedsub = '23';
+remove = 0;
+removesub = {'sub-24'} ;
+removedsub = '24';
+
+%% define task variable
+%sessionX = 'second';
+task = 'hedonic';
 
 %% define path
 
-%homedir = '/home/REWOD';
-homedir = '/home/cisa/REWOD';
-%homedir = '/Users/davidmunoz/REWOD';
-mdldir   = fullfile (homedir, '/DATA/STUDY/MODELS/SPM/hedonic');% mdl directory (timing and outputs of the analysis)
-name_ana = 'GLM-03c'; 
+cd ~
+home = pwd;
+homedir = [home '/REWOD/'];
+
+
+mdldir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
+name_ana = 'GLM-03a'; % output folder for this analysis 
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
-%% specify spm param
-%addpath /usr/local/external_toolboxes/spm12/ ;
-addpath /usr/local/MATLAB/R2018a/spm12 ;
-addpath ([homedir '/ANALYSIS/spm_scripts/GLM/dependencies']);
-
-spm('Defaults','fMRI');
-spm_jobman('initcfg');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DO TESTS
@@ -37,16 +36,9 @@ if do_ttest
         'reward-neutral'%2
         'Odor-NoOdor'%3
         'odor_presence'%4
-        'reward_lik-control'%5
-        'reward_int-control'%6
-        'reward_lik-neutral_lik'%7
-        'reward_int-neutral_int'%8
-        'Odor_lik-NoOdor'%9
-        'Odor_int-NoOdor'%10
-        'odor_lik_presence'%11
-        'odor_int_presence' %12
-        'reward_lik-control_lik'%13
-        'reward_int-control_int'}; %14
+        'Reward-NoReward'%5
+        'reward_lik-neutral_lik'%6
+         'Reward_lik-NoReward_lik'}; %7
 
    
     
@@ -56,14 +48,7 @@ if do_ttest
         'con_0004'
         'con_0005'
         'con_0006'
-        'con_0007'
-        'con_0008'
-        'con_0009'
-        'con_0010'
-        'con_0011'
-        'con_0012'
-        'con_0013'
-        'con_0014'};
+        'con_0007'};
     
     
       %% prepare batch for each contrasts

@@ -98,9 +98,26 @@ densityplot(RT_minus$RT)
 #do paired t-test (unilateral?)
 cond.ttest = t.test(RT_minus$RT, RT_plus$RT,  paired = TRUE, alternative = "greater")
 cond.ttest
+
+
+
+# LMER --------------------------------------------------------------------
+
+
+main.model.pav = lmer(RT ~ condition + trialxcondition  + (1+condition|id), data = REWOD_PAV.clean, REML=FALSE)
+summary(main.model.pav)
+
+null.model.pav = lmer(RT ~ trialxcondition  + (1+condition|id), data = REWOD_PAV.clean, REML=FALSE)
+
+test = anova(main.model.pav, null.model.pav, test = 'Chisq')
+test
+
+ems = emmeans(main.model.pav, list(pairwise ~ condition))
+ems
+
 #----EFFECT SIZE see yoann's script
 
-source('~/REWOD/CODE/ANALYSIS/BEHAV/cohen_d_ci.R')
+source('~/REWOD/CODE/ANALYSIS/BEHAV/my_tools/cohen_d_ci.R')
 cohen_d_ci(RT_minus$RT, RT_plus$RT, paired  = TRUE)
 
 # BAYES FACTOR
@@ -142,31 +159,10 @@ cond.aov_sum <- summary(cond.aov)
 cond.aov_sum
 
 
-#HF corrected for here ! >0.
-
-# effect sizes ------------------------------------------------------------
-
-# dfm = anova_model$ANOVA$DFn[2]
-# dfe = anova_model$ANOVA$DFd[2]
-# msm = anova_model$ANOVA$SSn[2] / anova_model$ANOVA$DFn[2]
-# mse = anova_model$ANOVA$SSd[2] / anova_model$ANOVA$DFd[2]
-# mss = anova_model$ANOVA$SSd[1] / anova_model$ANOVA$DFd[1]
-# ssm = anova_model$ANOVA$SSn[2]
-# sse = anova_model$ANOVA$SSd[2]
-# sss = anova_model$ANOVA$SSd[1]
-# a = .1
-# 
-# f = msm/mse
-# 
-# partial_omega = (f-1)/(f + (dfe +1)/dfm)
-# limits <- ci.R2(R2 = partial_omega, df.1 = dfm, df.2 = dfe, conf.level = (1-a))
-# partial_omega
-# limits$Lower.Conf.Limit.R2
-# limits$Upper.Conf.Limit.R2
 
 source('~/REWOD/CODE/ANALYSIS/BEHAV/my_tools/pes_ci.R')
 
-pes_ci(liking_ratings ~ condition + Error(id/condition), ratings, 0.95,"GG", "III")
+pes_ci(liking_ratings ~ condition + Error(id/condition), ratings, 0.90, "III")
 
 
 
@@ -218,6 +214,9 @@ lik.N             <- length(LIK_minus$liking_ratings)
 lik.tvalue        <- lik.ttest$statistic
 lik.BF            <- ttest.tstat(t = lik.tvalue, n1 = cond.N, nullInterval = c(0, Inf), rscale = 0.5, simple = T)
 lik.BF
+
+
+
 
 
 #  PLOT -------------------------------------------------------------------
