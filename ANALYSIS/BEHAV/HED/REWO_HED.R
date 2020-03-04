@@ -1,5 +1,5 @@
 ## R code for FOR REWOD_HED
-# last modified on Nov 2019 by David
+# last modified on March 2020 by David
 
 
 # -----------------------  PRELIMINARY STUFF ----------------------------------------
@@ -45,11 +45,12 @@ REWOD_HED <- filter(REWOD_HED,  id != "8")
 # get means by condition 
 bt = ddply(REWOD_HED, .(trialxcondition), summarise,  perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE)) 
 # get means by condition and trialxcondition
-bct = ddply(REWOD_HED, .(condition, trialxcondition), summarise,  perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE)) 
+bct = ddply(REWOD_HED, .(condition, trialxcondition), summarise,  perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE), EMG = mean(EMG, na.rm = TRUE)) 
 
 # get means by participant 
-bs = ddply(REWOD_HED, .(id, trialxcondition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE))
+bs = ddply(REWOD_HED, .(id, trialxcondition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE), EMG = mean(EMG, na.rm = TRUE)) 
 bsLIK = ddply(REWOD_HED, .(id, Condition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE), perceived_intensity = mean(perceived_intensity, na.rm = TRUE))
+bsEMG = ddply(REWOD_HED, .(id, Condition), summarise, EMG = mean(EMG, na.rm = TRUE), EMG = mean(EMG, na.rm = TRUE))
 
 # be consistent so do the same for fMRI
 
@@ -86,26 +87,6 @@ data_summary <- function(data, varname, groupnames){
 # # plot liking by time by condition with regression lign
 # ggplotRegression(lm(perceived_liking ~ trialxcondition*condition, data = bct)) + 
 #   facet_wrap(~condition)
-# 
-# 
-# 
-#plot intensity to see the trajectory of learning (by condition)
-ggplot(bct, aes(x = trialxcondition, y = perceived_intensity, color = condition)) +
-  geom_point() +
-  geom_line(aes(group = condition), alpha = .3, size = 1) +
-  scale_colour_manual("",
-                      values = c("chocolate"="green", "empty"="red", "neutral"="blue")) +
-  theme_classic() +
-  labs(
-    title = "intensity By Time By condition",
-    x = "trialxcondition",
-    y = "perceived_intensity"
-  )
-
-# # plot liking by time by condition with regression lign
-# ggplotRegression(lm(perceived_intensity ~ trialxcondition*condition, data = bct)) + 
-#   facet_wrap(~condition)
-# 
 
 
 
@@ -155,6 +136,32 @@ ggplot(dfINT, aes(x = trialxcondition, y = perceived_intensity, color=Condition)
   geom_errorbar(aes(ymax = perceived_intensity +se, ymin = perceived_intensity -se), width=0.5, alpha=0.7, size=0.4, position = position_dodge(width = 0.5))+
   scale_colour_manual(values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
   scale_y_continuous(expand = c(0, 0),  limits = c(10,80),  breaks=c(seq.int(10,80, by = 5))) +  #breaks = c(4.0, seq.int(5,16, by = 2.5)),
+  #scale_x_continuous(expand = c(0, 0), limits = c(0,19), breaks=c(0, seq.int(1,18, by = 2),19))+ 
+  theme_classic() +
+  theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
+        axis.title.y = element_text(size=16), legend.position = c(0.9, 0.9), legend.title=element_blank()) +
+  labs(x = "Trials",y = "Intensity Ratings")
+
+
+#### EMG
+df <- summarySE(REWOD_HED, measurevar="EMG", groupvars=c("id", "trialxcondition", "Condition"))
+
+dfEMG <- summarySEwithin(df,
+                         measurevar = "EMG",
+                         withinvars = c("Condition", "trialxcondition"), 
+                         idvar = "id")
+
+dfEMG$Condition = as.factor(dfEMG$Condition)
+dfEMG$Condition = factor(dfEMG$Condition,levels(dfEMG$Condition)[c(3,2,1)])
+dfEMG$trialxcondition =as.numeric(dfEMG$trialxcondition)
+
+
+ggplot(dfEMG, aes(x = trialxcondition, y = EMG, color=Condition)) +
+  geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
+  geom_point(position =position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymax = EMG +se, ymin = EMG -se), width=0.5, alpha=0.7, size=0.4, position = position_dodge(width = 0.5))+
+  scale_colour_manual(values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
+  #scale_y_continuous(expand = c(0, 0),  limits = c(10,80),  breaks=c(seq.int(10,80, by = 5))) +  #breaks = c(4.0, seq.int(5,16, by = 2.5)),
   #scale_x_continuous(expand = c(0, 0), limits = c(0,19), breaks=c(0, seq.int(1,18, by = 2),19))+ 
   theme_classic() +
   theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
@@ -341,20 +348,20 @@ bsLIK$Condition <- as.factor(bsLIK$Condition)
 dfLIK2$Condition = factor(dfLIK2$Condition,levels(dfLIK2$Condition)[c(3,2,1)])
 bsLIK$Condition = factor(bsLIK$Condition,levels(bsLIK$Condition)[c(3,2,1)])  
 
-ggplot(bsLIK, aes(x = Condition, y = perceived_liking, fill = Condition)) +
-  geom_jitter(width = 0.02, color="black",alpha=0.5, size = 0.5) +
-  geom_bar(data=dfLIK2, stat="identity", alpha=0.6, width=0.35, position = position_dodge(width = 0.01)) +
-  scale_fill_manual("legend", values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
-  geom_line(aes(x=Condition, y=perceived_liking, group=id), col="grey", alpha=0.4) +
-  geom_errorbar(data=dfLIK2, aes(x = Condition, ymax = perceived_liking + se, ymin = perceived_liking - se), width=0.1, colour="black", alpha=1, size=0.4)+
-  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 20)), limits = c(0,100)) +
-  theme_classic() +
-  theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"),  axis.title.x = element_text(size=16), axis.text.x = element_text(size=12),
-        axis.title.y = element_text(size=16), legend.position = "none", axis.ticks.x = element_blank(), axis.line.x = element_line(color = "white")) +
-  labs(
-    x = "Odor Stimulus",
-    y = "Plesantness Ratings"
-  )
+# ggplot(bsLIK, aes(x = Condition, y = perceived_liking, fill = Condition)) +
+#   geom_jitter(width = 0.02, color="black",alpha=0.5, size = 0.5) +
+#   geom_bar(data=dfLIK2, stat="identity", alpha=0.6, width=0.35, position = position_dodge(width = 0.01)) +
+#   scale_fill_manual("legend", values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
+#   geom_line(aes(x=Condition, y=perceived_liking, group=id), col="grey", alpha=0.4) +
+#   geom_errorbar(data=dfLIK2, aes(x = Condition, ymax = perceived_liking + se, ymin = perceived_liking - se), width=0.1, colour="black", alpha=1, size=0.4)+
+#   scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 20)), limits = c(0,100)) +
+#   theme_classic() +
+#   theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"),  axis.title.x = element_text(size=16), axis.text.x = element_text(size=12),
+#         axis.title.y = element_text(size=16), legend.position = "none", axis.ticks.x = element_blank(), axis.line.x = element_line(color = "white")) +
+#   labs(
+#     x = "Odor Stimulus",
+#     y = "Plesantness Ratings"
+#   )
 
 
 # ggplot(bsLIK, aes(x = Condition, y = perceived_liking, fill = Condition)) +
@@ -372,7 +379,7 @@ ggplot(bsLIK, aes(x = Condition, y = perceived_liking, fill = Condition)) +
 #     y = "Plesantness Ratings"
 #   )
 
-
+#rainplot Liking
 source('~/REWOD/CODE/ANALYSIS/BEHAV/my_tools/rainclouds.R')
 
 
@@ -393,7 +400,47 @@ ggplot(bsLIK, aes(x = Condition, y = perceived_liking, fill = Condition)) +
     y = "Plesantness Ratings"
   )
 
+#EMG - Physio
 
+
+dfEMG2 <- summarySEwithin(df,
+                          measurevar = "EMG",
+                          withinvars = c("Condition"), 
+                          idvar = "id")
+
+dfEMG2 <- summarySEwithin(df,
+                          measurevar = "EMG",
+                          withinvars = c("Condition"), 
+                          idvar = "id")
+
+
+dfEMG2$Condition <- as.factor(dfEMG2$Condition)
+bsEMG$Condition <- as.factor(bsEMG$Condition)
+
+dfEMG2$Condition = factor(dfEMG2$Condition,levels(dfEMG2$Condition)[c(3,2,1)])
+bsEMG$Condition = factor(bsEMG$Condition,levels(bsEMG$Condition)[c(3,2,1)])  
+
+
+
+source('~/REWOD/CODE/ANALYSIS/BEHAV/my_tools/rainclouds.R')
+
+
+
+ggplot(bsEMG, aes(x = Condition, y = EMG, fill = Condition)) +
+  geom_jitter(width = 0.02, color="black",alpha=0.5, size = 0.5) +
+  geom_bar(data=dfEMG2, stat="identity", alpha=0.6, width=0.35, position = position_dodge(width = 0.01)) +
+  geom_flat_violin(alpha = .5, position = position_nudge(x = .25, y = 0), adjust = 1.5, trim = F, color = NA) + 
+  scale_fill_manual("legend", values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
+  geom_line(aes(x=Condition, y=EMG, group=id), col="grey", alpha=0.4) +
+  geom_errorbar(data=dfEMG2, aes(x = Condition, ymax = EMG + se, ymin = EMG - se), width=0.1, colour="black", alpha=1, size=0.4)+
+  #scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 20)), limits = c(0,100)) +
+  theme_classic() +
+  theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"),  axis.title.x = element_text(size=16), axis.text.x = element_text(size=12),
+        axis.title.y = element_text(size=16), legend.position = "none", axis.ticks.x = element_blank(), axis.line.x = element_line(color = "white")) +
+  labs(
+    x = "Odor Stimulus",
+    y = "EMG activity Cor"
+  )
 # ANALYSIS
 
 REWOD_HED$id               <- factor(REWOD_HED$id)
