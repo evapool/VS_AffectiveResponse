@@ -126,13 +126,29 @@ for i = 1:length(subj)
         
     end
     
+    %load physio file
+    physio_dir = fullfile(homedir, 'SOURCEDATA', 'physio', subjX);
+    cd (physio_dir)
+    load (['sub-' num2str(subjX) '_ses-second_task-hedonic_EMG'])
+    
+    [A IdX] = sort(data.ORDER);
+    
+    PHYSIO.EMG = data.COR(IdX,:);
+    %EMG.BASE = data.BASE(IdX,:);
+    
+    ONSETS.EMG     =    ONSETS.sniffSignalOnset + 2.5;
+    DURATIONS.EMG  =    zeros(length(ONSETS.EMG),1) + 0.5;
+    
+    
+    
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% save mat file
     func_dir = fullfile (homedir, 'DERIVATIVES', 'PREPROC', ['sub-' num2str(subjX)], 'ses-second', 'func');
     cd (func_dir)
     matfile_name = ['sub-' num2str(subjX) '_ses-second' '_task-' task '_run-01_events.mat'];
     %cd (behavior_dir)
-    save(matfile_name, 'ONSETS', 'DURATIONS',  'BEHAVIOR', 'CONDITIONS', 'ODOR', 'TRIAL', 'DRIFT' )
+    save(matfile_name, 'ONSETS', 'DURATIONS', 'BEHAVIOR', 'CONDITIONS', 'ODOR', 'TRIAL', 'DRIFT', 'PHYSIO' )
     
 
 
@@ -142,7 +158,7 @@ for i = 1:length(subj)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% save tvs file according to BIDS format
-    phase = {'trialstart';'liking'; 'intensity'; 'ITI'};
+    phase = {'trialstart';'liking'; 'EMG'; 'intensity'; 'ITI'};
     nevents = ntrials*length(phase);
     
     % put everything in the event structure
@@ -152,7 +168,8 @@ for i = 1:length(subj)
     events.condition    = cell (nevents,1);
     events.liking       = nan (nevents,1);
     events.intensity    = nan (nevents,1);
-    events.trial   = zeros (nevents,1);
+    events.trial        = zeros (nevents,1);
+    events.EMG          = nan (nevents,1);
     
     
     
@@ -167,10 +184,11 @@ for i = 1:length(subj)
             events.onsets(cmpt)     = ONSETS.(phaseX) (ii);
             events.durations(cmpt)  = DURATIONS.(phaseX) (ii);
             events.phase(cmpt)      = phase (iii);
-            events.condition(cmpt) = CONDITIONS(ii);
+            events.condition(cmpt)  = CONDITIONS(ii);
             events.liking(cmpt)     = BEHAVIOR.liking(ii);
             events.intensity(cmpt)  = BEHAVIOR.intensity(ii);
             events.trial(cmpt)      = TRIAL(ii);
+            events.EMG(cmpt)        = PHYSIO.EMG(ii);
             
         end
         
@@ -181,23 +199,24 @@ for i = 1:length(subj)
     events.liking       = num2cell(events.liking);
     events.intensity    = num2cell(events.intensity);
     events.trial        = num2cell(events.trial);
+    events.EMG        = num2cell(events.EMG);
     
     
     
      eventfile = [events.onsets, events.durations, events.phase,...
-        events.trial, events.condition, events.liking, events.intensity];
+        events.trial, events.condition, events.EMG, events.liking, events.intensity];
     
     % open data base
     eventfile_name = ['sub-' num2str(subjX) '_ses-second' '_task-' task '_run-01_events.tsv'];
     fid = fopen(eventfile_name,'wt');
     
     % print heater
-    fprintf (fid, '%s	%s	%s	%s	%s	%s	%s\n',...
+    fprintf (fid, '%s	%s	%s	%s	%s	%s	%s	%s\n',...
         'onset', 'duration', 'trial_phase',...
-        'trial', 'condition','perceived_liking','perceived_intensity');
+        'trial', 'condition','EMG_cor', 'perceived_liking','perceived_intensity');
     
     % print data
-    formatSpec = '%f	%f	%s	%d	%s	%f	%f\n'; %d = vector s=text
+    formatSpec = '%f	%f	%s	%d	%s	%f	%f	%f\n'; %d = vector s=text
     [nrows,ncols] = size(eventfile);
     for row = 1:nrows
         fprintf(fid,formatSpec,eventfile{row,:});
@@ -219,6 +238,7 @@ for i = 1:length(subj)
     db.liking (:,i)      = BEHAVIOR.liking;
     %db.familiarity (:,i) = BEHAVIOR.familiarity;
     db.intensity (:,i)   = BEHAVIOR.intensity;
+    db.EMG (:,i)         = PHYSIO.EMG;
     
 end
 
@@ -241,23 +261,24 @@ R.itemxc     = num2cell(db.itemxc(:));
 % dependent variable
 R.liking      = num2cell(db.liking(:));
 R.intensity   = num2cell(db.intensity(:));
+R.EMG   = num2cell(db.EMG(:));
 %R.familiarity = num2cell(db.familiarity(:));
 
 %% print the database
 cd (R_dir)
 
 % concatenate
-Rdatabase = [R.task, R.id, R.session, R.trial, R.condition, R.itemxc, R.liking, R.intensity];
+Rdatabase = [R.task, R.id, R.session, R.trial, R.condition, R.itemxc, R.liking, R.intensity, R.EMG];
 
 % open database
 fid = fopen([analysis_name '.txt'], 'wt');
 
 % print heater
-fprintf(fid,'%s %s %s %s %s %s %s %s\n',...
-    'task','id', 'session','trial', 'condition','trialxcondition','perceived_liking', 'perceived_intensity');
+fprintf(fid,'%s %s %s %s %s %s %s %s %s\n',...
+    'task','id', 'session','trial', 'condition','trialxcondition','perceived_liking', 'perceived_intensity', 'EMG');
 
 % print data
-formatSpec ='%s %s %s %d %s %d %f %f\n';
+formatSpec ='%s %s %s %d %s %d %f %f %f\n';
 [nrows,~] = size(Rdatabase);
 for row = 1:nrows
     fprintf(fid,formatSpec,Rdatabase{row,:});
