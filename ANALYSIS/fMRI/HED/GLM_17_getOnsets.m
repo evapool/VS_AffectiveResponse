@@ -57,22 +57,22 @@ mkdir (fullfile (mdldir, char(task), ana_name));
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and durations for odor valveopen
-%         onsets.odor.reward      = ONSETS.sniffSignalOnset(strcmp ('chocolate', CONDITIONS));
-%         onsets.odor.neutral     = ONSETS.sniffSignalOnset(strcmp ('neutral', CONDITIONS));
-%         onsets.odor.control     = ONSETS.sniffSignalOnset(strcmp ('empty', CONDITIONS));
-        
-        onsets.EMG.reward      = ONSETS.EMG(strcmp ('chocolate', CONDITIONS));
-        onsets.EMG.neutral     = ONSETS.EMG(strcmp ('neutral', CONDITIONS));
-        onsets.EMG.control     = ONSETS.EMG(strcmp ('empty', CONDITIONS));
+        onsets.odor.reward      = ONSETS.sniffSignalOnset(strcmp ('chocolate', CONDITIONS));
+        onsets.odor.neutral     = ONSETS.sniffSignalOnset(strcmp ('neutral', CONDITIONS));
+        onsets.odor.control     = ONSETS.sniffSignalOnset(strcmp ('empty', CONDITIONS));
+%         
+%         onsets.EMG.reward      = ONSETS.EMG(strcmp ('chocolate', CONDITIONS));
+%         onsets.EMG.neutral     = ONSETS.EMG(strcmp ('neutral', CONDITIONS));
+%         onsets.EMG.control     = ONSETS.EMG(strcmp ('empty', CONDITIONS));
        
         %get durations
-%         durations.odor.reward   = DURATIONS.trialstart(strcmp ('chocolate', CONDITIONS));
-%         durations.odor.neutral   = DURATIONS.trialstart(strcmp ('neutral', CONDITIONS));
-%         durations.odor.control   = DURATIONS.trialstart(strcmp ('empty', CONDITIONS));
+        durations.odor.reward   = DURATIONS.trialstart(strcmp ('chocolate', CONDITIONS));
+        durations.odor.neutral   = DURATIONS.trialstart(strcmp ('neutral', CONDITIONS));
+        durations.odor.control   = DURATIONS.trialstart(strcmp ('empty', CONDITIONS));
 
-        durations.EMG.reward   = DURATIONS.EMG(strcmp ('chocolate', CONDITIONS));
-        durations.EMG.neutral   = DURATIONS.EMG(strcmp ('neutral', CONDITIONS));
-        durations.EMG.control   = DURATIONS.EMG(strcmp ('empty', CONDITIONS));
+%         durations.EMG.reward   = DURATIONS.EMG(strcmp ('chocolate', CONDITIONS));
+%         durations.EMG.neutral   = DURATIONS.EMG(strcmp ('neutral', CONDITIONS));
+%         durations.EMG.control   = DURATIONS.EMG(strcmp ('empty', CONDITIONS));
            
 %         %mod for liking 
 %         modulators.odor.reward.lik  = BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS));
@@ -86,9 +86,9 @@ mkdir (fullfile (mdldir, char(task), ana_name));
 %         modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
 
         % EMG as mod
-        modulators.EMG.reward  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
-        modulators.EMG.neutral = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
-        modulators.EMG.control = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
+        modulators.odor.reward  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
+        modulators.odor.neutral = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
+        modulators.odor.control = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
         
    
         
@@ -114,13 +114,13 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         % create text file with 3 colons: onsets, durations, paretric
         % modulators % for each parameter
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        name = {'trialstart'; 'EMG'; 'liking'; 'intensity'}; 
+        name = {'trialstart'; 'odor'; 'liking'; 'intensity'}; 
 
         for ii = 1:length(name)
 
             nameX = char(name(ii));
 
-            if strcmp (nameX, 'EMG')  % for structure that contains substuctures
+            if strcmp (nameX, 'odor')  % for structure that contains substuctures
                 substr = {'reward'; 'control'; 'neutral'};% specify the substructures names 
                 %subsubstr = {'lik'; 'int'}; % specify the subsubstructures names 
                 for iii = 1:length(substr)

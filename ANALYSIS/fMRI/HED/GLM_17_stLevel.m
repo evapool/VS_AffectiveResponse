@@ -1,12 +1,13 @@
-function GLM_16_stLevel(subID) 
+function GLM_17_stLevel(subID) 
 
 % intended for REWOD HED
-% get onsets for model with 1st level modulators EMG!
-% GLM control for odor.all, mod by intenisty and liking
+% get onsets for main model
 % Durations =1 
 % Model on ONSETs (start, 3*odor + 2*questions)
-% 1 contrast odor*liking & odor*intensity,
+% 4 basic contrasts Reward-Control, Reward-Neutral, Odor-NoOdor, odor_presence
 % last modified on July 2019 by David Munoz
+
+
 
 %% What to do
 firstLevel    = 1;
@@ -26,12 +27,11 @@ homedir = [home '/REWOD/'];
 
 mdldir   = fullfile(homedir, '/DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-16'; % output folder for this analysis
+name_ana = 'GLM-17'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
-%addpath('/usr/local/MATLAB/R2018a/spm12/');
-
+%addpath /usr/local/MATLAB/R2018a/spm12 ;
 %% specify fMRI parameters
 param.TR = 2.4;
 param.im_format = 'nii'; 
@@ -40,8 +40,7 @@ spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters
-
-subj       =  subID; %{'01'};%'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       =  subID; %{'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
@@ -55,17 +54,17 @@ for i = 1:length(param.task)
     % represent a line in Cnam, and the conditions correspond to a item in the line
     % these names must correspond identically to the names from your ONS*mat.
     param.Cnam{i} = {'start',... %1
-        'reward',...
-        'neutral',...
-        'control',...
+        'reward',...%2
+        'control',...%3
+        'neutral',...%4
         'liking',...%5 
         'intensity'};%6
 
         
      param.onset{i} = {'ONS.onsets.trialstart',... %1
-        'ONS.onsets.odor.reward', ...
-        'ONS.onsets.odor.neutral', ...
-        'ONS.onsets.odor.control', ...
+        'ONS.onsets.odor.reward',...%2
+        'ONS.onsets.odor.control',...%3
+        'ONS.onsets.odor.neutral',...%4
         'ONS.onsets.liking',...%5 
         'ONS.onsets.intensity'};%6
 
@@ -73,9 +72,9 @@ for i = 1:length(param.task)
     % duration of the blocks (if events, put '0'). Specify it for each condition of each session
     % the values must be included in your onsets in seconds
     param.duration{i} = {'ONS.durations.trialstart',...
-        'ONS.durations.odor.reward', ...
-        'ONS.durations.odor.neutral', ...
-        'ONS.durations.odor.control', ...
+        'ONS.durations.odor.reward',...
+        'ONS.durations.odor.control',...
+        'ONS.durations.odor.neutral',... 
         'ONS.durations.liking',...
         'ONS.durations.intensity'};
 
@@ -83,25 +82,25 @@ for i = 1:length(param.task)
     % parametric modulation of your events or blocks (ex: linear time, or emotional value, or pupillary size, ...)
     % If you have a parametric modulation
     param.modulName{i} = {'none',...%1
-        'EMG',...%2
-        'EMG',...%2
-        'EMG',...%2
+        'none',...%2
         'none',...%3
+        'none',...%4 
+        'none',...%5
         'none'}; %6
     
     param.modul{i} = {'none',...%1
-        'ONS.modulators.odor.reward',... %2
-        'ONS.modulators.odor.neutral',... %2
-        'ONS.modulators.odor.control',... %2
+        'none',... %2
         'none',... %3
+        'none',... %4
+        'none',... %5
         'none'}; %6
     
     % value of the modulators, If you have a parametric modulation
     param.time{i} = {'0',... %1
-        '1',... %2
-        '1',... %2
-        '1',... %2
+        '0',... %2
         '0',... %3
+        '0',... %4
+        '0',... %5
         '0'};%6
     
     
@@ -113,12 +112,12 @@ for i = 1:length(subj)
     
     % participant's specifics
     subjX = char(subj(i));
-    subjoutdir =fullfile(mdldir,name_ana, [ 'sub-' subjX]); % subj{i,1}
-    subjfuncdir=fullfile(funcdir, [ 'sub-' subjX], 'ses-second'); % subj{i,1}
+    subjoutdir =fullfile(mdldir,name_ana, [ 'sub-' subjX]); 
+    subjfuncdir=fullfile(funcdir, [ 'sub-' subjX], 'ses-second'); 
     fprintf('participant number: %s \n', subj{i});
     cd (subjoutdir)
     
-    if ~exist('output','dir')
+    if ~exist('output','dir');
         mkdir ('output');
     end
     
@@ -136,7 +135,7 @@ for i = 1:length(subj)
     end
     
     %%%%%%%%%%%%%%%%%%%%% COPY CONTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if copycontrasts == 1
+   if copycontrasts == 1
         
         mkdir (groupdir); % make the group directory where contrasts will be copied
         cd (fullfile(subjoutdir,'output'))
@@ -178,7 +177,11 @@ end
         smoothfolder       = [subjfuncdir '/func'];
         targetscan         = dir (fullfile(smoothfolder, [im_style '*' taskX '*' param.im_format]));
         tmp{ses}           = spm_select('List',smoothfolder,targetscan.name);
-
+       
+         
+        Maskimage = [subjfuncdir '/anat/sub-' subjX '_ses-second_run-01_T1w_reoriented_brain_mask.nii'];
+        
+        
         % get the number of EPI for each session
         cd (smoothfolder);
         V         = dir(fullfile(smoothfolder, targetscan.name));
@@ -350,10 +353,10 @@ end
         
         % set threshold of mask!!
         %==========================================================================
-        SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
-        %SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
-        %SPM.xM.VM  =  spm_vol(Maskimage);
-        %SPM.xM.I   =  0.1;
+        %SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.VM  =  spm_vol(Maskimage);
+        SPM.xM.I   =  0.1;
         % Configure design matrix
         %==========================================================================
         SPM = spm_fmri_spm_ui(SPM);
@@ -365,6 +368,7 @@ end
         
         disp ('first level done');
     end
+
 
  
     function [] = doContrasts(subjoutdir, param, SPM)
@@ -383,7 +387,6 @@ end
         
         for j = 1:ncondition
             
-            %taskN = SPM.xX.name{j} (4);
             task  = 'task-hed.'; %taskN in the middle
             conditionName{j} = strcat(task,SPM.xX.name{j} (7:end-6)); %this cuts off the useless parts of the names
             
@@ -394,35 +397,34 @@ end
         
         % | contrasts FOR T-TESTS
         
-        %%
-        
         % con1
-        Ctnames{1} = 'reward_neutral';
-        weightPos  = ismember(conditionName, {'task-hed.reward'}) * 1; 
-        weightNeg  = ismember(conditionName, {'task-hed.neutral'}) * -1;
-        Ct(1,:)    = weightPos + weightNeg;
-        
+        Ctnames{1} = 'reward-control';
+        weightPos  = ismember(conditionName, {'task-hed.reward'}) * 1; %
+        weightNeg  = ismember(conditionName, {'task-hed.control'})* -1;%
+        Ct(1,:)    = weightPos+weightNeg;
         
         % con2
-        Ctnames{2} = 'reward_neutral&control';
-        weightPos  = ismember(conditionName, {'task-hed.reward'}) * 2; 
-        weightNeg  = ismember(conditionName, {'task-hed.neutral', 'task-hed.control'}) * -1;
-        Ct(2,:)    = weightPos + weightNeg;
-          
+        Ctnames{2} = 'reward-neutral';
+        weightPos  = ismember(conditionName, {'task-hed.reward'}) * 1;
+        weightNeg  = ismember(conditionName, {'task-hed.neutral'})* -1;
+        Ct(2,:)    = weightPos+weightNeg;  
         
         % con3
-        Ctnames{3} = 'reward_neutral_EMG';
-        weightPos  = ismember(conditionName, {'task-hed.rewardxEMG^1'}) * 1; 
-        weightNeg  = ismember(conditionName, {'task-hed.neutralxEMG^1'}) * -1;
-        Ct(3,:)    = weightPos + weightNeg;
+        Ctnames{3} = 'Odor-NoOdor';
+        weightPos  = ismember(conditionName, {'task-hed.reward', 'task-hed.neutral'}) * 1; %here it was rinse
+        weightNeg  = ismember(conditionName, {'task-hed.control'}) * -2;
+        Ct(3,:)    = weightPos+weightNeg;
         
+        % con4 
+        Ctnames{4} = 'odor_presence';
+        weightPos  = ismember(conditionName, {'task-hed.reward', 'task-hed.neutral'}) * 1;
+        Ct(4,:)    = weightPos;
         
-        % con4
-        Ctnames{4} = 'reward_neutral&control_EMG';
-        weightPos  = ismember(conditionName, {'task-hed.rewardxEMG^1'}) * 2; 
-        weightNeg  = ismember(conditionName, {'task-hed.neutralxEMG^1', 'task-hed.controlxEMG^1'}) * -1;
-        Ct(4,:)    = weightPos + weightNeg;
-        
+        % con5
+        Ctnames{5} = 'Reward-NoReward';
+        weightPos  = ismember(conditionName, {'task-hed.reward'}) * 2; %here it was rinse
+        weightNeg  = ismember(conditionName, {'task-hed.control', 'task-hed.neutral'}) * -1;
+        Ct(5,:)    = weightPos+weightNeg;
 
         
 
