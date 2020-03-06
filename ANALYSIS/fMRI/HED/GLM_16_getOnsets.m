@@ -76,11 +76,15 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
         modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
         
-%          %mean_centering mod
-%         cent_reward.emg  = mean(modulators.odor.reward.emg);
-%         cent_neutral.emg  = mean(modulators.odor.neutral.emg);
-%         cent_control.emg  = mean(modulators.odor.reward.emg);
-%      
+         %mean_centering mod
+        cent_rew   = mean(modulators.odor.reward.emg);
+        cent_neu  = mean(modulators.odor.neutral.emg);
+        cent_con  = mean(modulators.odor.control.emg);
+        
+        modulators.odor.reward.emg  = modulators.odor.reward.emg - cent_rew;
+        modulators.odor.neutral.emg = modulators.odor.neutral.emg - cent_neu;
+        modulators.odor.control.emg = modulators.odor.control.emg - cent_con;  
+     
 %         for j = 1:length(modulators.odor.conc.lik)
 %                 modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
 %                 modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
@@ -89,14 +93,14 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         
         
         %mod for intensity
-        modulators.odor.reward.int  = BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS));
-        modulators.odor.neutral.int = BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS));
-        modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
-        
-        %mod for liking
-        modulators.odor.reward.lik  = BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS));
-        modulators.odor.neutral.lik = BEHAVIOR.liking (strcmp ('neutral', CONDITIONS));
-        modulators.odor.control.lik = BEHAVIOR.liking (strcmp ('empty', CONDITIONS));
+%         modulators.odor.reward.int  = BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS));
+%         modulators.odor.neutral.int = BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS));
+%         modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
+%         
+%         %mod for liking
+%         modulators.odor.reward.lik  = BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS));
+%         modulators.odor.neutral.lik = BEHAVIOR.liking (strcmp ('neutral', CONDITIONS));
+%         modulators.odor.control.lik = BEHAVIOR.liking (strcmp ('empty', CONDITIONS));
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -128,7 +132,7 @@ mkdir (fullfile (mdldir, char(task), ana_name));
             if strcmp (nameX, 'odor')  % for structure that contains substuctures
                 %substr = {'conc'};% specify the substructures names 
                 substr = {'reward', 'neutral', 'control'};% specify the substructures names 
-                subsubstr = {'emg', 'lik', 'int'}; % specify the subsubstructures names 
+                subsubstr = {'emg'} %, 'lik', 'int'}; % specify the subsubstructures names 
                 for iii = 1:length(substr)
                     substrX = char(substr(iii));
                     for iiii =  1:length(subsubstr)

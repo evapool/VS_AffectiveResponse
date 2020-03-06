@@ -12,8 +12,6 @@ if(!require(pacman)) {
 
 
 #SETUP
-
-#SETUP
 task = 'PIT'
 
 # Set working directory
@@ -413,9 +411,6 @@ pe.aov <- aov_car(n_grips ~ trial + Error(id/trial), data = REWOD_PE, anova_tabl
 ems = emmeans(pe.aov, list(pairwise ~ trial), adjust = "tukey")
 ems
 
-# effect sizes ------------------------------------------------------------
-
-=
 
 
 

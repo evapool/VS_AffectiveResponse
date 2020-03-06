@@ -226,7 +226,7 @@ end
                     SPM.Sess(ses).U(c).dur       = eval(param.duration{ses}{cc});
                     
                     SPM.Sess(ses).U(c).P(1).name = 'none';
-                    SPM.Sess(ses).U(c).orth = 1;
+                    SPM.Sess(ses).U(c).orth = 0;
                     
                     
                     if isfield (param, 'modul') % this parameters are specified only if modulators are defined in the design
@@ -274,7 +274,6 @@ end
         end
         
         %         %very lazy reconfiguration
-        
 %         for i = 2:4
 %             SPM.Sess.U(i).P(4) = SPM.Sess.U(i).P(1); 
 %             SPM.Sess.U(i).P(1) = SPM.Sess.U(i).P(3); 
