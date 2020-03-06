@@ -1,4 +1,3 @@
-
 dbstop if error
 clear all
 
@@ -8,8 +7,7 @@ task          = 'hedonic';
 IDXsubj    = [1     2     3     4     5     6     7     9    10    11    12    13    14    15    16    17    18   20    21    22    23    24    25    26];
 subj    = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};  
 
-save_Rdatabase = 0; % leave 1 when saving all subjects
-%%%%WHATHOUT
+save_Rdatabase = 1; % leave 1 when saving all subjects #!
 
 %% DEFINE PATH
 
@@ -27,7 +25,7 @@ load(fullfile(dir,'REWOD_EMG.mat'));
 
 REWODEMG4MRI(1,:) = [];
 
-REWODEMG4MRI.COR = REWODEMG4MRI.VarName2; % mean corru muscular activity 2500 3000 after breathing
+REWODEMG4MRI.COR = REWODEMG4MRI.VarName2; % mean corru muscular activity btw 2500 3000 after breathing
 REWODEMG4MRI.VarName2 = [];
 
 REWODEMG4MRI.COND = cellstr(REWODEMG4MRI.COND);
