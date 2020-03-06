@@ -10,8 +10,8 @@ function GLM_19_stLevel(subID)
 
 %% What to do
 firstLevel    = 1;
-contrasts     = 0;
-copycontrasts = 0;
+contrasts     = 1;
+copycontrasts = 1;
 
 %% define task variable
 %sessionX = 'second';
@@ -40,7 +40,7 @@ spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters
-subj       = {'01'}; %subID;  %['02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       = subID;  %['02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
@@ -416,12 +416,6 @@ end
         weightPos  = ismember(conditionName, {'task-hed.odorxEMG^1'}) * 1; 
         Ct(3,:)    = weightPos;
         
-        
-        %con4
-        Ctnames{4} = 'odor';
-        weightPos  = ismember(conditionName, {'task-hed.odor'}) * 1; 
-        Ct(4,:)    = weightPos;
-
         
 
 %         % define F contrasts

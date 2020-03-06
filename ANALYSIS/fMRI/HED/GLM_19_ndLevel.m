@@ -49,14 +49,12 @@ if do_ttest
        % These contrast names become folders
     contrastNames = {'odor_lik'%1
         'odor_int'
-        'odor_emg'
-        'odor'};%2
+        'odor_emg'};%2
    
     
     conImages = {'con_0001'
         'con_0002'
-        'con_0003'
-        'con_0004'};
+        'con_0003'};
     
     
     %% prepare batch for each contrasts

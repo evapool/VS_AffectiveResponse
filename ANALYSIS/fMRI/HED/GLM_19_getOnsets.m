@@ -19,7 +19,7 @@ sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 ana_name      = 'GLM-19';
 %session       = {'second'};
 task          = {'hedonic'};
-subj          = {'01'} %;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
+subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
 
 
 %% create folder
@@ -78,24 +78,24 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         modulators.odor.control.lik = BEHAVIOR.liking (strcmp ('empty', CONDITIONS));
         
         %         %mean_centering mod
-        cent_rew  = mean(modulators.odor.reward.lik);
-                cent_neu  = mean(modulators.odor.neutral.lik);
-                        cent_con = mean(modulators.odor.control.lik);
-        
-        modulators.odor.reward.lik  = modulators.odor.reward.lik - cent_rew;
-        modulators.odor.neutral.lik = modulators.odor.neutral.lik - cent_neu;
-        modulators.odor.control.lik = modulators.odor.control.lik - cent_con;   
+%         cent_rew  = mean(modulators.odor.reward.lik);
+%                 cent_neu  = mean(modulators.odor.neutral.lik);
+%                         cent_con = mean(modulators.odor.control.lik);
+%         
+%         modulators.odor.reward.lik  = modulators.odor.reward.lik - cent_rew;
+%         modulators.odor.neutral.lik = modulators.odor.neutral.lik - cent_neu;
+%         modulators.odor.control.lik = modulators.odor.control.lik - cent_con;   
 
 
         
         modulators.odor.conc.lik = vertcat(modulators.odor.reward.lik, modulators.odor.neutral.lik);
         
-%         %mean_centering mod
-%         cent_lik  = mean(modulators.odor.conc.lik);
-%      
-%         for j = 1:length(modulators.odor.conc.lik)
-%             modulators.odor.conc.lik(j)  = modulators.odor.conc.lik(j) - cent_lik;
-%         end
+        %mean_centering mod
+        cent_lik  = mean(modulators.odor.conc.lik);
+     
+        for j = 1:length(modulators.odor.conc.lik)
+            modulators.odor.conc.lik(j)  = modulators.odor.conc.lik(j) - cent_lik;
+        end
         
 
         modulators.odor.conc.lik = modulators.odor.conc.lik(Idx,:);
@@ -108,22 +108,22 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         
         
                 %         %mean_centering mod
-        cent_rew  = mean(modulators.odor.reward.int);
-                cent_neu  = mean(modulators.odor.neutral.int);
-                        cent_con = mean(modulators.odor.control.int);
-        
-        modulators.odor.reward.int  = modulators.odor.reward.int - cent_rew;
-        modulators.odor.neutral.int = modulators.odor.neutral.int - cent_neu;
-        modulators.odor.control.int = modulators.odor.control.int - cent_con;   
+%         cent_rew  = mean(modulators.odor.reward.int);
+%                 cent_neu  = mean(modulators.odor.neutral.int);
+%                         cent_con = mean(modulators.odor.control.int);
+%         
+%         modulators.odor.reward.int  = modulators.odor.reward.int - cent_rew;
+%         modulators.odor.neutral.int = modulators.odor.neutral.int - cent_neu;
+%         modulators.odor.control.int = modulators.odor.control.int - cent_con;   
         
         modulators.odor.conc.int = vertcat(modulators.odor.reward.int, modulators.odor.neutral.int);
 
 %         %mean_centering mod
-%         cent_int  = mean(modulators.odor.conc.int);
-%      
-%         for j = 1:length(modulators.odor.conc.int)
-%             modulators.odor.conc.int(j)  = modulators.odor.conc.int(j) - cent_int;
-%         end
+        cent_int  = mean(modulators.odor.conc.int);
+     
+        for j = 1:length(modulators.odor.conc.int)
+            modulators.odor.conc.int(j)  = modulators.odor.conc.int(j) - cent_int;
+        end
               
           
         modulators.odor.conc.int = modulators.odor.conc.int(Idx,:);
@@ -137,26 +137,26 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         
         
                         %         %mean_centering mod
-        cent_rew  = mean(modulators.odor.reward.EMG);
-                cent_neu  = mean(modulators.odor.neutral.EMG);
-                        cent_con = mean(modulators.odor.control.EMG);
-        
-        modulators.odor.reward.EMG  = modulators.odor.reward.EMG - cent_rew;
-        modulators.odor.neutral.EMG = modulators.odor.neutral.EMG - cent_neu;
-        modulators.odor.control.EMG = modulators.odor.control.EMG - cent_con;   
+%         cent_rew  = mean(modulators.odor.reward.EMG);
+%                 cent_neu  = mean(modulators.odor.neutral.EMG);
+%                         cent_con = mean(modulators.odor.control.EMG);
+%         
+%         modulators.odor.reward.EMG  = modulators.odor.reward.EMG - cent_rew;
+%         modulators.odor.neutral.EMG = modulators.odor.neutral.EMG - cent_neu;
+%         modulators.odor.control.EMG = modulators.odor.control.EMG - cent_con;   
         
         modulators.odor.conc.EMG = vertcat(modulators.odor.reward.EMG, modulators.odor.neutral.EMG);
        
 %         %mean_centering mod
-%         cent_EMG  = mean(modulators.odor.conc.EMG);
-%      
-%         for j = 1:length(modulators.odor.conc.EMG)
-%             modulators.odor.conc.EMG(j)  = modulators.odor.conc.EMG(j) - cent_EMG;
-%         end
+        cent_EMG  = mean(modulators.odor.conc.EMG);
+     
+        for j = 1:length(modulators.odor.conc.EMG)
+            modulators.odor.conc.EMG(j)  = modulators.odor.conc.EMG(j) - cent_EMG;
+        end
               
               
         modulators.odor.conc.EMG = modulators.odor.conc.EMG(Idx,:);
-        modulators.odor.conc.EMG = zscore(modulators.odor.conc.EMG);
+        %modulators.odor.conc.EMG = zscore(modulators.odor.conc.EMG);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and duration questions

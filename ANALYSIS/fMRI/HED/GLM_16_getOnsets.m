@@ -19,7 +19,7 @@ sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 ana_name      = 'GLM-16';
 %session       = {'second'};
 task          = {'hedonic'};
-subj          = {'01'} ;%;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
+subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
 
 
 %% create folder
@@ -132,7 +132,7 @@ mkdir (fullfile (mdldir, char(task), ana_name));
             if strcmp (nameX, 'odor')  % for structure that contains substuctures
                 %substr = {'conc'};% specify the substructures names 
                 substr = {'reward', 'neutral', 'control'};% specify the substructures names 
-                subsubstr = {'emg'} %, 'lik', 'int'}; % specify the subsubstructures names 
+                subsubstr = {'emg'}; %, 'lik', 'int'}; % specify the subsubstructures names 
                 for iii = 1:length(substr)
                     substrX = char(substr(iii));
                     for iiii =  1:length(subsubstr)
