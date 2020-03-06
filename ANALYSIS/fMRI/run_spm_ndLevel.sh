@@ -2,8 +2,8 @@
 
 home=$(eval echo ~$user);
 
-task="PIT"
-GLM="GLM_04"
+task="HED"
+GLM="GLM_20"
 
 codeDir="${home}/REWOD/CODE/ANALYSIS/fMRI/${task}"
 matlab_script="${GLM}_ndLevel"

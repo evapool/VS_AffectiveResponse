@@ -9,7 +9,7 @@ function GLM_16_stLevel(subID)
 % last modified on July 2019 by David Munoz
 
 %% What to do
-firstLevel    = 0;
+firstLevel    = 1;
 contrasts    = 1;
 copycontrasts = 1;
 
@@ -41,7 +41,7 @@ spm_jobman('initcfg');
 
 %% define experiment setting parameters
 
-subj       = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       = subID;%{'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
@@ -403,30 +403,30 @@ end
         % | contrasts FOR T-TESTS
       
         
+%         % con1
+%         Ctnames{1} = 'reward-control_EMG';
+%         weightNeg  = ismember(conditionName, {'task-hed.rewardxemg^1'}) * -1; %
+%         weightPos  = ismember(conditionName, {'task-hed.controlxemg^1'})* 1;%
+%         Ct(1,:)    = weightPos+weightNeg;
+        
         % con1
-        Ctnames{1} = 'control-reward_EMG';
-        weightNeg  = ismember(conditionName, {'task-hed.rewardxemg^1'}) * -1; %
-        weightPos  = ismember(conditionName, {'task-hed.controlxemg^1'})* 1;%
-        Ct(1,:)    = weightPos+weightNeg;
+        Ctnames{1} = 'reward-neutral_EMG';
+        weightPos  = ismember(conditionName, {'task-hed.rewardxemg^1'}) * 1;
+        weightNeg  = ismember(conditionName, {'task-hed.neutralxemg^1'})* -1;
+        Ct(1,:)    = weightPos+weightNeg;  
         
-        % con2
-        Ctnames{2} = 'neutral-reward_EMG';
-        weightNeg  = ismember(conditionName, {'task-hed.rewardxemg^1'}) * -1;
-        weightPos  = ismember(conditionName, {'task-hed.neutralxemg^1'})* 1;
-        Ct(2,:)    = weightPos+weightNeg;  
-        
-        % con3
-        Ctnames{3} = 'NoOdor-Odor_EMG';
-        weightNeg  = ismember(conditionName, {'task-hed.rewardxemg^1', 'task-hed.neutralxemg^1'}) * -1; 
-        weightPos  = ismember(conditionName, {'task-hed.controlxemg^1'}) * 2;
-        Ct(3,:)    = weightPos+weightNeg;
-        
- 
-        % con4
-        Ctnames{4} = 'NoReward-Reward_EMG';
-        weightNeg  = ismember(conditionName, {'task-hed.rewardxemg^1'}) * -2;
-        weightPos  = ismember(conditionName, {'task-hed.controlxemg^1', 'task-hed.neutralxemg^1'}) * 1;
-        Ct(4,:)    = weightPos+weightNeg;
+%         % con3
+%         Ctnames{3} = 'NoOdor-Odor_EMG';
+%         weightNeg  = ismember(conditionName, {'task-hed.rewardxemg^1', 'task-hed.neutralxemg^1'}) * -1; 
+%         weightPos  = ismember(conditionName, {'task-hed.controlxemg^1'}) * 2;
+%         Ct(3,:)    = weightPos+weightNeg;
+%         
+%  
+%         % con4
+%         Ctnames{4} = 'NoReward-Reward_EMG';
+%         weightNeg  = ismember(conditionName, {'task-hed.rewardxemg^1'}) * -2;
+%         weightPos  = ismember(conditionName, {'task-hed.controlxemg^1', 'task-hed.neutralxemg^1'}) * 1;
+%         Ct(4,:)    = weightPos+weightNeg;
 
         
 

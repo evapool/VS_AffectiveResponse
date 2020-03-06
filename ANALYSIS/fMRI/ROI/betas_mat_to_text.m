@@ -12,12 +12,12 @@ homedir = [home '/REWOD'];
 
 %% def var
 task = 'hedonic'; %
-glm = 'GLM-09';
+glm = 'GLM-18';
 
-ROI_name = 'GLM_09';
+ROI_name = 'GLM_18';
 %con_name_orig = 'Reward_NoReward_4';
 %con_name_orig = 'CSp-CSm';
-con_name_orig  = 'Reward1-NoReward2_10';
+con_name_orig  = 'Reward-Neutral';
 
 
 %% create database

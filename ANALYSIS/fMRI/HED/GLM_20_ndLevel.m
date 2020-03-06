@@ -12,15 +12,15 @@ dbstop if error
 
 %does t-test and full_factorial
 do_covariate = 1;
-remove = 0;
-removesub = {'sub-23'} ;
-removedsub = 'no variance neutral';
+remove = 1;
+removesub = {'sub-10'} ;
+removedsub = '10';
 
 
 %% define task variable
 %sessionX = 'second';
 task = 'hedonic';
-name_ana = 'GLM-20'; 
+name_ana = 'GLM-18'; 
 
 %% define path
 
@@ -49,30 +49,21 @@ spm_jobman('initcfg');
 if do_covariate % covariate of interest name become folder
 
    covariateNames = {
-    'control-reward_EMG_zscore'
     'neutral-reward_EMG_zscore'
-    'NoOdor-Odor_EMG_zscore'
-    'NoReward_Reward_EMG_zscore'
+    'reward-neutral_EMG_zscore'
+    'REV_neutral-reward_EMG_zscore'
+    'REV_reward-neutral_EMG_zscore'
 }; 
 
 
     % These contrast names become folders
-    contrastNames = {'control-reward'%1
-        'neutral-reward'
-        'NoOdor-Odor'
-        'odor_presence'
-        'NoReward-Reward'
-};%7
+    contrastNames = {'reward-neutral'
+        'neutral-reward'};%7
     
     
     
-    conImages = {
-        'con_0001'
-        'con_0002'
-        'con_0003'
-        'con_0004'
-        'con_0005'
-        };
+    conImages = { 'con_0001'
+         'con_0002'};
     
     
   %% prepare batch for each contrasts

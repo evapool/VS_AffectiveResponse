@@ -47,16 +47,10 @@ spm_jobman('initcfg');
 if do_ttest
     
        % These contrast names become folders
-    contrastNames = {'control-reward_EMG'%1
-                'neutral-reward_EMG'
-                'NoOdor-Odor_EMG'
-                'NoReward-Reward_EMG'};%2
+    contrastNames = {'reward-neutraal_EMG'};%1
    
     
-    conImages = {'con_0005'
-        'con_0006'
-        'con_0007'
-        'con_0008'};
+    conImages = {'con_0001'};
     
     
     %% prepare batch for each contrasts

@@ -10,8 +10,8 @@ function GLM_20_stLevel(subID)
 dbstop if error
 
 %% What to do
-firstLevel    = 0;
-contrasts    = 0;
+firstLevel    = 1;
+contrasts    = 1;
 copycontrasts = 1;
 
 %% define task variable
@@ -27,7 +27,7 @@ homedir = [home '/REWOD/'];
 
 mdldir   = fullfile(homedir, '/DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-20'; % output folder for this analysis
+name_ana = 'GLM-18'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
@@ -40,7 +40,7 @@ spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters
-subj       =   {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       =   subID; %{'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
@@ -397,34 +397,40 @@ end
         
         % | contrasts FOR T-TESTS
         
-        % con1
-        Ctnames{1} = 'control-reward';
-        weightNeg  = ismember(conditionName, {'task-hed.reward'}) * -1; %
-        weightPos  = ismember(conditionName, {'task-hed.control'})* 1;%
-        Ct(1,:)    = weightPos+weightNeg;
+%         % con1
+%         Ctnames{1} = 'eward';
+%         weightNeg  = ismember(conditionName, {'task-hed.reward'}) * -1; %
+%         weightPos  = ismember(conditionName, {'task-hed.control'})* 1;%
+%         Ct(1,:)    = weightPos+weightNeg;
+        
+        % con2
+        Ctnames{1} = 'reward-neutral';
+        weightPos  = ismember(conditionName, {'task-hed.reward'}) * 1;
+        weightNeg  = ismember(conditionName, {'task-hed.neutral'})* -1;
+        Ct(1,:)    = weightPos+weightNeg;  
         
         % con2
         Ctnames{2} = 'neutral-reward';
-        weightNeg  = ismember(conditionName, {'task-hed.reward'}) * -1;
         weightPos  = ismember(conditionName, {'task-hed.neutral'})* 1;
+        weightNeg  = ismember(conditionName, {'task-hed.reward'}) * -1;
         Ct(2,:)    = weightPos+weightNeg;  
         
-        % con3
-        Ctnames{3} = 'NoOdor-Odor';
-        weightNeg  = ismember(conditionName, {'task-hed.reward', 'task-hed.neutral'}) * -1; 
-        weightPos  = ismember(conditionName, {'task-hed.control'}) * 2;
-        Ct(3,:)    = weightPos+weightNeg;
-        
-        % con4 
-        Ctnames{4} = 'odor_presence';
-        weightPos  = ismember(conditionName, {'task-hed.reward', 'task-hed.neutral'}) * 1;
-        Ct(4,:)    = weightPos;
-        
-        % con5
-        Ctnames{5} = 'NoReward-Reward';
-        weightNeg  = ismember(conditionName, {'task-hed.reward'}) * -2;
-        weightPos  = ismember(conditionName, {'task-hed.control', 'task-hed.neutral'}) * 1;
-        Ct(5,:)    = weightPos+weightNeg;
+%         % con3
+%         Ctnames{3} = 'NoOdor-Odor';
+%         weightNeg  = ismember(conditionName, {'task-hed.reward', 'task-hed.neutral'}) * -1; 
+%         weightPos  = ismember(conditionName, {'task-hed.control'}) * 2;
+%         Ct(3,:)    = weightPos+weightNeg;
+%         
+%         % con4 
+%         Ctnames{4} = 'odor_presence';
+%         weightPos  = ismember(conditionName, {'task-hed.reward', 'task-hed.neutral'}) * 1;
+%         Ct(4,:)    = weightPos;
+%         
+%         % con5
+%         Ctnames{5} = 'NoReward-Reward';
+%         weightNeg  = ismember(conditionName, {'task-hed.reward'}) * -2;
+%         weightPos  = ismember(conditionName, {'task-hed.control', 'task-hed.neutral'}) * 1;
+%         Ct(5,:)    = weightPos+weightNeg;
 
         
 

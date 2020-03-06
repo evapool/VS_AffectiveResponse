@@ -16,7 +16,7 @@ homedir = [home '/REWOD'];
 mdldir        = fullfile (homedir, '/DERIVATIVES/ANALYSIS');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
-ana_name      = 'GLM-19';
+ana_name      = 'GLM-17';
 %session       = {'second'};
 task          = {'hedonic'};
 subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
@@ -155,7 +155,7 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         end
               
               
-        modulators.odor.conc.EMG = modulators.odor.conc.EMG(Idx,:);
+        modulators.odor.conc.EMG = -1 * (modulators.odor.conc.EMG(Idx,:));
         %modulators.odor.conc.EMG = zscore(modulators.odor.conc.EMG);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

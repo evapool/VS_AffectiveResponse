@@ -144,9 +144,10 @@ ggplot(dfINT, aes(x = trialxcondition, y = perceived_intensity, color=Condition)
 
 
 #### EMG
-df <- summarySE(REWOD_HED, measurevar="EMG", groupvars=c("id", "trialxcondition", "Condition"))
+REWOD_HED$EMG                        <- zscore(REWOD_HED$EMG)
+#df <- summarySE(REWOD_HED, measurevar="EMG", groupvars=c("id", "trialxcondition", "Condition"))
 
-dfEMG <- summarySEwithin(df,
+dfEMG <- summarySEwithin(REWOD_HED,
                          measurevar = "EMG",
                          withinvars = c("Condition", "trialxcondition"), 
                          idvar = "id")
@@ -159,6 +160,7 @@ dfEMG$trialxcondition =as.numeric(dfEMG$trialxcondition)
 ggplot(dfEMG, aes(x = trialxcondition, y = EMG, color=Condition)) +
   geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
   geom_point(position =position_dodge(width = 0.5)) +
+  #geom_ribbon(aes(ymax = EMG +se, ymin = EMG -se), fill = "grey", alpha=0.01, color = 'grey") +
   geom_errorbar(aes(ymax = EMG +se, ymin = EMG -se), width=0.5, alpha=0.7, size=0.4, position = position_dodge(width = 0.5))+
   scale_colour_manual(values = c("Reward"="blue", "Neutral"="red", "Control"="black")) +
   #scale_y_continuous(expand = c(0, 0),  limits = c(10,80),  breaks=c(seq.int(10,80, by = 5))) +  #breaks = c(4.0, seq.int(5,16, by = 2.5)),
@@ -166,13 +168,15 @@ ggplot(dfEMG, aes(x = trialxcondition, y = EMG, color=Condition)) +
   theme_classic() +
   theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
         axis.title.y = element_text(size=16), legend.position = c(0.9, 0.9), legend.title=element_blank()) +
-  labs(x = "Trials",y = "Intensity Ratings")
+  labs(x = "Trials",y = "EMG cor")
 
 ####Corr COR & LIK
 
 
 dfEMG$perceived_liking = dfLIK$perceived_liking
-df = dfEMG
+df = ddply(REWOD_HED, .(id, Condition), summarise, perceived_liking = mean(perceived_liking, na.rm = TRUE),  EMG = mean(EMG, na.rm = TRUE)) 
+# 
+# df = dfEMG
 
 ggplot(df, aes(x = perceived_liking, y = EMG, color=Condition)) +
   #geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
@@ -189,8 +193,11 @@ cor(dfR$EMG,dfR$perceived_liking)
 cor(dfN$EMG,dfN$perceived_liking)  #kinf of just with neutral
 cor(dfC$EMG,dfC$perceived_liking)  
 
-REWOD_HED$perceived_liking           <- zscore(REWOD_HED$perceived_liking)
-REWOD_HED$EMG                        <- zscore(REWOD_HED$EMG)
+cor.test(dfR$EMG,dfR$perceived_liking)  
+cor.test(dfN$EMG,dfN$perceived_liking)  #kinf of just with neutral
+cor.test(dfC$EMG,dfC$perceived_liking)  
+
+
 
 
 # corre <- rmcorr(id, perceived_liking, EMG, REWOD_HED, CIs = c("analytic",

@@ -81,9 +81,9 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         cent_neu  = mean(modulators.odor.neutral.emg);
         cent_con  = mean(modulators.odor.control.emg);
         
-        modulators.odor.reward.emg  = modulators.odor.reward.emg - cent_rew;
-        modulators.odor.neutral.emg = modulators.odor.neutral.emg - cent_neu;
-        modulators.odor.control.emg = modulators.odor.control.emg - cent_con;  
+        modulators.odor.reward.emg  = -1 * (modulators.odor.reward.emg - cent_rew);
+        modulators.odor.neutral.emg = -1 * (modulators.odor.neutral.emg - cent_neu);
+        modulators.odor.control.emg = -1 * (modulators.odor.control.emg - cent_con);  
      
 %         for j = 1:length(modulators.odor.conc.lik)
 %                 modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
