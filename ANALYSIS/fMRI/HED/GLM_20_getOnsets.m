@@ -1,10 +1,11 @@
-function GLM_16_getOnsets()
+function GLM_20_getOnsets()
 
-% intended for REWOD HED
-% get onsets for model with 1st level modulators and EMG
-% Duration =1 
-% Model on ONSETs (start, 3*odor + 2*questions)
-% last modified on JULY 2019 by David Munoz
+% intended for REWOD hedonic reactivity
+% get onsets for model with 2st level covariates of EMG
+% Duration =1 + modulators
+% Model on ONSETs (STARTTRIAL, 3*odor + 2*questions liking&intensity)
+% last modified on July 2019 by David Munoz
+
 
 %% define paths
 
@@ -16,10 +17,10 @@ homedir = [home '/REWOD'];
 mdldir        = fullfile (homedir, '/DERIVATIVES/ANALYSIS');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
-ana_name      = 'GLM-16';
+ana_name      = 'GLM-20';
 %session       = {'second'};
 task          = {'hedonic'};
-subj          = {'01'} %;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
+subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
 
 
 %% create folder
@@ -46,8 +47,7 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         disp(['file ' num2str(i) ' ' behavfile]);
         load (behavfile);
 
-
-        %% FOR SPM
+       %% FOR SPM
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and durations for start
@@ -60,44 +60,37 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         onsets.odor.reward      = ONSETS.sniffSignalOnset(strcmp ('chocolate', CONDITIONS));
         onsets.odor.neutral     = ONSETS.sniffSignalOnset(strcmp ('neutral', CONDITIONS));
         onsets.odor.control     = ONSETS.sniffSignalOnset(strcmp ('empty', CONDITIONS));
-
 %         
 %         onsets.EMG.reward      = ONSETS.EMG(strcmp ('chocolate', CONDITIONS));
 %         onsets.EMG.neutral     = ONSETS.EMG(strcmp ('neutral', CONDITIONS));
 %         onsets.EMG.control     = ONSETS.EMG(strcmp ('empty', CONDITIONS));
-        
+       
         %get durations
         durations.odor.reward   = DURATIONS.trialstart(strcmp ('chocolate', CONDITIONS));
         durations.odor.neutral   = DURATIONS.trialstart(strcmp ('neutral', CONDITIONS));
         durations.odor.control   = DURATIONS.trialstart(strcmp ('empty', CONDITIONS));
 
+%         durations.EMG.reward   = DURATIONS.EMG(strcmp ('chocolate', CONDITIONS));
+%         durations.EMG.neutral   = DURATIONS.EMG(strcmp ('neutral', CONDITIONS));
+%         durations.EMG.control   = DURATIONS.EMG(strcmp ('empty', CONDITIONS));
+           
+%         %mod for liking 
+%         modulators.odor.reward.lik  = BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS));
+%         modulators.odor.neutral.lik = BEHAVIOR.liking (strcmp ('neutral', CONDITIONS));
+%         modulators.odor.control.lik = BEHAVIOR.liking (strcmp ('empty', CONDITIONS));
+%         
+%         
+%         %mod for intensity
+%         modulators.odor.reward.int  = BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS));
+%         modulators.odor.neutral.int = BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS));
+%         modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
+
         % EMG as mod
-        modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
-        modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
-        modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
+        modulators.odor.reward  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
+        modulators.odor.neutral = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
+        modulators.odor.control = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
         
-         %mean_centering mod
-        cent_reward.emg  = mean(modulators.odor.reward.emg);
-        cent_neutral.emg  = mean(modulators.odor.neutral.emg);
-        cent_control.emg  = mean(modulators.odor.reward.emg);
-     
-        for j = 1:length(modulators.odor.conc.lik)
-                modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
-                modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
-                modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
-        end
-        
-        
-        %mod for intensity
-        modulators.odor.reward.int  = zscore(BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS)));
-        modulators.odor.neutral.int = zscore(BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS)));
-        modulators.odor.control.int = zscore(BEHAVIOR.intensity (strcmp ('empty', CONDITIONS)));
-        
-        %mod for liking
-        modulators.odor.reward.lik  = zscore(BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS)));
-        modulators.odor.neutral.lik = zscore(BEHAVIOR.liking (strcmp ('neutral', CONDITIONS)));
-        modulators.odor.control.lik = zscore(BEHAVIOR.liking (strcmp ('empty', CONDITIONS)));
-        
+   
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and duration questions
@@ -109,15 +102,17 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         durations.intensity      = DURATIONS.intensity;
         modulators.intensity     = ones (length(onsets.intensity),1);
 
-
-         % go in the directory where data will be saved
+         
+        % go in the directory where data will be saved
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%1
-        cd (subjdir) % let's save all info in the participant directory
-
+        cd (subjdir) %save all info in the participant directory
+        
         
         %% FOR FSL #uncoment if you want to use FSL#
-        % create text file with 3 colons: onsets, durations and 2
-        % parametric modulators for each parameter
+        % Now we need it for second level covariates !
+        
+        % create text file with 3 colons: onsets, durations, paretric
+        % modulators % for each parameter
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         name = {'trialstart'; 'odor'; 'liking'; 'intensity'}; 
 
@@ -126,29 +121,24 @@ mkdir (fullfile (mdldir, char(task), ana_name));
             nameX = char(name(ii));
 
             if strcmp (nameX, 'odor')  % for structure that contains substuctures
-                %substr = {'conc'};% specify the substructures names 
-                substr = {'reward', 'neutral', 'control'};% specify the substructures names 
-                subsubstr = {'emg', 'lik', 'int'}; % specify the subsubstructures names 
+                substr = {'reward'; 'control'; 'neutral'};% specify the substructures names 
+                %subsubstr = {'lik'; 'int'}; % specify the subsubstructures names 
                 for iii = 1:length(substr)
                     substrX = char(substr(iii));
-                    for iiii =  1:length(subsubstr)
-                        subsubstrX = char(subsubstr(iiii));
-                        nameXX  = [nameX '_' substrX '_' subsubstrX]; % name that combines the structure and the substructures
-                        %nameXX  = [nameX '_' substrX]; % name that combines the structure and the substructures
-                        % database with three rows of interest
-                        database.(nameXX) = [num2cell(onsets.(nameX).(substrX)), num2cell(durations.(nameX).(substrX)), num2cell(modulators.(nameX).(substrX).(subsubstrX))];
-                        %database.(nameXX) = num2cell(modulators.(nameX).(substrX));
-                        % save the database in a txt file
-                        fid = fopen ([ana_name '_task-' taskX '_' nameX '_' subsubstrX '_' substrX '.txt'],'wt');
-                        %fid = fopen ([ana_name '_task-' taskX '_' nameX '_' substrX '.txt'],'wt');
-                        %formatSpec = '%f\t%f\t%f\n';
-                        formatSpec = '%f\n';
-                        [nrows,~] = size(database.(nameXX));
-                        for row = 1:nrows
-                            fprintf(fid,formatSpec,database.(nameXX){row,:});
-                        end
-                        fclose(fid);
+                    %for iiii =  1:length(subsubstr)
+                        %subsubstrX = char(subsubstr(iiii));
+                    nameXX  = [nameX '_' substrX]; % name that combines the structure and the substructures
+                    % database with three rows of interest
+                    database.(nameXX) = [num2cell(onsets.(nameX).(substrX)), num2cell(durations.(nameX).(substrX)), num2cell(modulators.(nameX).(substrX))];
+                    % save the database in a txt file
+                    fid = fopen ([ana_name '_task-' taskX '_' nameX '_' substrX '.txt'],'wt');
+                    formatSpec = '%f\t%f\t%f\n';
+                    [nrows,~] = size(database.(nameXX));
+                    for row = 1:nrows
+                        fprintf(fid,formatSpec,database.(nameXX){row,:});
                     end
+                    fclose(fid);
+                    %end
                 end
              
 
@@ -164,14 +154,16 @@ mkdir (fullfile (mdldir, char(task), ana_name));
                 end
                 fclose(fid);
             end
-        end
-              %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % save data
         mat_name = [ana_name '_task-' taskX '_onsets'];
         save (mat_name, 'onsets', 'durations', 'modulators')
-    end
 
-
-
+    
+        end
+    
+    %create folder for group covariate
+    mkdir (fullfile (mdldir, char(task), ana_name, 'group_covariates'));
+    
 end
-

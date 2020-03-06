@@ -4,7 +4,7 @@
 
 # -----------------------  PRELIMINARY STUFF ----------------------------------------
 # load libraries
-pacman::p_load(influence.ME,lmerTest, lme4, MBESS, afex, car, ggplot2, dplyr, sm, plyr, tidyr, reshape, Hmisc, Rmisc,  ggpubr, gridExtra, plotrix, lsmeans, BayesFactor)
+pacman::p_load(mosaic, influence.ME,lmerTest, lme4, MBESS, afex, car, ggplot2, dplyr, sm, plyr, tidyr, reshape, Hmisc, Rmisc,  ggpubr, gridExtra, plotrix, lsmeans, BayesFactor)
 
 if(!require(pacman)) {
   install.packages("pacman")
@@ -168,24 +168,35 @@ ggplot(dfEMG, aes(x = trialxcondition, y = EMG, color=Condition)) +
         axis.title.y = element_text(size=16), legend.position = c(0.9, 0.9), legend.title=element_blank()) +
   labs(x = "Trials",y = "Intensity Ratings")
 
-####CHECK ASSUMPTIONS
+####Corr COR & LIK
 
-# 
-# dfINT$perceived_liking = dfLIK$perceived_liking
-# df = dfINT
-# 
-# ggplot(df, aes(x = perceived_liking, y = perceived_intensity, color=Condition)) +
-#   #geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
-#   geom_point() +
-#   theme_classic() +
-#   theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
-#         axis.title.y = element_text(size=16),  legend.title=element_blank()) 
-# 
-# df <- filter(df,  Condition == "Reward")
-# 
-# cor(df$perceived_intensity,df$perceived_liking)  #yikes!
-# 
-# 
+
+dfEMG$perceived_liking = dfLIK$perceived_liking
+df = dfEMG
+
+ggplot(df, aes(x = perceived_liking, y = EMG, color=Condition)) +
+  #geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
+  geom_point() +
+  theme_classic() +
+  theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
+        axis.title.y = element_text(size=16),  legend.title=element_blank())
+
+dfR <- filter(df,  Condition == "Reward")
+dfN <- filter(df,  Condition == "Neutral")
+dfC <- filter(df,  Condition == "Control")
+
+cor(dfR$EMG,dfR$perceived_liking)  
+cor(dfN$EMG,dfN$perceived_liking)  #kinf of just with neutral
+cor(dfC$EMG,dfC$perceived_liking)  
+
+REWOD_HED$perceived_liking           <- zscore(REWOD_HED$perceived_liking)
+REWOD_HED$EMG                        <- zscore(REWOD_HED$EMG)
+
+
+# corre <- rmcorr(id, perceived_liking, EMG, REWOD_HED, CIs = c("analytic",
+#                                                      "bootstrap"), nreps = 100, bstrap.out = F)
+
+
 # x = REWOD_HED$perceived_liking[REWOD_HED$Condition2 == 'Reward']
 # y = REWOD_HED$perceived_liking[REWOD_HED$Condition2 == 'NoReward']
 # #Compute Leven test for homgeneity of variance
@@ -402,7 +413,6 @@ ggplot(bsLIK, aes(x = Condition, y = perceived_liking, fill = Condition)) +
 
 #EMG - Physio
 
-
 dfEMG2 <- summarySEwithin(df,
                           measurevar = "EMG",
                           withinvars = c("Condition"), 
@@ -421,11 +431,6 @@ dfEMG2$Condition = factor(dfEMG2$Condition,levels(dfEMG2$Condition)[c(3,2,1)])
 bsEMG$Condition = factor(bsEMG$Condition,levels(bsEMG$Condition)[c(3,2,1)])  
 
 
-
-source('~/REWOD/CODE/ANALYSIS/BEHAV/my_tools/rainclouds.R')
-
-
-
 ggplot(bsEMG, aes(x = Condition, y = EMG, fill = Condition)) +
   geom_jitter(width = 0.02, color="black",alpha=0.5, size = 0.5) +
   geom_bar(data=dfEMG2, stat="identity", alpha=0.6, width=0.35, position = position_dodge(width = 0.01)) +
@@ -441,6 +446,8 @@ ggplot(bsEMG, aes(x = Condition, y = EMG, fill = Condition)) +
     x = "Odor Stimulus",
     y = "EMG activity Cor"
   )
+
+
 # ANALYSIS
 
 REWOD_HED$id               <- factor(REWOD_HED$id)
@@ -475,6 +482,15 @@ null.model.lik = lmer(perceived_liking ~ trialxcondition  + (1+condition|id), da
 
 test = anova(main.model.lik, null.model.lik, test = 'Chisq')
 test
+
+# main.model.lik = lmer(perceived_liking ~ condition + EMG +  trialxcondition  + (1+condition|id), data = REWOD_HED, REML=FALSE)
+# summary(main.model.lik)
+# 
+# null.model.lik = lmer(perceived_liking ~ trialxcondition + condition + (1+condition|id), data = REWOD_HED, REML=FALSE)
+# 
+# test = anova(main.model.lik, null.model.lik, test = 'Chisq')
+# test
+
 
 #sentence => main.liking is 'signifincatly' better than the null model wihtout condition a fixe effect
 # condition affected liking rating (χ2 (1)= 868.41, p<2.20×10ˆ-16), rising reward ratings by 17.63 points ± 0.57 (SEE) compared to neutral condition and,

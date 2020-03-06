@@ -1,4 +1,4 @@
-function GLM_16_stLevel(subID) 
+function GLM_16b_stLevel(subID) 
 
 % intended for REWOD HED
 % get onsets for model with 1st level modulators EMG!
@@ -9,9 +9,9 @@ function GLM_16_stLevel(subID)
 % last modified on July 2019 by David Munoz
 
 %% What to do
-firstLevel    = 0;
-contrasts    = 1;
-copycontrasts = 1;
+firstLevel    = 1;
+contrasts    = 0;
+copycontrasts = 0;
 
 %% define task variable
 %sessionX = 'second';
@@ -26,7 +26,7 @@ homedir = [home '/REWOD/'];
 
 mdldir   = fullfile(homedir, '/DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-16'; % output folder for this analysis
+name_ana = 'GLM-16b'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');

@@ -1,17 +1,17 @@
-function GLM_16_stLevel(subID) 
+function GLM_19_stLevel(subID) 
 
 % intended for REWOD HED
-% get onsets for model with 1st level modulators EMG!
+% get onsets for model with 1st level modulators with EMG zscored
 % GLM control for odor.all, mod by intenisty and liking
 % Durations =1 
 % Model on ONSETs (start, 3*odor + 2*questions)
 % 1 contrast odor*liking & odor*intensity,
-% last modified on July 2019 by David Munoz
+% last modified on March 2020 by David Munoz
 
 %% What to do
-firstLevel    = 0;
-contrasts    = 1;
-copycontrasts = 1;
+firstLevel    = 1;
+contrasts     = 0;
+copycontrasts = 0;
 
 %% define task variable
 %sessionX = 'second';
@@ -26,11 +26,11 @@ homedir = [home '/REWOD/'];
 
 mdldir   = fullfile(homedir, '/DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-16'; % output folder for this analysis
+name_ana = 'GLM-19'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
-%addpath('/usr/local/MATLAB/R2018a/spm12/');
+%addpath /usr/local/MATLAB/R2018a/spm12 ;
 
 %% specify fMRI parameters
 param.TR = 2.4;
@@ -40,8 +40,7 @@ spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters
-
-subj       = {'01'};%'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       = {'01'}; %subID;  %['02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
@@ -55,16 +54,14 @@ for i = 1:length(param.task)
     % represent a line in Cnam, and the conditions correspond to a item in the line
     % these names must correspond identically to the names from your ONS*mat.
     param.Cnam{i} = {'start',... %1
-        'reward',...
-        'neutral',...
+        'odor',...
         'control',...
         'liking',...%5 
         'intensity'};%6
 
         
      param.onset{i} = {'ONS.onsets.trialstart',... %1
-        'ONS.onsets.odor.reward', ...
-        'ONS.onsets.odor.neutral', ...
+        'ONS.onsets.odor.conc', ...
         'ONS.onsets.odor.control', ...
         'ONS.onsets.liking',...%5 
         'ONS.onsets.intensity'};%6
@@ -73,9 +70,8 @@ for i = 1:length(param.task)
     % duration of the blocks (if events, put '0'). Specify it for each condition of each session
     % the values must be included in your onsets in seconds
     param.duration{i} = {'ONS.durations.trialstart',...
-        'ONS.durations.odor.reward', ...
-        'ONS.durations.odor.neutral', ...
-        'ONS.durations.odor.control', ...
+        'ONS.durations.odor.conc',...
+        'ONS.durations.odor.control',...
         'ONS.durations.liking',...
         'ONS.durations.intensity'};
 
@@ -84,23 +80,20 @@ for i = 1:length(param.task)
     % If you have a parametric modulation
     param.modulName{i} = {'none',...%1
         'multiple',...%2
-        'multiple',...%2
-        'multiple',...%2
+        'none',...%2
         'none',...%3
         'none'}; %6
     
     param.modul{i} = {'none',...%1
-        'ONS.modulators.odor.reward',... %2
-        'ONS.modulators.odor.neutral',... %2
-        'ONS.modulators.odor.control',... %2
+        'ONS.modulators.odor.conc',... %2
+        'none',... %3
         'none',... %3
         'none'}; %6
     
     % value of the modulators, If you have a parametric modulation
     param.time{i} = {'0',... %1
         '1',... %2
-        '1',... %2
-        '1',... %2
+        '0',... %3
         '0',... %3
         '0'};%6
     
@@ -178,6 +171,8 @@ end
         smoothfolder       = [subjfuncdir '/func'];
         targetscan         = dir (fullfile(smoothfolder, [im_style '*' taskX '*' param.im_format]));
         tmp{ses}           = spm_select('List',smoothfolder,targetscan.name);
+        
+         Maskimage = [subjfuncdir '/anat/sub-' subjX '_ses-second_run-01_T1w_reoriented_brain_mask.nii'];
 
         % get the number of EPI for each session
         cd (smoothfolder);
@@ -234,7 +229,7 @@ end
                         if ~ strcmp(param.modul{ses}{cc}, 'none')
                             
                             if isstruct (eval(param.modul{ses}{cc}))
-                                SPM.Sess(ses).U(c).orth = 0; %!! no ortho BUT be careful
+                                SPM.Sess(ses).U(c).orth = 0; %!! not sequentially
                                 mod_names = fieldnames (eval(param.modul{ses}{cc}));
                                 nc = 0; % intialize the modulators count
                                 
@@ -272,6 +267,13 @@ end
                 end
             end
         end
+        
+%         %very lazy reconfiguration
+%         SPM.Sess.U(2).P(4) = SPM.Sess.U(2).P(1); 
+%         SPM.Sess.U(2).P(1) = SPM.Sess.U(2).P(3); 
+%         SPM.Sess.U(2).P(3) = SPM.Sess.U(2).P(4); 
+%         SPM.Sess.U(2).P(4) = [] ;
+        
         
         %-----------------------------
         %multiple regressors for mvts parameters ( no movement regressor after ICA)
@@ -350,10 +352,12 @@ end
         
         % set threshold of mask!!
         %==========================================================================
-        SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
-        %SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
-        %SPM.xM.VM  =  spm_vol(Maskimage);
-        %SPM.xM.I   =  0.1;
+        %SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.VM  =  spm_vol(Maskimage);
+        SPM.xM.I   =  0.1;
+        
+        
         % Configure design matrix
         %==========================================================================
         SPM = spm_fmri_spm_ui(SPM);
@@ -397,11 +401,26 @@ end
         %%
         
         % con1
-        Ctnames{1} = 'reward_neutral_EMG';
-        weightPos  = ismember(conditionName, {'task-hed.rewardxemg^1'}) * 1; 
-        weightNeg  = ismember(conditionName, {'task-hed.neutralemg^1'}) * -1;
-        Ct(1,:)    = weightPos + weightNeg;
+        Ctnames{1} = 'odor_lik';
+        weightPos  = ismember(conditionName, {'task-hed.odorxlik^1'}) * 1; 
+        Ct(1,:)    = weightPos;
         
+     
+        %con2
+        Ctnames{2} = 'odor_int';
+        weightPos  = ismember(conditionName, {'task-hed.odorxint^1'}) * 1; 
+        Ct(2,:)    = weightPos;
+        
+        %con3
+        Ctnames{3} = 'odor_emg';
+        weightPos  = ismember(conditionName, {'task-hed.odorxEMG^1'}) * 1; 
+        Ct(3,:)    = weightPos;
+        
+        
+        %con4
+        Ctnames{4} = 'odor';
+        weightPos  = ismember(conditionName, {'task-hed.odor'}) * 1; 
+        Ct(4,:)    = weightPos;
 
         
 
@@ -416,7 +435,7 @@ end
 %   
 %         
 %         Cf = repmat(F_hedonic,1,ntask);
-        
+%         
         % put the contrast matrix
         %------------------------------------------------------------------
         
@@ -425,7 +444,7 @@ end
             jobs{1}.stats{1}.con.consess{icon}.tcon.name = Ctnames{icon};
             jobs{1}.stats{1}.con.consess{icon}.tcon.convec = Ct(icon,:);
         end
-        
+%         
 %          % F contrats
 %          for iconf = 1:1 % until the number of F contrast computed
 %              jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};

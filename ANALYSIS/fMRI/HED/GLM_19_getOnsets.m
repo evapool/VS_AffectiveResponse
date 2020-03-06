@@ -1,7 +1,7 @@
-function GLM_16_getOnsets()
+function GLM_19_getOnsets()
 
 % intended for REWOD HED
-% get onsets for model with 1st level modulators and EMG
+% get onsets for model with 1st level modulators and EMG REVERSE
 % Duration =1 
 % Model on ONSETs (start, 3*odor + 2*questions)
 % last modified on JULY 2019 by David Munoz
@@ -16,10 +16,10 @@ homedir = [home '/REWOD'];
 mdldir        = fullfile (homedir, '/DERIVATIVES/ANALYSIS');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
-ana_name      = 'GLM-16';
+ana_name      = 'GLM-19';
 %session       = {'second'};
 task          = {'hedonic'};
-subj          = {'01'} %;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
+subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
 
 
 %% create folder
@@ -60,44 +60,72 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         onsets.odor.reward      = ONSETS.sniffSignalOnset(strcmp ('chocolate', CONDITIONS));
         onsets.odor.neutral     = ONSETS.sniffSignalOnset(strcmp ('neutral', CONDITIONS));
         onsets.odor.control     = ONSETS.sniffSignalOnset(strcmp ('empty', CONDITIONS));
-
-%         
-%         onsets.EMG.reward      = ONSETS.EMG(strcmp ('chocolate', CONDITIONS));
-%         onsets.EMG.neutral     = ONSETS.EMG(strcmp ('neutral', CONDITIONS));
-%         onsets.EMG.control     = ONSETS.EMG(strcmp ('empty', CONDITIONS));
+        onsets.odor.conc        = vertcat(onsets.odor.reward, onsets.odor.neutral);
+        
+        [onsets.odor.conc, Idx] = sort(onsets.odor.conc);
         
         %get durations
         durations.odor.reward   = DURATIONS.trialstart(strcmp ('chocolate', CONDITIONS));
         durations.odor.neutral   = DURATIONS.trialstart(strcmp ('neutral', CONDITIONS));
         durations.odor.control   = DURATIONS.trialstart(strcmp ('empty', CONDITIONS));
-
-        % EMG as mod
-        modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
-        modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
-        modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
+        durations.odor.conc       = vertcat(durations.odor.reward, durations.odor.neutral);
         
-         %mean_centering mod
-        cent_reward.emg  = mean(modulators.odor.reward.emg);
-        cent_neutral.emg  = mean(modulators.odor.neutral.emg);
-        cent_control.emg  = mean(modulators.odor.reward.emg);
+        durations.odor.conc = durations.odor.conc(Idx,:);
+        
+        %mod for liking 
+        modulators.odor.reward.lik  = BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS));
+        modulators.odor.neutral.lik = BEHAVIOR.liking (strcmp ('neutral', CONDITIONS));
+        modulators.odor.control.lik = BEHAVIOR.liking (strcmp ('empty', CONDITIONS));
+        
+        modulators.odor.conc.lik = vertcat(modulators.odor.reward.lik, modulators.odor.neutral.lik);
+        
+        %mean_centering mod
+        cent_lik  = mean(modulators.odor.conc.lik);
      
         for j = 1:length(modulators.odor.conc.lik)
-                modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
-                modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
-                modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
+            modulators.odor.conc.lik(j)  = modulators.odor.conc.lik(j) - cent_lik;
         end
         
+
+        modulators.odor.conc.lik = modulators.odor.conc.lik(Idx,:);
+        modulators.odor.conc.lik = zscore(modulators.odor.conc.lik);
         
         %mod for intensity
-        modulators.odor.reward.int  = zscore(BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS)));
-        modulators.odor.neutral.int = zscore(BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS)));
-        modulators.odor.control.int = zscore(BEHAVIOR.intensity (strcmp ('empty', CONDITIONS)));
+        modulators.odor.reward.int  = BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS));
+        modulators.odor.neutral.int = BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS));
+        modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
         
-        %mod for liking
-        modulators.odor.reward.lik  = zscore(BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS)));
-        modulators.odor.neutral.lik = zscore(BEHAVIOR.liking (strcmp ('neutral', CONDITIONS)));
-        modulators.odor.control.lik = zscore(BEHAVIOR.liking (strcmp ('empty', CONDITIONS)));
+        modulators.odor.conc.int = vertcat(modulators.odor.reward.int, modulators.odor.neutral.int);
+       
+        %mean_centering mod
+        cent_int  = mean(modulators.odor.conc.int);
+     
+        for j = 1:length(modulators.odor.conc.int)
+            modulators.odor.conc.int(j)  = modulators.odor.conc.int(j) - cent_int;
+        end
+              
+          
+        modulators.odor.conc.int = modulators.odor.conc.int(Idx,:);
+        modulators.odor.conc.int = zscore(modulators.odor.conc.int) ;  
         
+        
+        % EMG as mod
+        modulators.odor.reward.EMG  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
+        modulators.odor.neutral.EMG = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
+        modulators.odor.control.EMG = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
+        
+        modulators.odor.conc.EMG = vertcat(modulators.odor.reward.EMG, modulators.odor.neutral.EMG);
+       
+        %mean_centering mod
+        cent_EMG  = mean(modulators.odor.conc.EMG);
+     
+        for j = 1:length(modulators.odor.conc.EMG)
+            modulators.odor.conc.EMG(j)  = modulators.odor.conc.EMG(j) - cent_EMG;
+        end
+              
+              
+        modulators.odor.conc.EMG = modulators.odor.conc.EMG(Idx,:);
+        modulators.odor.conc.EMG = zscore(modulators.odor.conc.EMG);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and duration questions
@@ -126,21 +154,18 @@ mkdir (fullfile (mdldir, char(task), ana_name));
             nameX = char(name(ii));
 
             if strcmp (nameX, 'odor')  % for structure that contains substuctures
-                %substr = {'conc'};% specify the substructures names 
-                substr = {'reward', 'neutral', 'control'};% specify the substructures names 
-                subsubstr = {'emg', 'lik', 'int'}; % specify the subsubstructures names 
+                substr = {'conc'};% specify the substructures names 
+                subsubstr = {'lik'; 'int'; 'EMG'}; % specify the subsubstructures names 
                 for iii = 1:length(substr)
                     substrX = char(substr(iii));
                     for iiii =  1:length(subsubstr)
                         subsubstrX = char(subsubstr(iiii));
                         nameXX  = [nameX '_' substrX '_' subsubstrX]; % name that combines the structure and the substructures
-                        %nameXX  = [nameX '_' substrX]; % name that combines the structure and the substructures
                         % database with three rows of interest
-                        database.(nameXX) = [num2cell(onsets.(nameX).(substrX)), num2cell(durations.(nameX).(substrX)), num2cell(modulators.(nameX).(substrX).(subsubstrX))];
-                        %database.(nameXX) = num2cell(modulators.(nameX).(substrX));
+                        %database.(nameXX) = [num2cell(onsets.(nameX).(substrX)), num2cell(durations.(nameX).(substrX)), num2cell(modulators.(nameX).(substrX).(subsubstrX))];
+                        database.(nameXX) = num2cell(modulators.(nameX).(substrX).(subsubstrX));
                         % save the database in a txt file
-                        fid = fopen ([ana_name '_task-' taskX '_' nameX '_' subsubstrX '_' substrX '.txt'],'wt');
-                        %fid = fopen ([ana_name '_task-' taskX '_' nameX '_' substrX '.txt'],'wt');
+                        fid = fopen ([ana_name '_task-' taskX '_' nameX '_' substrX '_' subsubstrX '.txt'],'wt');
                         %formatSpec = '%f\t%f\t%f\n';
                         formatSpec = '%f\n';
                         [nrows,~] = size(database.(nameXX));

@@ -2,7 +2,7 @@
 home=$(eval echo ~$user);
 
 task="HED"
-GLM="GLM_18"
+GLM="GLM_19"
 codeDir="${home}/REWOD/CODE/ANALYSIS/fMRI/${task}"
 matlab_script="${GLM}_stLevel"
 matlabSubmit="${home}/REWOD/CODE/ANALYSIS/fMRI/matlab_oneSubj.sh"
