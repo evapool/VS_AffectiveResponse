@@ -7,7 +7,7 @@
 # LAST MODIFIED BY : DAVID MUNOZ TORD on APRIL 2019
 
 
-# ITK thread count
+# ITK thread count #look at Insight Toolkit algorythm for more info
 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS
 

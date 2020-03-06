@@ -10,7 +10,7 @@ ANTSPATH=${home}/REWOD/CODE/PREPROC/05_ANTS_Coreg/
 #ANTSPATH=/usr/local/ANTs/build/bin/
 
 
-# ITK thread count
+# ITK thread count #look at Insight Toolkit algorythm for more info
 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS
 

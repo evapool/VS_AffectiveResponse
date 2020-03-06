@@ -5,8 +5,7 @@
 #   Gholamreza Salimi-Khorshidi and Stephen Smith, FMRIB Analysis Group
 #
 #   Copyright (C) 2012-2013 University of Oxford
-#
-#   SHCOPYRIGHT
+
 
 FSL_FIXDIR=$( cd $(dirname $0) ; pwd)
 export FSL_FIXDIR

@@ -19,7 +19,7 @@ sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 ana_name      = 'GLM-16';
 %session       = {'second'};
 task          = {'hedonic'};
-subj          = {'01'} %;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
+subj          = {'01'} ;%;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
 
 
 %% create folder
@@ -76,27 +76,27 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
         modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
         
-         %mean_centering mod
-        cent_reward.emg  = mean(modulators.odor.reward.emg);
-        cent_neutral.emg  = mean(modulators.odor.neutral.emg);
-        cent_control.emg  = mean(modulators.odor.reward.emg);
-     
-        for j = 1:length(modulators.odor.conc.lik)
-                modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
-                modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
-                modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
-        end
+%          %mean_centering mod
+%         cent_reward.emg  = mean(modulators.odor.reward.emg);
+%         cent_neutral.emg  = mean(modulators.odor.neutral.emg);
+%         cent_control.emg  = mean(modulators.odor.reward.emg);
+%      
+%         for j = 1:length(modulators.odor.conc.lik)
+%                 modulators.odor.reward.emg  = PHYSIO.EMG(strcmp ('chocolate', CONDITIONS));
+%                 modulators.odor.neutral.emg = PHYSIO.EMG(strcmp ('neutral', CONDITIONS));
+%                 modulators.odor.control.emg = PHYSIO.EMG(strcmp ('empty', CONDITIONS));
+%         end
         
         
         %mod for intensity
-        modulators.odor.reward.int  = zscore(BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS)));
-        modulators.odor.neutral.int = zscore(BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS)));
-        modulators.odor.control.int = zscore(BEHAVIOR.intensity (strcmp ('empty', CONDITIONS)));
+        modulators.odor.reward.int  = BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS));
+        modulators.odor.neutral.int = BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS));
+        modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
         
         %mod for liking
-        modulators.odor.reward.lik  = zscore(BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS)));
-        modulators.odor.neutral.lik = zscore(BEHAVIOR.liking (strcmp ('neutral', CONDITIONS)));
-        modulators.odor.control.lik = zscore(BEHAVIOR.liking (strcmp ('empty', CONDITIONS)));
+        modulators.odor.reward.lik  = BEHAVIOR.liking (strcmp ('chocolate', CONDITIONS));
+        modulators.odor.neutral.lik = BEHAVIOR.liking (strcmp ('neutral', CONDITIONS));
+        modulators.odor.control.lik = BEHAVIOR.liking (strcmp ('empty', CONDITIONS));
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

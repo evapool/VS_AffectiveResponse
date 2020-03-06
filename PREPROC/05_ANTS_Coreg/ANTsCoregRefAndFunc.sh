@@ -7,7 +7,7 @@
 #ANTSPATH=/usr/local/ants/bin/
 
 
-# ITK thread count
+# ITK thread count #look at Insight Toolkit algorythm for more info
 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS
 
@@ -112,7 +112,7 @@ echo "done sample ANTs at $(date +"%T")"
 # use this if you want to include go from functional -> anatomical as the warp
 echo "Apply series of transformations all the way from func to lowres atlas" ##(in MNI space: test with 10 images only)" (first do that and then do the whole series)
 
-# FOR TESTING (use only the first 10 images)
+# FOR TESTING !! (use only the first 10 images)
 #fslroi ${icaDir}_unwarped.nii.gz ${icaDir}_firstTenTest 0 10
 
 #${warpTool}WarpTimeSeriesImageMultiTransform 4 ${icaDir}_firstTenTest.nii.gz ${icaDir}_unwarped_Coreg_test.nii.gz \
@@ -130,5 +130,6 @@ ${ANTSPATH}WarpTimeSeriesImageMultiTransform 4 ${icaDir}_unwarped.nii.gz ${icaDi
 
 echo "done ants (in MNI space) at $(date +"%T")"
 # resample the original to allow comparison
+ANTSPATH=${home}/REWOD/CODE/PREPROC/04_FUGUE_Unwarping/
 ${ANTSPATH}N4BiasFieldCorrection -i ${icaDir}_sample.nii.gz -o ${icaDir}_sample_bias.nii.gz --convergence [100x100x100x100,0.0] -d 3 -s 3 -b [300]
 flirt -in ${icaDir}_sample_bias -ref ${fixed_T1_lowres} -dof 7 -out ${icaDir}_sample_bias_alignT1

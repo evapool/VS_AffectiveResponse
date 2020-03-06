@@ -13,7 +13,7 @@ outDir=${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/
 funcImage=${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/task-${taskID}.ica/filtered_func_data_clean_unwarped_Coreg
 echo ${outDir}
 echo ${funcImage}
-#FWHM = sigma*sqrt(8*ln(2))
+#FWHM = sigma*sqrt(8*ln(2))!
 smoothKern=1.69865806013 # to smooth 4 mm
 #echo ${smoothKern}
 
