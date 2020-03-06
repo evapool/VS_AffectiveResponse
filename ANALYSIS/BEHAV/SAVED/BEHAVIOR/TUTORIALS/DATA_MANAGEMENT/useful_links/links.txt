@@ -1,2 +1,0 @@
-
-http://incf.github.io/bids-validator/

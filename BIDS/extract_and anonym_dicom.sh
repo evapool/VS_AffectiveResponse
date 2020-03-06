@@ -1,4 +1,5 @@
 #script to unzip dicom.7z files, but first you need to instal 7-zip !
+# by David Munoz - last modified in march 2020 - enjoy
 
 home=$(eval echo ~$user)
 codeDir="${home}/REWOD/CODE/BIDS"

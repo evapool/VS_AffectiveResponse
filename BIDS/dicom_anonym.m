@@ -2,6 +2,8 @@ function dicom_anonym(subID)
 
 %%little script to anonymize dicom
 
+%by Davidf Munoz  -  March 2020
+
 
 cd ~
 home = pwd;
