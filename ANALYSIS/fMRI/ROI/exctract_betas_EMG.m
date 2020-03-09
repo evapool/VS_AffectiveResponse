@@ -4,7 +4,7 @@ function exctract_betas_mods(glm, task)
 %clc
 dbstop if error
 
-glm= 'GLM-18';
+glm= 'GLM-15';
 task='hedonic';
 
 %% which model?
@@ -12,7 +12,7 @@ ana_name = glm;
 
 % which task?
 task_name = task; %
-ROI_name = 'GLM_18';
+ROI_name = 'GLM_15';
 
 % which contrast
 con_name = {'Reward-Neutral'};

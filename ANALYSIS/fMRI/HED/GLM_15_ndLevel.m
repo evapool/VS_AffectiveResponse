@@ -11,9 +11,9 @@ function GLM_15_ndLevel()
 
 %does t-test and full_factorial
 do_ttest = 1;
-remove = 0;
-removesub = {'sub-23'} ;
-removedsub = '23';
+remove = 1;
+removesub = {'sub-15'; 'sub-23'} ;
+removedsub = '15-23';
 
 %% define task variable
 %sessionX = 'second';

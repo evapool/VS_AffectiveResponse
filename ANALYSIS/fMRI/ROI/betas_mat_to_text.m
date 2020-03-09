@@ -12,9 +12,9 @@ homedir = [home '/REWOD'];
 
 %% def var
 task = 'hedonic'; %
-glm = 'GLM-18';
+glm = 'GLM-16';
 
-ROI_name = 'GLM_18';
+ROI_name = 'GLM_16';
 %con_name_orig = 'Reward_NoReward_4';
 %con_name_orig = 'CSp-CSm';
 con_name_orig  = 'Reward-Neutral';
@@ -46,7 +46,7 @@ cd (out_dir)
 T = cell2table(database(2:end,:),'VariableNames',database(1,:));
  
 % Write the table to a CSV file
-%writetable(T, ['extracted_betas_' ROI_name '.txt'],'Delimiter','\t');
-writetable(T, ['extracted_betas_' con_name_orig '.txt'],'Delimiter','\t');
+writetable(T, ['extracted_betas_' ROI_name '.txt'],'Delimiter','\t');
+%writetable(T, ['extracted_betas_' con_name_orig '.txt'],'Delimiter','\t');
 %writetable(T, ['extracted_betas_' con_name_orig '_via_' con_name '.txt'],'Delimiter','\t');
 clear all

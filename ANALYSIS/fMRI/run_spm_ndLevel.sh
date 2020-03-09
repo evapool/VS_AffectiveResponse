@@ -3,7 +3,7 @@
 home=$(eval echo ~$user);
 
 task="HED"
-GLM="GLM_20"
+GLM="GLM_15"
 
 codeDir="${home}/REWOD/CODE/ANALYSIS/fMRI/${task}"
 matlab_script="${GLM}_ndLevel"

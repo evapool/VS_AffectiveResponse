@@ -11,9 +11,9 @@ function GLM_16_ndLevel()
 
 %does t-test and full_factorial
 do_ttest = 1;
-remove = 0;
-removesub = {'sub-24'} ;
-removedsub = '24';
+remove = 1;
+removesub = {'sub-05'} ;
+removedsub = '05';
 
 %% define task variable
 %sessionX = 'second';
@@ -47,7 +47,7 @@ spm_jobman('initcfg');
 if do_ttest
     
        % These contrast names become folders
-    contrastNames = {'reward-neutraal_EMG'};%1
+    contrastNames = {'reward-neutral_EMG'};%1
    
     
     conImages = {'con_0001'};
