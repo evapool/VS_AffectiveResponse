@@ -16,7 +16,7 @@ if(!require(pacman)) {
 
 #SETUP
 task = 'hedonic'
-con_name2 = 'Reward-Neutral'
+GLM = '18'
 con2 = 'reward-neutral'
 
 mod2 = 'EMG'
@@ -31,10 +31,10 @@ analysis_path <- file.path('~/REWOD/DERIVATIVES/ANALYSIS', task)
 setwd(analysis_path)
 
 # open dataset 18 !
-BETAS_R_N <- read.delim(file.path(analysis_path, 'ROI', paste('extracted_betas_',con_name2,'.txt',sep="")), header = T, sep ='\t') # read in dataset
+BETAS_R_N <- read.delim(file.path(analysis_path, 'ROI', paste('extracted_betas_', paste('GLM_',GLM,sep="") ,'.txt',sep="")), header = T, sep ='\t') # read in dataset
 
 
-EMG_R_N <- read.delim(file.path(analysis_path, 'GLM-18', 'group_covariates', paste('REV_', con2,'_', mod2, '_zscore.txt',sep="")), header = T, sep ='\t') # read in dataset
+EMG_R_N <- read.delim(file.path(analysis_path, paste('GLM-',GLM,sep=""), 'group_covariates', paste('REV_', con2,'_', mod2, '_zscore.txt',sep="")), header = T, sep ='\t') # read in dataset
 
 # merge
 R_N_EMG = merge(BETAS_R_N, EMG_R_N, by.x = "ID", by.y = "subj", all.x = TRUE)
@@ -64,15 +64,6 @@ ggplotRegression <- function (fit) {
 
 
 #  Plot for R_N  ----------------------------------------------------------
-
-# For liking
-
-R_N_EMG$EMG = zscore(R_N_EMG$EMG)
-A1 <- ggplotRegression(lm(R_N_EMG[[2]]~R_N_EMG$EMG)) + rremove("x.title")
-B1 <- ggplotRegression(lm(R_N_EMG$EMG)) + rremove("x.title")
-A1
-B1
-
 ##################
 
 R_N_EMG %>%
@@ -85,23 +76,24 @@ R_N_EMG %>%
 Boxplot(~vmPFC_betas, data= R_N_EMG, id=TRUE) # identify all outliers
 Boxplot(~subgen_betas, data= R_N_EMG, id=TRUE) 
 
+# For EMG ROI
+
+R_N_EMG$EMG = zscore(R_N_EMG$EMG)
+ggplotRegression(lm(R_N_EMG[[6]]~R_N_EMG$EMG)) + rremove("x.title")
+ggplotRegression(lm(R_N_EMG[[7]]~R_N_EMG$EMG)) + rremove("x.title")
 
 
-# open dataset 16 !
-R_N_EMG16 <- read.delim(file.path(analysis_path, 'ROI', paste('extracted_betas_GLM_16.txt',sep="")), header = T, sep ='\t') # read in dataset
+pcore_L <- ggplotRegression(lm(R_N_EMG[[2]]~R_N_EMG$EMG)) + rremove("x.title")
+pcore_R <- ggplotRegression(lm(R_N_EMG[[3]]~R_N_EMG$EMG)) + rremove("x.title")
+pshell_L <- ggplotRegression(lm(R_N_EMG[[4]]~R_N_EMG$EMG)) + rremove("x.title")
+pshell_R <- ggplotRegression(lm(R_N_EMG[[5]]~R_N_EMG$EMG)) + rremove("x.title")
+
+ggarrange(pcore_L, pcore_R, pshell_L, pshell_R,
+                     labels = c("A: pcore_L", "B: pcore_R", "C: pshell_L", "D: pshell_R"),
+                     ncol = 2, nrow = 2,
+                     vjust=3, hjust=0) 
 
 
-# PLOT FUNCTIONS --------------------------------------------------------------------
-
-R_N_EMG16 %>%
-  keep(is.numeric) %>% 
-  gather() %>% 
-  ggplot(aes(value)) +
-  facet_wrap(~ key, scales = "free") +
-  geom_density() 
-
-Boxplot(~OFC_betas, data= R_N_EMG16, id=TRUE) # identify all outliers
-Boxplot(~shell_R_betas, data= R_N_EMG16, id=TRUE) 
 
 # 
 # # open dataset 15 !
@@ -128,7 +120,7 @@ analysis_path <- file.path('~/REWOD/DERIVATIVES/BEHAV/HED')
 setwd(analysis_path)
 # open dataset (session two only)
 REWOD_HED <- read.delim(file.path(analysis_path,'REWOD_HEDONIC_ses_second.txt'), header = T, sep ='') # read in dataset
-REWOD_HED <- filter(REWOD_HED,  id == "5")
+REWOD_HED <- filter(REWOD_HED,id == "5")
 
 plot(REWOD_HED$trial, REWOD_HED$EMG)
 

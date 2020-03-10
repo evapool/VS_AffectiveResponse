@@ -8,14 +8,14 @@
 
 %for k = 1:size(mat,1)
 
-clear CSplus CSminus Baseline
+%clear CSplus CSminus Baseline
 % name = [matfile mat(k).name];
 
 %load(name);
 
 %disp(['fichier ' num2str(k) ' ' name ]);
 
-load ('PIT_S1.mat')
+%load ('PIT_S1.mat')
 
 %load (matfile)
 
@@ -34,7 +34,7 @@ rimindOnsetITI = ResultsRimind.OnsetITI';
 rimindOnsetITIDuration = ResultsRimind.ITI';
 
 gripsFrequenceRimind = countgrips(seuil,nlines,ncolons,ResultsRimind.mobilizedforce);
-gripsOnsetsRimind = gripsOnsets(seuil,nlines,ncolons,ResultsRimind.mobilizedforce,ResultsRimind.TrialOnset,ResultsRimind.RewardWindowDuration1,ResultsRimind.RewardWindowDuration2);
+gripsOnsetsRimind = gripsOnsets(seuil,nlines,ncolons,ResultsRimind.mobilizedforce,ResultsRimind.TrialOnset)%,ResultsRimind.RewardWindowDuration1,ResultsRimind.RewardWindowDuration2);
 
 
 % Intrumental partial extinction: Count the grip frequency
@@ -46,7 +46,7 @@ rimindDuration = ResultsPartialExtinction.TrialDuration';
 PEonsetITI = ResultsPartialExtinction.onsetITI';
 PEOnsetITIDuration = ResultsPartialExtinction.ITI';
 gripsFrequencePE = countgrips(seuil,nlines,ncolons,ResultsPartialExtinction.mobilizedforce);
-%gripsOnsetsPE = gripsOnsets(seuil,nlines,ncolons,ResultsPartialExtinction.mobilizedforce,ResultsPartialExtinction.TrialOnset,ResultsPartialExtinction.RewardWindowDuration1, 0);
+gripsOnsetsPE = gripsOnsets(seuil,nlines,ncolons,ResultsPartialExtinction.mobilizedforce,ResultsPartialExtinction.TrialOnset,ResultsPartialExtinction.RewardWindowDuration1, 0);
 
 %% PIT part
 
@@ -183,7 +183,7 @@ nlines = size(All,1);
 ncolons = size (All,2);
 
 gripsFrequenceAll = countgrips(seuil,nlines,ncolons,All);
-%gripsOnsetsPITALL = gripsOnsets (seuil,nlines,ncolons,All,PITonsets,0,0);
+gripsOnsetsPITALL = gripsOnsets (seuil,nlines,ncolons,All,PITonsets,0,0);
 
 %% final result
 GripsFrequenceAll = num2cell(gripsFrequenceAll); % to concatenate conditions name and value
