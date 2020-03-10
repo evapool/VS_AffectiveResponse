@@ -189,14 +189,16 @@ dfR <- filter(df,  Condition == "Reward")
 dfN <- filter(df,  Condition == "Neutral")
 dfC <- filter(df,  Condition == "Control")
 
-cor(dfR$EMG,dfR$perceived_liking)  
-cor(dfN$EMG,dfN$perceived_liking)  #kinf of just with neutral
-cor(dfC$EMG,dfC$perceived_liking)  
 
 cor.test(dfR$EMG,dfR$perceived_liking)  
-cor.test(dfN$EMG,dfN$perceived_liking)  #kinf of just with neutral
+cor.test(dfN$EMG,dfN$perceived_liking)  
 cor.test(dfC$EMG,dfC$perceived_liking)  
 
+bsEMG2 = ddply(REWOD_HED, .(id), summarise, EMG = mean(EMG, na.rm = TRUE), EMG = mean(EMG, na.rm = TRUE))
+Boxplot(~EMG, data= bsEMG2, id=TRUE) # across conditions
+Boxplot(~EMG, data= dfR, id=TRUE) # for REW
+Boxplot(~EMG, data= dfN, id=TRUE) # for NEU
+Boxplot(~EMG, data= dfC, id=TRUE) # for CON
 
 
 

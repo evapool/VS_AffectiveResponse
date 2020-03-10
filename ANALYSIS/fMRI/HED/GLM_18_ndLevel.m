@@ -1,23 +1,26 @@
 function GLM_18_ndLevel()
 
-% intended for REWOD HED
-% get onsets for model with 1st level modulators w
-% GLM control for odor.all, mod by intenisty and liking
-% Durations =1 
-% Model on ONSETs (start, 3*odor + 2*questions)
-% 1 contrast odor*liking & odor*intensity,
+% intended for REWOD hedonic reactivity
+% get onsets for model with 2st level covariates with EMG zscored
+% Duration =1 + modulators
+% Model on ONSETs (STARTTRIAL, 3*odor + 2*questions liking&intensity)
+% covariate demeaned by conditions
+% check covariate_meancent.py for more info
 % last modified on July 2019 by David Munoz
 
+dbstop if error
 
 %does t-test and full_factorial
-do_ttest = 1;
-remove = 0;
-removesub = {'sub-23'} ;
-removedsub = '23';
+do_covariate = 1;
+remove = 1;
+removesub = {'sub-10'} ;
+removedsub = '10';
+
 
 %% define task variable
 %sessionX = 'second';
 task = 'hedonic';
+name_ana = 'GLM-18'; 
 
 %% define path
 
@@ -25,15 +28,14 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD/'];
 
+mdldir   = fullfile(homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
+covdir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task, name_ana, 'group_covariates'); % director with the extracted second level covariates
 
-mdldir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
-name_ana = 'GLM-18'; % output folder for this analysis 
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
-
 %% specify spm param
-addpath /usr/local/MATLAB/R2018a/spm12 ; 
-%addpath /usr/local/external_toolboxes/spm12/ ;
+%addpath /usr/local/MATLAB/R2018a/spm12 ; 
+addpath /usr/local/external_toolboxes/spm12/ ;
 
 addpath ([homedir 'CODE/ANALYSIS/fMRI/dependencies']);
 spm('Defaults','fMRI');
@@ -43,84 +45,134 @@ spm_jobman('initcfg');
 % DO TESTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% define contrasts and contrasts names
-if do_ttest
+%% define constrasts and constrasts names
+if do_covariate % covariate of interest name become folder
+
+   covariateNames = {
+    'neutral-reward_EMG_zscore'
+    'reward-neutral_EMG_zscore'
+    'REV_neutral-reward_EMG_zscore'
+    'REV_reward-neutral_EMG_zscore'
+}; 
+
+
+    % These contrast names become folders
+    contrastNames = {'reward-neutral'
+        'neutral-reward'};%7
     
-       % These contrast names become folders
-    contrastNames = {'odor_lik'%1
-        'odor_int'
-        'odor_emg'
-        'odor'};%2
-   
-    
-    conImages = {'con_0001'
-        'con_0002'
-        'con_0003'
-        'con_0004'};
     
     
-    %% prepare batch for each contrasts
+    conImages = { 'con_0001'
+         'con_0002'};
     
-    for n = 1:length(contrastNames)
+    
+  %% prepare batch for each contrasts
+    
+    for c = 1:length(covariateNames)
         
-        clear matlabbatch
+        covariateX = covariateNames{c};
         
-        conImageX = conImages{n};
-        contrastX = contrastNames{n};
+        filename = fullfile(covdir, [covariateX '.txt']);
+        delimiterIn = '\t';
+        headerlinesIn = 1;
+        C = importdata(filename,delimiterIn,headerlinesIn); %importdata
         
+        cov.ID   = C.data(:,1);
+        cov.data = C.data(:,2);
+        
+
         if remove
-           contrastFolder = fullfile (groupdir, 'ttests', ['removing-' removedsub], contrastX);
-        else
-            contrastFolder = fullfile (groupdir, 'ttests', 'all', contrastX);
-        end
-        
-        mkdir(contrastFolder);
-        
-        % create the group level spm file
-        matlabbatch{1}.spm.stats.factorial_design.dir = {contrastFolder}; % directory
-        
-        %  FORMAT [dirs] = spm_select('List',direc,'dir',filt)
-        conAll     = spm_select('List',groupdir,['^'  '.*' conImageX '.nii']); % select contrasts ?WHat is LIST?
-        for j =1:length(conAll)
-            matlabbatch{1}.spm.stats.factorial_design.des.t1.scans{j,1} = [groupdir conAll(j,:) ',1'];
-        end
-        
-        if remove % remove subject from analysis
-            allsub = matlabbatch{1}.spm.stats.factorial_design.des.t1.scans; % let's put this in a smaller variable
             for i = 1:length(removesub)
-                    idx = (regexp(allsub,removesub{i})); % find string containing the sub id
+                idx            = str2double(removesub{i}(5:end));
+                torm           = find(cov.ID==idx);
+
+                cov.ID(torm)   = [];
+                cov.data(torm) = [];
+            end
+        end
+        
+        for n = 1:length(contrastNames)
+            
+            clear matlabbatch
+            
+            conImageX = conImages{n};
+            contrastX = contrastNames{n};
+            
+            if remove 
+                contrastFolder = fullfile (groupdir, 'covariate', covariateX, ['removing-' removedsub], contrastX);
+            else
+                contrastFolder = fullfile (groupdir, 'covariate', covariateX, 'all', contrastX);
+            end
+            
+            mkdir(contrastFolder);
+            
+            % create the group level spm file
+            matlabbatch{1}.spm.stats.factorial_design.dir = {contrastFolder}; % directory
+            
+            % select contrasts only for participants that have the behavioral covariate
+            for s = 1:length(cov.ID)
+                cov.IDX      = cov.ID(s);
+           
+                Scue = deblank(['sub-' sprintf('%02d ', cov.IDX)]);
+                conAll (s,:) = spm_select('List',groupdir,['^' Scue '.*' conImageX '.nii']); % select constrasts
+            end
+            
+            for j =1:size(conAll,1)
+                matlabbatch{1}.spm.stats.factorial_design.des.t1.scans{j,1} = [groupdir conAll(j,:) ',1'];
+            end
+            
+            if remove % remove subject from analysis
+                disp(['removing subject: ' removedsub]);
+                allsub = matlabbatch{1}.spm.stats.factorial_design.des.t1.scans; % let's put this in a smaller variable
+                for ii = 1:length(removesub)
+                    idx = (regexp(allsub,removesub{ii})); % find string containing the sub id
                     idxtoRemove = find(~cellfun(@isempty,idx)); % get the index of that string
                     matlabbatch{1}.spm.stats.factorial_design.des.t1.scans(idxtoRemove) = []; % remove the string from the scans selected for the analysis
                     allsub = matlabbatch{1}.spm.stats.factorial_design.des.t1.scans;
+                end
             end
+            
+            matlabbatch{1}.spm.stats.factorial_design.cov.c      = cov.data;
+            matlabbatch{1}.spm.stats.factorial_design.cov.cname  = covariateX;
+            matlabbatch{1}.spm.stats.factorial_design.cov.iCFI = 1;
+            matlabbatch{1}.spm.stats.factorial_design.cov.iCC = 1;
+            
+            matlabbatch{1}.spm.stats.factorial_design.multi_cov = struct('files', {}, 'iCFI', {}, 'iCC', {});
+            matlabbatch{1}.spm.stats.factorial_design.masking.tm.tm_none = 1;
+            matlabbatch{1}.spm.stats.factorial_design.masking.im = 1; %%??
+            matlabbatch{1}.spm.stats.factorial_design.masking.em = {''};
+            matlabbatch{1}.spm.stats.factorial_design.globalc.g_omit = 1;
+            matlabbatch{1}.spm.stats.factorial_design.globalm.gmsca.gmsca_no = 1;
+            matlabbatch{1}.spm.stats.factorial_design.globalm.glonorm = 1;
+            
+            % extimate design matrix
+            matlabbatch{2}.spm.stats.fmri_est.spmmat = {[contrastFolder  '/SPM.mat']};
+            matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
+            
+            % specify one sample tconstrast
+            matlabbatch{3}.spm.stats.con.spmmat(1)                = {[contrastFolder  '/SPM.mat']};
+            matlabbatch{3}.spm.stats.con.consess{1}.tcon.name     = contrastX (1:end);
+            matlabbatch{3}.spm.stats.con.consess{1}.tcon.weights  = [1 0]; % in the covariate the second colon is the one of interest
+            matlabbatch{3}.spm.stats.con.consess{1}.tcon.sessrep  = 'none';
+            matlabbatch{3}.spm.stats.con.consess{2}.tcon.name     = ['Neg ' contrastX(1:end)];
+            matlabbatch{3}.spm.stats.con.consess{2}.tcon.weights  = [-1 0]; % in the covariate the second colon is the one of interest
+            matlabbatch{3}.spm.stats.con.consess{2}.tcon.sessrep  = 'none';
+            matlabbatch{3}.spm.stats.con.consess{3}.tcon.name     = covariateX (1:end);
+            matlabbatch{3}.spm.stats.con.consess{3}.tcon.weights  = [0 1]; % in the covariate the second colon is the one of interest
+            matlabbatch{3}.spm.stats.con.consess{3}.tcon.sessrep  = 'none';
+            matlabbatch{3}.spm.stats.con.consess{4}.tcon.name     = ['Neg ' covariateX(1:end)];
+            matlabbatch{3}.spm.stats.con.consess{4}.tcon.weights  = [0 -1];
+            matlabbatch{3}.spm.stats.con.consess{4}.tcon.sessrep  = 'none';
+            
+            disp ('***************************************************************') 
+            disp (['running batch for: '  contrastX ': ' covariateX] ) 
+            disp ('***************************************************************') 
                
+            spm_jobman('run',matlabbatch)
+            
         end
-        
-        matlabbatch{1}.spm.stats.factorial_design.cov = struct('c', {}, 'cname', {}, 'iCFI', {}, 'iCC', {});
-        matlabbatch{1}.spm.stats.factorial_design.multi_cov = struct('files', {}, 'iCFI', {}, 'iCC', {});
-        matlabbatch{1}.spm.stats.factorial_design.masking.tm.tm_none = 1;
-        matlabbatch{1}.spm.stats.factorial_design.masking.im = 1;
-        matlabbatch{1}.spm.stats.factorial_design.masking.em = {''};
-        matlabbatch{1}.spm.stats.factorial_design.globalc.g_omit = 1;
-        matlabbatch{1}.spm.stats.factorial_design.globalm.gmsca.gmsca_no = 1;
-        matlabbatch{1}.spm.stats.factorial_design.globalm.glonorm = 1;
-        
-        % estimate design matrix
-        matlabbatch{2}.spm.stats.fmri_est.spmmat = {[contrastFolder  '/SPM.mat']};
-        matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
-        
-        % specify one sample tcontrast
-        matlabbatch{3}.spm.stats.con.spmmat(1)               = {[contrastFolder  '/SPM.mat']};
-        matlabbatch{3}.spm.stats.con.consess{1}.tcon.name     = contrastX (1:end);
-        matlabbatch{3}.spm.stats.con.consess{1}.tcon.weights  = [1];
-        matlabbatch{3}.spm.stats.con.consess{1}.tcon.sessrep  = 'none';
-        matlabbatch{3}.spm.stats.con.consess{2}.tcon.name     = ['Neg ' contrastX(1:end)];
-        matlabbatch{3}.spm.stats.con.consess{2}.tcon.weights  = [-1];
-        matlabbatch{3}.spm.stats.con.consess{2}.tcon.sessrep  = 'none';
-        
-        spm_jobman('run',matlabbatch)
-        
     end
 end
 
 end
+

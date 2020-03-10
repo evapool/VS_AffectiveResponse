@@ -23,7 +23,6 @@ mod2 = 'EMG'
 
 
 
-
 ## R code for FOR REWOD_HED
 # Set working directory -------------------------------------------------
 
@@ -48,6 +47,33 @@ R_N_EMG$ID <- factor(R_N_EMG$ID)
 
 # PLOT FUNCTIONS --------------------------------------------------------------------
 
+ggplotRegression <- function (fit) {
+  
+  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+    geom_point() +
+    stat_smooth(method = "lm", col = "red") +
+    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       #"Intercept =",signif(fit$coef[[1]],5 ),
+                       #" Slope =",signif(fit$coef[[2]], 5),
+                       "  &  P =",signif(summary(fit)$coef[2,4], 5)))+
+    theme(plot.title = element_text(size = 10, hjust =1))
+  
+}
+
+
+
+
+#  Plot for R_N  ----------------------------------------------------------
+
+# For liking
+
+R_N_EMG$EMG = zscore(R_N_EMG$EMG)
+A1 <- ggplotRegression(lm(R_N_EMG[[2]]~R_N_EMG$EMG)) + rremove("x.title")
+B1 <- ggplotRegression(lm(R_N_EMG$EMG)) + rremove("x.title")
+A1
+B1
+
+##################
 
 R_N_EMG %>%
   keep(is.numeric) %>% 
@@ -77,14 +103,44 @@ R_N_EMG16 %>%
 Boxplot(~OFC_betas, data= R_N_EMG16, id=TRUE) # identify all outliers
 Boxplot(~shell_R_betas, data= R_N_EMG16, id=TRUE) 
 
+# 
+# # open dataset 15 !
+# R_N_EMG15 <- read.delim(file.path(analysis_path, 'ROI', paste('extracted_betas_GLM_15.txt',sep="")), header = T, sep ='\t') # read in dataset
+# 
+# 
+# # PLOT FUNCTIONS --------------------------------------------------------------------
+# 
+# R_N_EMG15 %>%
+#   keep(is.numeric) %>%
+#   gather() %>%
+#   ggplot(aes(value)) +
+#   facet_wrap(~ key, scales = "free") +
+#   geom_density()
+# 
+# 
+# Boxplot(~OFC_betas, data= R_N_EMG15, id=TRUE) # identify all outliers
+# Boxplot(~shell_R_betas, data= R_N_EMG15, id=TRUE)
 
-# open dataset 15 !
-R_N_EMG15 <- read.delim(file.path(analysis_path, 'ROI', paste('extracted_betas_GLM_15.txt',sep="")), header = T, sep ='\t') # read in dataset
+#participant 05
 
+# Set working directory
+analysis_path <- file.path('~/REWOD/DERIVATIVES/BEHAV/HED') 
+setwd(analysis_path)
+# open dataset (session two only)
+REWOD_HED <- read.delim(file.path(analysis_path,'REWOD_HEDONIC_ses_second.txt'), header = T, sep ='') # read in dataset
+REWOD_HED <- filter(REWOD_HED,  id == "5")
 
-# PLOT FUNCTIONS --------------------------------------------------------------------
+plot(REWOD_HED$trial, REWOD_HED$EMG)
 
-R_N_EMG15 %>%
+emg_reward <- filter(REWOD_HED,  condition == "chocolate")
+emg_neutral <- filter(REWOD_HED,  condition == "neutral")
+emg_control <- filter(REWOD_HED,  condition == "empty")
+
+plot(emg_reward$trial, emg_reward$EMG)
+plot(emg_control$trial, emg_control$EMG)
+plot(emg_neutral$trial, emg_neutral$EMG)
+
+REWOD_HED %>%
   keep(is.numeric) %>% 
   gather() %>% 
   ggplot(aes(value)) +
@@ -92,7 +148,25 @@ R_N_EMG15 %>%
   geom_density() 
 
 
-Boxplot(~OFC_betas, data= R_N_EMG15, id=TRUE) # identify all outliers
-Boxplot(~shell_R_betas, data= R_N_EMG15, id=TRUE) 
+# open dataset (session two only)
+REWOD_HED <- read.delim(file.path(analysis_path,'REWOD_HEDONIC_ses_second.txt'), header = T, sep ='') # read in dataset
 
+#here 4 to compare
+REWOD_HED <- filter(REWOD_HED,  id == "4")
 
+plot(REWOD_HED$trial, REWOD_HED$EMG)
+
+emg_reward4 <- filter(REWOD_HED,  condition == "chocolate")
+emg_neutral4 <- filter(REWOD_HED,  condition == "neutral")
+emg_control4 <- filter(REWOD_HED,  condition == "empty")
+
+plot(emg_reward4$trial, emg_reward4$EMG)
+plot(emg_control4$trial, emg_control4$EMG)
+plot(emg_neutral4$trial, emg_neutral4$EMG)
+
+REWOD_HED %>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_density() 
