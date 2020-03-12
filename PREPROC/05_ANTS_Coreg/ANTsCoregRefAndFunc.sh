@@ -40,7 +40,7 @@ runDir=${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/
 icaDir=${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/task-${taskID}.ica/filtered_func_data_clean
 
 # path to standard space images
-standardAnatDir=${home}/REWOD/DERIVATIVES/PREPROC/CANONICALS/
+standardAnatDir=${home}/REWOD/DERIVATIVES/EXTERNALDATA/CANONICALS/
 
 
 #############

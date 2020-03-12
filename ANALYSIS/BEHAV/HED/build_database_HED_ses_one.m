@@ -1,10 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % BUILD DATABASE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% created by Eva
-% last modified by David on August 2019
+% last modified by David on August 2020
 
-% note: this scripts works only on participants who followed the full
 
 dbstop if error
 clear all
@@ -22,10 +20,9 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-analysis_dir = fullfile(homedir, 'ANALYSIS/BEHAV/build_database');
-R_dir        = fullfile(homedir,'DERIVATIVES/BEHAV');
+R_dir        = fullfile(homedir,'DERIVATIVES/BEHAV/HED');
 % add tools
-addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/my_tools')));
+addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/matlab_functions')));
 
 %% DEFINE POPULATION
 
@@ -189,6 +186,10 @@ for i = 1:length(subj)
     
      eventfile = [events.onsets, events.durations, events.phase,...
         events.trial, events.condition, events.liking, events.intensity];
+    
+    
+    base_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-first', 'behav');
+    cd (base_dir)
     
     % open data base
     eventfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_run-01_events.tsv'];

@@ -34,8 +34,8 @@ ANTSPATH=${home}/REWOD/CODE/PREPROC/05_ANTS_Coreg/
 # paths to the subject anatomicals
 subAnatDir=${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/anat/
 
-# paths to the standard anatomical images
-standardAnatDir=${home}/REWOD/DERIVATIVES/PREPROC/CANONICALS/
+# paths to the standard anatomical images  ##WE USED THE CIT168 TEMPLATE##
+standardAnatDir=${home}/REWOD/DERIVATIVES/EXTERNALDATA/CANONICALS/
 
 
 

@@ -33,7 +33,7 @@ echo subj: $subjID
 subAnatDir=${home}/REWOD/CODE/PREPROC/sub-${subjID}/ses-second/anat/
 
 # paths to the standard anatomical images
-standardAnatDir=${home}/REWOD/CODE/PREPROC/CANONICALS/
+standardAnatDir=${home}/REWOD/CODE/EXTERNALDATA/CANONICALS/
 
 fixedT1=CIT168_T1w_MNI
 

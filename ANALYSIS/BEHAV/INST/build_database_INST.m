@@ -1,10 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % BUILD DATABASE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% created by Eva
-% last modified by David on August 2019
+% last modified by David on August 2020
 
-% note: this scripts works only on participants who followed the full
 
 
 dbstop if error
@@ -12,6 +10,7 @@ clear all
 
 analysis_name = 'REWOD_INSTRU_ses_first';
 task          = 'instrulearning';
+taskshort          = 'INSTRU';
 %% DEFINE WHAT WE WANT TO DO
 
 save_Rdatabase = 1; % leave 1 when saving all subjects
@@ -23,16 +22,16 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-analysis_dir = fullfile(homedir, 'ANALYSIS/BEHAV/build_database');
-R_dir        = fullfile(homedir,'DERIVATIVES/BEHAV');
+analysis_dir = fullfile(homedir, 'ANALYSIS/BEHAV/INSTRU');
+R_dir        = fullfile(homedir,'DERIVATIVES/BEHAV/INSTRU');
 % add tools
-addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/my_tools')));
+addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/matlab_functions')));
 
 %% DEFINE POPULATION
 
-subj    = {'01'} %;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};    % number 01 has not instru
+subj    = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};    % number 01 has not instru
 
-session = {'one'} %; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'};
+session = {'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'};
 
 ses = {'ses-first'};
 
@@ -47,8 +46,8 @@ for i = 1:length(subj)
    
     %load behavioral file
     behavior_dir = fullfile(homedir, 'SOURCEDATA', 'behav', subjX, [sessionX '_task-' task]);
-            cd (behavior_dir)
-            load (['instrumental' num2str(subjX) ])
+    cd (behavior_dir)
+    load (['instrumental' num2str(subjX) ])
    
    ntrials = ResultsInstru.Trial(end);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,7 +134,7 @@ for i = 1:length(subj)
     %%% save mat file
     func_dir = fullfile (homedir, 'DERIVATIVES', 'PREPROC', ['sub-' num2str(subjX)], 'ses-first', 'beh');
     cd (func_dir)
-    matfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_run-01_events.mat'];
+    matfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_events.mat'];
     save(matfile_name, 'ONSETS', 'DURATIONS',  'REWARD', 'FORCE', 'TRIAL', 'DRIFT' )
    
     
@@ -184,8 +183,14 @@ for i = 1:length(subj)
      eventfile = [events.onsets, events.durations, events.phase,...
         events.trial, events.force, events.reward];
     
+    
+        %%% save mat file
+    base_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-first', 'beh');
+    %mkdir(base_dir)
+    cd (base_dir)
+    
     % open ResultsInstru base
-    eventfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_run-01_events.tsv'];
+    eventfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_events.tsv'];
     fid = fopen(eventfile_name,'wt');
     
     % print heater

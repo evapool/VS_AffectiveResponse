@@ -1,17 +1,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % BUILD DATABASE FOR PAVLOVIAN LEARNING
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% created by Eva
-% last modified by David on August 2019
+% last modified by David on August 2020
 
-% note: this scripts works only on participants who followed the full
-% protocol (from obsese200 on)
 
 dbstop if error
 clear all
 
 analysis_name = 'REWOD_PAVCOND_ses_first';
 task          = 'pavconditioning';
+taskshort          = 'PAV';
 %% DEFINE WHAT WE WANT TO DO
 
 save_Rdatabase = 1; % leave 1 when saving all subjects
@@ -23,10 +21,9 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-analysis_dir = fullfile(homedir, 'ANALYSIS/BEHAV/build_database');
-R_dir        = fullfile(homedir,'DERIVATIVES/BEHAV');
+R_dir        = fullfile(homedir,'DERIVATIVES/BEHAV/PAV');
 % add tools
-addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/my_tools')));
+addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/matlab_functions')));
 
 %% DEFINE POPULATION
 
@@ -60,14 +57,11 @@ for i = 1:length(subj)
     %ONSETS.CS = data.Onsets.StageTwo;
     %cmpt = 0;
   
-    %for ii = 1:length(data.Durations.TrialStageSix) % here take onther variable
-        %if data.Durations.TrialStageSix(ii) < 0.9999
-            %cmpt = cmpt+1;
-            %ONSETS.action(cmpt,1) = data.Onsets.StageSix(ii) + data.Durations.TrialStageSix(ii);
-        %end
-    %end
+
     
-    %ONSETS.signal = data.Onsets.StageSix;
+    ONSETS.dummy =     zeros(1,ntrials);
+    DURATIONS.dummy   = zeros(1,ntrials);
+
     %ONSETS.reward  = data.Onsets.StageNine;
     %ONSETS.swallow = data.Onsets.StageThirten;
     %ONSETS.ITI     = data.Onsets.StageThirten;
@@ -177,7 +171,7 @@ for i = 1:length(subj)
     %%% save mat file
     func_dir = fullfile (homedir, 'DERIVATIVES', 'PREPROC', ['sub-' num2str(subjX)], 'ses-first', 'beh');
     cd (func_dir)
-    matfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_run-01_events.mat'];
+    matfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_events.mat'];
     save(matfile_name, 'ROUNDS', 'TRIAL', 'TASK' , 'BEHAVIOR', 'CONDITIONS')
     
     
@@ -187,7 +181,8 @@ for i = 1:length(subj)
     nevents = ntrials; %*length(phase);
     
     % put everything in the event structure
-    %events.onsets       = zeros(nevents,1);
+    events.onsets       = zeros(nevents,1);
+    events.duration       = zeros(nevents,1);
     events.ratings    = zeros(nevents,1);
     events.trial    = zeros(nevents,1);
     events.task        = cell (nevents,1);
@@ -222,19 +217,27 @@ for i = 1:length(subj)
     events.rounds  = num2cell(events.rounds);
     events.response  = num2cell(events.response);
     events.trial  = num2cell(events.trial);
+    events.onsets  = num2cell(events.onsets);
+    events.duration  = num2cell(events.duration);
             
-    eventfile = [events.trial, events.CSname, events.reactionTime, events.ratings, events.response, events.rounds];
+    eventfile = [events.onsets, events.duration, events.trial, events.CSname, events.reactionTime, events.ratings, events.response, events.rounds];
+    
+    
+    base_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-first', 'beh');
+    %mkdir(base_dir)
+    cd (base_dir)
+    
     
     % open data base
-    eventfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_run-01_events.tsv'];
+    eventfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_events.tsv'];
     fid = fopen(eventfile_name,'wt');
     
-    % print heater
-    fprintf (fid, '%s\t%s\t%s\t%s\t%s\t%s\n',...
-        'trial', 'condition','reaction_times', 'liking_ratings', 'accuracy', 'rounds');
+    % print header
+    fprintf (fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n',...
+        'onset', 'duration','trial', 'condition','reaction_times', 'liking_ratings', 'accuracy', 'rounds');
     
     % print data
-    formatSpec = '%d\t%s\t%f\t%f\t%d\t%d\n';
+    formatSpec = '%d\t%d\t%d\t%s\t%f\t%f\t%d\t%d\n';
     [nrows,ncols] = size(eventfile);
     for row = 1:nrows
         fprintf(fid,formatSpec,eventfile{row,:});

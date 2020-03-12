@@ -5,7 +5,7 @@ task="HED"
 GLM="GLM_20"
 codeDir="${home}/REWOD/CODE/ANALYSIS/fMRI/${task}"
 matlab_script="${GLM}_stLevel"
-matlabSubmit="${home}/REWOD/CODE/ANALYSIS/fMRI/matlab_oneSubj.sh"
+matlabSubmit="${home}/REWOD/CODE/ANALYSIS/fMRI/dependencies/matlab_oneSubj.sh"
 
 
 # Loop over subjects
