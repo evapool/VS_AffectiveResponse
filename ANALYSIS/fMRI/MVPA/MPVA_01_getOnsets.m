@@ -136,6 +136,16 @@ for  i=1:length(subj)
         end
 
     end
+    
+    % print txt file with the condition
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    fid = fopen ([ana_name '_task-' taskX '_condition.txt'],'wt');
+    formatSpec = '%s \n';
+    [nrows,~] = size(condition);
+    for row = 1:nrows
+        fprintf(fid,formatSpec,condition{row,:});
+    end
+    fclose(fid);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % save data
