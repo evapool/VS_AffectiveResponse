@@ -14,8 +14,6 @@ home = pwd;
 homedir = [home '/REWOD'];
 
 
-mdldir        = fullfile (homedir, '/DERIVATIVES/ANALYSIS');
-sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
 ana_name      = 'GLM-01';
 %session       = {'second'};
