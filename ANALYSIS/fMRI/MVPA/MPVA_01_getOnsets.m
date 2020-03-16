@@ -53,6 +53,9 @@ for  i=1:length(subj)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Get experimental condition
     condition = CONDITIONS;
+    
+    miniruns = reshape(repmat ([1: 6], 9,1), 1, [])';
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Get onsets and durations for the whole duration
@@ -146,11 +149,21 @@ for  i=1:length(subj)
         fprintf(fid,formatSpec,condition{row,:});
     end
     fclose(fid);
+    
+        % print txt file with the miniruns
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    fid = fopen ([ana_name '_task-' taskX '_runs.txt'],'wt');
+    formatSpec = '%d \n';
+    [nrows,~] = size(miniruns);
+    for row = 1:nrows
+        fprintf(fid,formatSpec,miniruns(row,:));
+    end
+    fclose(fid);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % save data
     mat_name = [ana_name '_task-' taskX '_onsets'];
-    save (mat_name, 'onsets', 'durations', 'modulators', 'condition')
+    save (mat_name, 'onsets', 'durations', 'modulators', 'condition', 'miniruns')
 
 end
     

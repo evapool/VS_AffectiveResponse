@@ -1,10 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python2 -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 29 16:47:57 2019
 @author: logancross
 modified by david munoz on May 13 2020
 """
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
 
 import sys
 # this is just for my own machine
@@ -16,6 +20,8 @@ from mvpa2.suite import *
 import matplotlib.pyplot as plt
 from mvpa2.measures.searchlight import sphere_searchlight
 import mvpa_utils
+
+from mvpa2.datasets.miscfx import remove_invariant_features
 
 
 homedir = os.path.expanduser('~/REWOD/')
@@ -35,7 +41,8 @@ runs2use = 1 ##??
 #which ds to use and which mask to use
 
 glm_ds_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii'
-mask_name = homedir+'DERIVATIVES/PREPROC/sub-'+subj+'/ses-second/anat/sub-'+subj+'_ses-second_run-01_T1w_reoriented_brain_mask.nii'
+#mask_name = homedir+'DERIVATIVES/PREPROC/sub-'+subj+'/ses-second/anat/sub-'+subj+'_ses-second_run-01_T1w_reoriented_brain_mask.nii'
+mask_name = homedir+'DERIVATIVES/ANALYSIS/GLM/'+task+'/GLM-01/sub-'+subj+'/output/mask.nii'
 
 #customize how trials should be labeled as classes for classifier
 #timing files 1
@@ -48,31 +55,9 @@ class_dict = {
 #timing files 2
 
 
-# class_dict02 = {
-# 		'csm' : 0,
-# 		'cs_deval_L' : 1,
-#         'cs_deval_R' : 1,
-# 		'cs_val_L' : 1,
-#         'cs_val_R' : 1,
-# 	}
-
 # class_dict03 = {
 # 		'csm' : 0,
 # 		'csp' : 1,
-# 	}
-
-# class_dict07 = {
-# 		'cs_sweet_L' : 0,
-# 		'cs_sweet_R' : 0,
-#       'cs_salty_L':1,
-#       'cs_salty_R':1,      
-# 	}
-
-# class_dict08 = {
-# 		'cs_sweet_L' : 1,
-# 		'cs_sweet_R' : 0,
-#       'cs_salty_L':1,
-#       'cs_salty_R':0,      
 # 	}
 
 
@@ -83,7 +68,7 @@ class_dict = {
 fds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task)
 ##WHATCHA was fds 1
 #fds2 = mvpa_utils_pav.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict07, homedir, model)
-
+#lot_mtx
 
 #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
 detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
@@ -102,14 +87,21 @@ fds_z = detrended_fds
 #balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
 ##WHATCHA
 
+# Removing inv features #pleases the SVM but messes up dimensions. ##triplecheck
+fds_inv = remove_invariant_features(fds_z)
+
 #SVM classifier
 clf = LinearCSVMC()
+clf2 = kNN()
 
 #cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
 #cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
 
 cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
+#cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
 #no balance!
+
+error_sample = np.mean(cv(fds))
 
 #implement full brain searchlight with spheres with a radius of 3
 svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
@@ -119,7 +111,8 @@ svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sa
 if __debug__:
     debug.active += ["SLC"]
     
-res_sl = svm_sl(fds) 
+#res_sl = svm_sl(fds) 
+res_sl = svm_sl(fds_inv) #Obtained degenerate data with zero norm for trainin
 
 #reverse map scores back into nifti format and save
 scores_per_voxel = res_sl.samples

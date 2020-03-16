@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python2 -W ignore::DeprecationWarning
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 29 15:56:35 2019
@@ -7,6 +7,10 @@ Created on Mon Apr 29 15:56:35 2019
 
 modified by david on May 13 2020
 """
+
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
 from mvpa2.suite import *
 #from os import listdir
 import os
@@ -31,6 +35,7 @@ def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, mo
     temp_folder = onsets_folder+'/'+model+'_task-'+task
     condition = np.genfromtxt(temp_folder+'_condition.txt',dtype=None)
     onsets = np.genfromtxt(temp_folder+'_All.txt')
+    mini_runs = np.genfromtxt(temp_folder+'_runs.txt')
 
     #get timing for all conditions and sort by this timing
     timing = (onsets[:,0])
@@ -38,24 +43,25 @@ def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, mo
     #add a list of trial category as a sample attribute
     trial_categ_list.append(condition)
     #chunks = run*np.ones([len(timing)]) ##watcha
-    chunks = np.ones([len(timing)])
-    chunks_list.append(chunks)
+    #chunks = np.ones([len(timing)])
+    #chunks_list.append(chunks)
+    chunks_list.append(mini_runs)
 
     #unroll lists of lists to one list
     trials_allruns = np.asarray([item for sublist in trial_list for item in sublist])
     trial_categ_allruns = [item for sublist in trial_categ_list for item in sublist] 
     chunks_allruns = np.asarray([item for sublist in chunks_list for item in sublist]).astype(int)
 
-    cs_classes = [class_dict[trial] for trial in trial_categ_allruns]
+    odor_classes = [class_dict[trial] for trial in trial_categ_allruns]
 
     #load fmri dataset with these values as targets
-    fds = fmri_dataset(samples=glm_ds_file, targets=cs_classes, chunks=chunks_allruns, mask=mask_name)
+    fds = fmri_dataset(samples=glm_ds_file, targets=odor_classes, chunks=chunks_allruns, mask=mask_name)
 
-    fds_subset = fds[:runs2use*120,:] ## why 120?
-
+    #fds_subset = fds[:runs2use*120,:] ## why 120?
+    #fds.shape (54, 357810)
     print 'Finished making targets',time.time() - start_time
 
-    return fds_subset
+    return fds #_subset
 
 
 
