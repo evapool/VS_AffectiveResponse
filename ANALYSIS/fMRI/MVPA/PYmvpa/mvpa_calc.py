@@ -39,7 +39,7 @@ model = str(sys.argv[3])
 runs2use = 1 ##??
 
 
-print 'subject id: ', subj
+print 'subject id: '
 
 print 'smell VS no smell MVPA'
 
