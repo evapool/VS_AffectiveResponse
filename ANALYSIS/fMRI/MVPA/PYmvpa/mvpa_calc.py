@@ -1,41 +1,49 @@
-#!/usr/bin/env python2 -W ignore::DeprecationWarning
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 29 16:47:57 2019
+
 @author: logancross
-modified by david munoz on May 13 2020
+
+modified by David on June 13 2020
 """
+
+from mvpa2.suite import *
+import matplotlib.pyplot as plt
+from pymvpaw import *
+from mvpa2.measures.searchlight import sphere_searchlight
+from mvpa2.datasets.miscfx import remove_invariant_features ##
+import sys
+from sh import gunzip
+from nilearn import image ## was missing this line!
 def warn(*args, **kwargs):
     pass
 import warnings
 warnings.warn = warn
-
-import sys
-# this is just for my own machine
-#sys.path.append("/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/") 
 import os
-
-from mvpa2.suite import *
-from pymvpaw import * ##
-import matplotlib.pyplot as plt
-from mvpa2.measures.searchlight import sphere_searchlight
-from mvpa2.datasets.miscfx import remove_invariant_features ##
-
+# import utilities
+homedir = os.path.expanduser('~/REWOD/')
 #add utils to path
 sys.path.insert(0, homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
-#os.path.join(path, "CODE/ANALYSIS/fMRI/PYmvpa")
+os.chdir(homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 import mvpa_utils
-###SCRIPT ARGUMENTS
 
-homedir = os.path.expanduser('~/REWOD/')
 
-subj = '01'
-#sub 02 full
-#sub 03 inv
-task = 'hedonic'
-model = 'MVPA-01'
-
+# ---------------------------- Script arguments
+##subj = '01'
+subj = str(sys.argv[1])
+#task = 'hedonic'
+task = str(sys.argv[2])
+##model = 'MVPA-01'
+model = str(sys.argv[3])
 runs2use = 1 ##??
+
+
+print 'subject id: ', subj
+
+print 'smell VS no smell MVPA'
+
+
 
 #which ds to use and which mask to use
 
@@ -45,19 +53,17 @@ mask_name = homedir+'DERIVATIVES/ANALYSIS/GLM/'+task+'/GLM-01/sub-'+subj+'/outpu
 
 #customize how trials should be labeled as classes for classifier
 #timing files 1
-class_dict = {
-		'empty' : 0,
-		'chocolate' : 1,
-        'neutral' : 1,  #watcha
-	}
-
-#timing files 2
-
-
-# class_dict = {
-# 		'empty' : 0,
-# 		'chocolate' : 1,
-# 	}
+if model == 'MVPA-01':
+    class_dict = {
+            'empty' : 0,
+            'chocolate' : 1,
+            'neutral' : 1,  #watcha
+        }
+if model == 'MVPA-02':
+    class_dict = {
+        'empty' : 0,
+        'chocolate' : 1,
+    }
 
 
 
@@ -83,7 +89,8 @@ fds_z = detrended_fds
 
 
 #use a balancer to make a balanced dataset of even amounts of samples in each class
-balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
+if model == 'MVPA-01':
+    balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
 ##WHATCHA
 
 # Removing inv features #pleases the SVM but messes up dimensions. ##triplecheck
@@ -94,9 +101,10 @@ clf = LinearCSVMC()
 clf2 = kNN()
 
 #cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
-cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
-
-#cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
+if model == 'MVPA-01':
+    cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
+if model == 'MVPA-02':
+    cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
 #cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
 #no balance!
 
@@ -122,3 +130,14 @@ nimg = map2nifti(fds_inv, scores_per_voxel) ## watcha !!
 nii_file = vector_file+'.nii.gz'
 nimg.to_filename(nii_file)
 
+
+# smooth for second level
+unsmooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell.nii.gz'
+
+smooth_map = image.smooth_img(unsmooth_file, fwhm=4) ##!was 8
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_smoothed.nii.gz'
+smooth_map.to_filename(smooth_file)
+#unzip for spm analysis
+gunzip(smooth_file)
+
+print 'end - smell VS no smell MVPA'

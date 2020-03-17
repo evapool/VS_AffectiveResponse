@@ -1,11 +1,11 @@
-function beta_mvpa_01(subID)
+function beta_mvpa_02(subID)
 
 % like mvpa_03 but extracts betas on both cs and ant
 % created by Logan
-% last modified on JUNE 2019 by Eva  to get the beta on the onsets of the
-% anticipation phase only
+% last modified on JUNE 2020 by Davis  to get the beta on the onsets of the
+% reward and empty odor recption only!
 
-disp 'running beta_everytrial_mvpa_01'
+disp 'running beta_everytrial_mvpa_02'
 
 
 %subID = {'01'}; 
@@ -34,7 +34,7 @@ addpath(genpath('/usr/local/external_toolboxes/spm12/'))
 
 % | define path
 
-ana_name          = 'MVPA-01';
+ana_name          = 'MVPA-02';
 task          = {'hedonic'};
 subID = char(subID);
 
@@ -47,11 +47,7 @@ mkdir(out_dir)
 
 % | initialize batch
 clear matlabbatch % Every preprocessing step needs this line
-%matlabbatch{1}.spm.stats.fmri_spec.dir = {out_dir};
-%matlabbatch{1}.spm.stats.fmri_spec.timing.units = param.ons_unit;
-%matlabbatch{1}.spm.stats.fmri_spec.timing.RT = param.TR;
-%matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t = 16;
-%matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 8;
+
 
 
 % | define batch
@@ -89,7 +85,7 @@ SPM.nscan   = nscans;
 
 num_trials = length(onsets.All);
 
-%anticipation phase
+%odor reception phase
 for t=1:num_trials
     %separate regressor for each trial
     SPM.Sess(ses).U(t).name = {['Trial ',num2str(t)]};
@@ -128,7 +124,7 @@ SPM.Sess(ses).U(t).dur = durations.liking;
 SPM.Sess(ses).U(t).orth = 0; %no ortho!!
 SPM.Sess(ses).U(t).P(1).name = 'none'; 
 
-%liking
+%intensity
 t = t + 1;
 SPM.Sess(ses).U(t).name = {'q_intensity'};
 SPM.Sess(ses).U(t).ons = onsets.intensity;
@@ -136,6 +132,13 @@ SPM.Sess(ses).U(t).dur = durations.intensity;
 SPM.Sess(ses).U(t).orth = 0; %no ortho!!
 SPM.Sess(ses).U(t).P(1).name = 'none'; 
 
+%neutral
+t = t + 1;
+SPM.Sess(ses).U(t).name = {'neutral'};
+SPM.Sess(ses).U(t).ons = onsets.odor.neutral ;
+SPM.Sess(ses).U(t).dur = durations.odor.neutral ;
+SPM.Sess(ses).U(t).orth = 0; %no ortho!!
+SPM.Sess(ses).U(t).P(1).name = 'none'; 
         
 %high pass filter
 SPM.xX.K(1).HParam = 128;

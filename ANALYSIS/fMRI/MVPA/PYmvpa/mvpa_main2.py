@@ -16,24 +16,27 @@ import sys
 import os
 
 from mvpa2.suite import *
-from pymvpaw import * ##
+#from pymvpaw import * ??
 import matplotlib.pyplot as plt
 from mvpa2.measures.searchlight import sphere_searchlight
-from mvpa2.datasets.miscfx import remove_invariant_features ##
+import mvpa_utils
+
+from mvpa2.datasets.miscfx import remove_invariant_features
+
+
+homedir = os.path.expanduser('~/REWOD/')
 
 #add utils to path
 sys.path.insert(0, homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 #os.path.join(path, "CODE/ANALYSIS/fMRI/PYmvpa")
-import mvpa_utils
+
 ###SCRIPT ARGUMENTS
 
-homedir = os.path.expanduser('~/REWOD/')
-
 subj = '01'
-#sub 02 full
-#sub 03 inv
+#
+#sub 01 inv
 task = 'hedonic'
-model = 'MVPA-01'
+model = 'MVPA-02'
 
 runs2use = 1 ##??
 
@@ -48,7 +51,6 @@ mask_name = homedir+'DERIVATIVES/ANALYSIS/GLM/'+task+'/GLM-01/sub-'+subj+'/outpu
 class_dict = {
 		'empty' : 0,
 		'chocolate' : 1,
-        'neutral' : 1,  #watcha
 	}
 
 #timing files 2
@@ -67,7 +69,6 @@ class_dict = {
 fds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task)
 ##WHATCHA was fds 1
 #fds2 = mvpa_utils_pav.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict07, homedir, model)
-#lot_mtx
 
 #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
 detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
@@ -77,13 +78,11 @@ detrended_fds = fds.get_mapped(detrender)
 zscore(detrended_fds)
 fds_z = detrended_fds
 
-
 #print fds.a.mapper
 #pring fds_z.a.mapper
 
-
 #use a balancer to make a balanced dataset of even amounts of samples in each class
-balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
+#balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
 ##WHATCHA
 
 # Removing inv features #pleases the SVM but messes up dimensions. ##triplecheck
@@ -94,9 +93,9 @@ clf = LinearCSVMC()
 clf2 = kNN()
 
 #cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
-cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
+#cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
 
-#cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
+cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
 #cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
 #no balance!
 

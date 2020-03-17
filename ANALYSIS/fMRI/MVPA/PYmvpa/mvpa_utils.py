@@ -57,8 +57,7 @@ def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, mo
     #load fmri dataset with these values as targets
     fds = fmri_dataset(samples=glm_ds_file, targets=odor_classes, chunks=chunks_allruns, mask=mask_name)
 
-    #fds_subset = fds[:runs2use*120,:] ## why 120?
-    #fds.shape (54, 357810)
+    #fds_subset = fds[:runs2use*len(trials_allruns),:] ##
     print 'Finished making targets',time.time() - start_time
 
     return fds #_subset
