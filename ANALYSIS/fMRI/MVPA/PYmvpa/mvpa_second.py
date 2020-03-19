@@ -22,7 +22,6 @@ from mvpa2.suite import *
 from pymvpaw import *
 import matplotlib.pyplot as plt
 from mvpa2.measures.searchlight import sphere_searchlight
-import mvpa_utils_pav
 from sh import gunzip
 from nilearn import image ## was missing this line!
 
@@ -85,7 +84,7 @@ fds_inv = remove_invariant_features(fds) ##
 
 # ---------------------------- load the hdf5 data 
 
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2'
 scores_per_voxel = h5load(vector_file)
 
 # ---------------------------- substract the chance level
@@ -93,7 +92,7 @@ scores_per_voxel = h5load(vector_file)
 corrected_per_voxel = scores_per_voxel - 0.5
 
 # ---------------------------- save
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_corrected'
 
 h5save(corrected_file,corrected_per_voxel)
 nimg = map2nifti(fds_inv, corrected_per_voxel)
@@ -101,10 +100,10 @@ nii_file = corrected_file+'.nii.gz'
 nimg.to_filename(nii_file)
 
 # ----------------------------- smooth for the spm t-test analysis
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected.nii.gz'
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_corrected.nii.gz'
 
 smooth_map = image.smooth_img(corrected_file, fwhm=4) ##!was 8
-smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected_smoothed.nii.gz'
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_corrected_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
 gunzip(smooth_file)

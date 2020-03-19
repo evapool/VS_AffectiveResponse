@@ -1,12 +1,10 @@
-function GLM_02_ndLevel()
+function MVPA_02_ndLevel()
 
-% intended for REWOD HED
-% get onsets for main model
-% Durations =1 
-% Model on ONSETs (start, 3*odor + 2*questions)
-% 4 basic contrasts Reward-Control, Reward-Neutral, Odor-NoOdor, odor_presence
-% last modified on July 2019 by David Munoz
+% intended for REWOD HED VMPA
+% quick second level for MVPA Reward vs Empty
+% last modified on July 2020 by David Munoz
 
+%dbstop if error
 %does t-test and full_factorial
 do_ttest = 1;
 remove = 0;
@@ -19,23 +17,52 @@ task = 'hedonic';
 
 %% define path
 
+
 cd ~
 home = pwd;
-homedir = [home '/REWOD/'];
+homedir = [home '/REWOD'];
 
-
-mdldir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/GLM', task);% mdl directory (timing and outputs of the analysis)
-name_ana = 'GLM-02'; % output folder for this analysis 
-groupdir = fullfile (mdldir,name_ana, 'group/');
-
-
-%% specify spm param
-addpath /usr/local/MATLAB/R2018a/spm12 ; 
-%addpath /usr/local/external_toolboxes/spm12/ ;
-
-addpath ([homedir 'CODE/ANALYSIS/fMRI/dependencies']);
+% | add spm12 to matlab path
+addpath '/usr/local/external_toolboxes/spm12/'
+%addpath /usr/local/MATLAB/R2018a/spm12 ; 
+addpath ([homedir '/CODE/ANALYSIS/fMRI/dependencies']);
 spm('Defaults','fMRI');
 spm_jobman('initcfg');
+
+ana_name = 'MVPA-01'; % output folder for this analysis 
+
+mdl_dir = fullfile(homedir,'DERIVATIVES','ANALYSIS','MVPA','hedonic',ana_name);
+groupdir = fullfile (mdl_dir, 'group');
+%% create group dir
+
+subj       =  {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+
+
+% participant's specifics
+
+
+%%create and copy into groupdir
+cd (mdl_dir)
+
+
+    
+for i = 1:length(subj)
+
+    subjX = char(subj(i));
+    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*corrected_smoothed.nii'); 
+    old = dir(subj_dir);
+
+    %if ~exist('group','dir')
+        mkdir (groupdir);
+
+        new = [groupdir '/sub-' subjX '_' old.name];
+
+        fprintf('participant number: %s \n', subj{i});
+        cd(old.folder)
+        copyfile(old.name, new)
+        %cd (groupdir)
+    %end  
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DO TESTS
@@ -46,14 +73,10 @@ if do_ttest
     
 
     % These contrast names become folders
-    contrastNames = {'odor_reward'%1
-        'odor_neutral'%2
-        'odor_control'};%4
+    contrastNames = {'smell_nosmell'};%1
     
     
-    conImages = {'con_0007'
-        'con_0008'
-        'con_0009'};
+    conImages = {old.name};
       
     
     %% prepare batch for each contrasts
@@ -77,9 +100,9 @@ if do_ttest
         matlabbatch{1}.spm.stats.factorial_design.dir = {contrastFolder}; % directory
         
         %  FORMAT [dirs] = spm_select('List',direc,'dir',filt)
-        conAll     = spm_select('List',groupdir,['^'  '.*' conImageX '.nii']); % select contrasts ?WHat is LIST?
-        for j =1:length(conAll)
-            matlabbatch{1}.spm.stats.factorial_design.des.t1.scans{j,1} = [groupdir conAll(j,:) ',1'];
+        conAll     = spm_select('List',groupdir,['^'  '.*' conImageX]); % select contrasts ?WHat is LIST?
+        for j =1:size(conAll) %%wathca
+            matlabbatch{1}.spm.stats.factorial_design.des.t1.scans{j,1} = [groupdir '/' conAll(j,:) ',1'];
         end
         
         if remove % remove subject from analysis

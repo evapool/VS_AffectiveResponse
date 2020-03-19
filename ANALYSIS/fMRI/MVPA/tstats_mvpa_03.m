@@ -1,11 +1,10 @@
-function tstats_mvpa_02(subID)
+function tstats_mvpa_03(subID)
 
 % created by Logan
-% last modified on MAY 2020 by David to get the beta on the onsets of the
-% reward and empty odor recption only!
+% last modified on MAY 2019 by Eva to get the beta on the onsets of the
 %dbstop if error
 
-%subID = {'01'} ; %whatcha
+subID = {'01'} ; %whatcha
 
 cd ~
 home = pwd;
@@ -19,7 +18,7 @@ spm_jobman('initcfg');
 % | define path
 subID = char(subID);
 
-ana_name = fullfile ('MVPA-02');
+ana_name = fullfile ('MVPA-03');
 
 out_dir = fullfile(homedir,'DERIVATIVES','ANALYSIS','MVPA','hedonic',ana_name,['sub-' subID],'output');
 

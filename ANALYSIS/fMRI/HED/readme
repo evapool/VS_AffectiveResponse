@@ -36,7 +36,9 @@ GLM-12: model, no modulators BUT separated in 3 mini block of by order of presen
 ~model08*model09
 ->  4 = 2 contrast (odor*lik + odor*int) * 2 (Low VS High)
 
-GLM-13-14: variations of 11-12 but cut in 3
+GLM-13: variations of GLM-11 but cut in 3
+
+GLM-14: same than GLM-02 but with mini-block regressor
 
 GLM-15: Model for odor (neutral + reward) modulated by intensity and liking as 1st level modulators &  durations = 1 & mean centered & orth =0
 ->  2 contrast odor*lik + odor*int

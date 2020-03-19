@@ -38,12 +38,15 @@ task = str(sys.argv[2])
 model = str(sys.argv[3])
 runs2use = 1 ##??
 
+#SVM classifier
+clf = LinearCSVMC()
 
-print 'subject id: '
+if model == 'MVPA-05':
+    clf = kNN()
+
+print 'subject id:', subj
 
 print 'smell VS no smell MVPA'
-
-
 
 #which ds to use and which mask to use
 
@@ -53,12 +56,14 @@ mask_name = homedir+'DERIVATIVES/ANALYSIS/GLM/'+task+'/GLM-01/sub-'+subj+'/outpu
 
 #customize how trials should be labeled as classes for classifier
 #timing files 1
-if model == 'MVPA-01':
-    class_dict = {
-            'empty' : 0,
-            'chocolate' : 1,
-            'neutral' : 1,  #watcha
-        }
+#f model == 'MVPA-01':
+
+class_dict = {
+        'empty' : 0,
+        'chocolate' : 1,
+        'neutral' : 1,  #watcha
+    }
+
 if model == 'MVPA-02':
     class_dict = {
         'empty' : 0,
@@ -89,20 +94,18 @@ fds_z = detrended_fds
 
 
 #use a balancer to make a balanced dataset of even amounts of samples in each class
-if model == 'MVPA-01':
-    balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
+#if model == 'MVPA-01':
+balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
 ##WHATCHA
 
 # Removing inv features #pleases the SVM but messes up dimensions. ##triplecheck
 fds_inv = remove_invariant_features(fds_z)
 
-#SVM classifier
-clf = LinearCSVMC()
-clf2 = kNN()
+
 
 #cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
-if model == 'MVPA-01':
-    cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
+#if model == 'MVPA-01':
+cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
 if model == 'MVPA-02':
     cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
 #cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
@@ -111,7 +114,7 @@ if model == 'MVPA-02':
 error_sample = np.mean(cv(fds_inv))
 
 #implement full brain searchlight with spheres with a radius of 3
-svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
+svm_sl = sphere_searchlight(cv, radius=2, space='voxel_indices',postproc=mean_sample())
 
 #searchlight
 # enable progress bar
@@ -124,7 +127,7 @@ res_sl = svm_sl(fds_inv) #Obtained degenerate data with zero norm for trainin
 #reverse map scores back into nifti format and save
 scores_per_voxel = res_sl.samples
 #vector_file = homedir+'DATA/brain/MODELS/RSA/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2'
 h5save(vector_file,scores_per_voxel)
 nimg = map2nifti(fds_inv, scores_per_voxel) ## watcha !!
 nii_file = vector_file+'.nii.gz'
@@ -132,12 +135,15 @@ nimg.to_filename(nii_file)
 
 
 # smooth for second level
-unsmooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell.nii.gz'
+unsmooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2.nii.gz'
 
 smooth_map = image.smooth_img(unsmooth_file, fwhm=4) ##!was 8
-smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_smoothed.nii.gz'
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
 gunzip(smooth_file)
 
-print 'end - smell VS no smell MVPA'
+cv_results = cv(fds_inv)
+print 'error across splits'
+print np.mean(cv_results)
+print 'end'

@@ -1,7 +1,7 @@
 function GLM_14_getOnsets()
 
 % intended for REWOD HED
-% get onsets for model with 1st level modulators
+% get onsets for model with 1st level modulators time : MINI-block
 % Duration =1 
 % Model on ONSETs (start, 3*odor + 2*questions)
 % last modified on JULY 2019 by David Munoz
@@ -19,7 +19,7 @@ sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 ana_name      = 'GLM-14';
 %session       = {'second'};
 task          = {'hedonic'};
-subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'24';'25';'26'};
+subj          = {'01'} %;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'24';'25';'26'};
 
 
 %% create folder
@@ -48,6 +48,8 @@ mkdir (fullfile (mdldir, char(task), ana_name));
 
 
         %% FOR SPM
+        
+        miniblocks = reshape(repmat ([1: 6], 9,1), 1, [])';
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and durations for start
