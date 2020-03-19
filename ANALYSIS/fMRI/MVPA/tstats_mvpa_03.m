@@ -1,10 +1,11 @@
 function tstats_mvpa_03(subID)
 
 % created by Logan
-% last modified on MAY 2019 by Eva to get the beta on the onsets of the
+% last modified on MAY 2020 by David to get the beta on the onsets of the
+% reward and empty odor recption only!
 %dbstop if error
 
-subID = {'01'} ; %whatcha
+%subID = {'01'} ; %whatcha
 
 cd ~
 home = pwd;

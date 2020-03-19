@@ -1,4 +1,4 @@
-function MVPA_02_ndLevel()
+function MVPA_ndLevel()
 
 % intended for REWOD HED VMPA
 % quick second level for MVPA Reward vs Empty
@@ -14,7 +14,7 @@ removedsub = '24';
 %% define task variable
 %sessionX = 'second';
 task = 'hedonic';
-
+ana_name = 'MVPA-01'; % output folder for this analysis 
 %% define path
 
 
@@ -29,7 +29,7 @@ addpath ([homedir '/CODE/ANALYSIS/fMRI/dependencies']);
 spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
-ana_name = 'MVPA-01'; % output folder for this analysis 
+
 
 mdl_dir = fullfile(homedir,'DERIVATIVES','ANALYSIS','MVPA','hedonic',ana_name);
 groupdir = fullfile (mdl_dir, 'group');
@@ -49,7 +49,7 @@ cd (mdl_dir)
 for i = 1:length(subj)
 
     subjX = char(subj(i));
-    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*corrected_smoothed.nii'); 
+    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*2_corrected_smoothed.nii'); 
     old = dir(subj_dir);
 
     %if ~exist('group','dir')

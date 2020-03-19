@@ -92,7 +92,7 @@ scores_per_voxel = h5load(vector_file)
 corrected_per_voxel = scores_per_voxel - 0.5
 
 # ---------------------------- save
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_corrected'
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell3_corrected'
 
 h5save(corrected_file,corrected_per_voxel)
 nimg = map2nifti(fds_inv, corrected_per_voxel)
@@ -100,10 +100,10 @@ nii_file = corrected_file+'.nii.gz'
 nimg.to_filename(nii_file)
 
 # ----------------------------- smooth for the spm t-test analysis
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_corrected.nii.gz'
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell3_corrected.nii.gz'
 
 smooth_map = image.smooth_img(corrected_file, fwhm=4) ##!was 8
-smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_corrected_smoothed.nii.gz'
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell3_corrected_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
 gunzip(smooth_file)

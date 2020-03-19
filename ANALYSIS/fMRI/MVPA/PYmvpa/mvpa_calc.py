@@ -30,19 +30,20 @@ import mvpa_utils
 
 
 # ---------------------------- Script arguments
-##subj = '01'
 subj = str(sys.argv[1])
-#task = 'hedonic'
+#subj = '01'
+
 task = str(sys.argv[2])
-##model = 'MVPA-01'
+#task = 'hedonic'
+
 model = str(sys.argv[3])
+#model = 'MVPA-03'
 runs2use = 1 ##??
 
 #SVM classifier
 clf = LinearCSVMC()
-
-if model == 'MVPA-05':
-    clf = kNN()
+##if model == 'MVPA-05':
+    #clf = kNN()
 
 print 'subject id:', subj
 
@@ -64,9 +65,16 @@ class_dict = {
         'neutral' : 1,  #watcha
     }
 
+
 if model == 'MVPA-02':
     class_dict = {
         'empty' : 0,
+        'chocolate' : 1,
+    }
+
+if model == 'MVPA-03':
+    class_dict = {
+        'neutral' : 0,
         'chocolate' : 1,
     }
 
@@ -106,7 +114,7 @@ fds_inv = remove_invariant_features(fds_z)
 #cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
 #if model == 'MVPA-01':
 cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
-if model == 'MVPA-02':
+if model == 'MVPA-03':
     cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
 #cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
 #no balance!
@@ -114,7 +122,7 @@ if model == 'MVPA-02':
 error_sample = np.mean(cv(fds_inv))
 
 #implement full brain searchlight with spheres with a radius of 3
-svm_sl = sphere_searchlight(cv, radius=2, space='voxel_indices',postproc=mean_sample())
+svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
 
 #searchlight
 # enable progress bar
@@ -127,7 +135,7 @@ res_sl = svm_sl(fds_inv) #Obtained degenerate data with zero norm for trainin
 #reverse map scores back into nifti format and save
 scores_per_voxel = res_sl.samples
 #vector_file = homedir+'DATA/brain/MODELS/RSA/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2'
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
 h5save(vector_file,scores_per_voxel)
 nimg = map2nifti(fds_inv, scores_per_voxel) ## watcha !!
 nii_file = vector_file+'.nii.gz'
@@ -135,10 +143,10 @@ nimg.to_filename(nii_file)
 
 
 # smooth for second level
-unsmooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2.nii.gz'
+unsmooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell.nii.gz'
 
 smooth_map = image.smooth_img(unsmooth_file, fwhm=4) ##!was 8
-smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2_smoothed.nii.gz'
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
 gunzip(smooth_file)
