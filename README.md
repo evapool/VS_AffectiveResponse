@@ -16,10 +16,15 @@ David Muñoz Tord
 This folder contains all codes and data necessary to reproduce the behavioral and MRI analyses
 
 Please note that the codes needs: 
+
 Matlab R2014b or a more resent version, with SPM8 or above
+
 FSL 3.3.0 or a more resent version
+
 ANTs 2.1.0 or a more resent version
-Python 2.7
+
+Python 2.7 (and python 3.5 or above for the BIDS)
+
 R 3.1.1 or a more resent version
 
 
