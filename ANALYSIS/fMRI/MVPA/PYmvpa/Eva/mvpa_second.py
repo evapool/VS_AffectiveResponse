@@ -22,6 +22,7 @@ from mvpa2.suite import *
 from pymvpaw import *
 import matplotlib.pyplot as plt
 from mvpa2.measures.searchlight import sphere_searchlight
+from mvpa2.datasets.miscfx import remove_invariant_features
 from sh import gunzip
 from nilearn import image ## was missing this line!
 
@@ -76,15 +77,36 @@ if model == 'MVPA-02':
         'empty' : 0,
         'chocolate' : 1,
     }
+if model == 'MVPA-03' or model == 'MVPA-05':
+    class_dict = {
+        'neutral' : 0,
+        'chocolate' : 1,
+    }
+
+if model == 'MVPA-05':
+    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/CORE_SHELL/NAcc.nii'
+
 
 #use make_targets and class_dict for timing files 1, and use make_targets2 and classdict2 for timing files 2
 fds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task)
 
-fds_inv = remove_invariant_features(fds) ##
+
+#basic preproc: detrending [likely not necessary since we work with HRF in GLM]
+detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
+detrended_fds = fds.get_mapped(detrender)
+
+zscore(detrended_fds) ##
+fds_z = detrended_fds ##
+
+fds = remove_invariant_features(fds_z) ##
+
+if model == 'MVPA-05':
+    fds = fds_z
+
 
 # ---------------------------- load the hdf5 data 
 
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell2'
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
 scores_per_voxel = h5load(vector_file)
 
 # ---------------------------- substract the chance level
@@ -92,18 +114,18 @@ scores_per_voxel = h5load(vector_file)
 corrected_per_voxel = scores_per_voxel - 0.5
 
 # ---------------------------- save
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell3_corrected'
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
 
 h5save(corrected_file,corrected_per_voxel)
-nimg = map2nifti(fds_inv, corrected_per_voxel)
+nimg = map2nifti(fds, corrected_per_voxel)
 nii_file = corrected_file+'.nii.gz'
 nimg.to_filename(nii_file)
 
 # ----------------------------- smooth for the spm t-test analysis
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell3_corrected.nii.gz'
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected.nii.gz'
 
 smooth_map = image.smooth_img(corrected_file, fwhm=4) ##!was 8
-smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell3_corrected_smoothed.nii.gz'
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
 gunzip(smooth_file)

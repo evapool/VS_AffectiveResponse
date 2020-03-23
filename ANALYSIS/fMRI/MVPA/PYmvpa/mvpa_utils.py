@@ -21,7 +21,7 @@ import time
 def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task):
 
     start_time = time.time()
-    print 'Starting making targets',time.time() - start_time
+    #print 'Starting making targets',time.time() - start_time
     
     onsets_folder = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/timing'
     
@@ -31,6 +31,8 @@ def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, mo
     mask_name = os.path.expanduser(mask_name)
     glm_ds_file = os.path.expanduser(glm_ds_file)
     
+
+
     #for run in range(1,4):
     temp_folder = onsets_folder+'/'+model+'_task-'+task
     condition = np.genfromtxt(temp_folder+'_condition.txt',dtype=None)
@@ -58,7 +60,7 @@ def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, mo
     fds = fmri_dataset(samples=glm_ds_file, targets=odor_classes, chunks=chunks_allruns, mask=mask_name)
 
     #fds_subset = fds[:runs2use*len(trials_allruns),:] ##
-    print 'Finished making targets',time.time() - start_time
+    #print 'Finished making targets',time.time() - start_time
 
     return fds #_subset
 

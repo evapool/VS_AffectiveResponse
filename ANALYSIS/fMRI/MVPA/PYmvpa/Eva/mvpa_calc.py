@@ -7,6 +7,10 @@ Created on Mon Apr 29 16:47:57 2019
 
 modified by David on June 13 2020
 """
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
 
 from mvpa2.suite import *
 import matplotlib.pyplot as plt
@@ -16,10 +20,7 @@ from mvpa2.datasets.miscfx import remove_invariant_features ##
 import sys
 from sh import gunzip
 from nilearn import image ## was missing this line!
-def warn(*args, **kwargs):
-    pass
-import warnings
-warnings.warn = warn
+
 import os
 # import utilities
 homedir = os.path.expanduser('~/REWOD/')
@@ -72,14 +73,17 @@ if model == 'MVPA-02':
         'chocolate' : 1,
     }
 
-if model == 'MVPA-03':
+if model == 'MVPA-03' or model == 'MVPA-05':
     class_dict = {
         'neutral' : 0,
         'chocolate' : 1,
     }
+if model == 'MVPA-05':
+    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/CORE_SHELL/NAcc.nii'
 
-
-
+if model == 'MVPA-04':
+    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Others/PIRIF.nii'
+    
 ###SCRIPT ARGUMENTS END
 
 #use make_targets and class_dict for timing files 1, and use make_targets2 and classdict2 for timing files 2
@@ -107,19 +111,21 @@ balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='
 ##WHATCHA
 
 # Removing inv features #pleases the SVM but messes up dimensions. ##triplecheck
-fds_inv = remove_invariant_features(fds_z)
+fds = remove_invariant_features(fds_z)
 
+if model == 'MVPA-05' or model == 'MVPA-04':
+    fds = (fds_z)
 
 
 #cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
 #if model == 'MVPA-01':
 cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
-if model == 'MVPA-03':
+
+if model == 'MVPA-03' or model == 'MVPA-05':
     cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
 #cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
 #no balance!
 
-error_sample = np.mean(cv(fds_inv))
 
 #implement full brain searchlight with spheres with a radius of 3
 svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
@@ -129,29 +135,48 @@ svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sa
 if __debug__:
     debug.active += ["SLC"]
     
+
+# ---------------------------- Save for perm
 #res_sl = svm_sl(fds) 
-res_sl = svm_sl(fds_inv) #Obtained degenerate data with zero norm for trainin
+res_sl = svm_sl(fds) #Obtained degenerate data with zero norm for trainin
 
 #reverse map scores back into nifti format and save
 scores_per_voxel = res_sl.samples
-#vector_file = homedir+'DATA/brain/MODELS/RSA/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+
 vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
 h5save(vector_file,scores_per_voxel)
-nimg = map2nifti(fds_inv, scores_per_voxel) ## watcha !!
-nii_file = vector_file+'.nii.gz'
-nimg.to_filename(nii_file)
-
+nimg = map2nifti(fds, scores_per_voxel) ## watcha !!
+unsmooth_file = vector_file+'.nii.gz'
+nimg.to_filename(unsmooth_file)
 
 # smooth for second level
-unsmooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell.nii.gz'
-
 smooth_map = image.smooth_img(unsmooth_file, fwhm=4) ##!was 8
 smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
-gunzip(smooth_file)
+#gunzip(smooth_file)
 
-cv_results = cv(fds_inv)
+# ---------------------------- Save for quik ttest
+
+# correct against chance level (0.5)
+corrected_per_voxel = scores_per_voxel - 0.5
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
+
+# # h5save(corrected_file,corrected_per_voxel)
+nimg = map2nifti(fds, corrected_per_voxel)
+unsmooth_corrected_file =  corrected_file+'.nii.gz'
+nimg.to_filename(unsmooth_corrected_file)
+
+# # # smooth for second level
+
+# smooth_map = image.smooth_img(unsmooth_corrected_file, fwhm=4) ##!was 8
+smooth_corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected_smoothed.nii.gz'
+smooth_map.to_filename(smooth_corrected_file)
+#unzip for spm analysis
+gunzip(smooth_corrected_file)
+
+error_sample = np.mean(cv(fds))
+
 print 'error across splits'
-print np.mean(cv_results)
+print error_sample
 print 'end'

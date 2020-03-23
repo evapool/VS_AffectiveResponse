@@ -14,13 +14,18 @@ removedsub = '24';
 %% define task variable
 %sessionX = 'second';
 task = 'hedonic';
-ana_name = 'MVPA-01'; % output folder for this analysis 
+ana_name = 'MVPA-04'; % output folder for this analysis 
+copy = 1;
 %% define path
 
 
 cd ~
 home = pwd;
 homedir = [home '/REWOD'];
+
+ %maskfile = fullfile(homedir,'DERIVATIVES','ANALYSIS', 'GLM', 'hedonic', 'GLM-04', 'group', 'covariate', 'Odor-NoOdor_lik_meancent', 'all', 'Odor-NoOdor', 'mask.nii');
+ %maskfile = fullfile(homedir, 'DERIVATIVES', 'EXTERNALDATA', 'LABELS', 'CORE_SHELL', 'NAcc.nii'); 
+   
 
 % | add spm12 to matlab path
 addpath '/usr/local/external_toolboxes/spm12/'
@@ -39,20 +44,21 @@ subj       =  {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';
 
 
 % participant's specifics
+     
 
 
 %%create and copy into groupdir
 cd (mdl_dir)
 
 
-    
+
 for i = 1:length(subj)
 
     subjX = char(subj(i));
-    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*2_corrected_smoothed.nii'); 
+    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*_corrected_smoothed.nii'); 
     old = dir(subj_dir);
 
-    %if ~exist('group','dir')
+    if copy 
         mkdir (groupdir);
 
         new = [groupdir '/sub-' subjX '_' old.name];
@@ -60,10 +66,10 @@ for i = 1:length(subj)
         fprintf('participant number: %s \n', subj{i});
         cd(old.folder)
         copyfile(old.name, new)
-        %cd (groupdir)
+            %cd (groupdir)
     %end  
+    end
 end
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DO TESTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,13 +124,22 @@ if do_ttest
         
         matlabbatch{1}.spm.stats.factorial_design.cov = struct('c', {}, 'cname', {}, 'iCFI', {}, 'iCC', {});
         matlabbatch{1}.spm.stats.factorial_design.multi_cov = struct('files', {}, 'iCFI', {}, 'iCC', {});
-        matlabbatch{1}.spm.stats.factorial_design.masking.tm.tm_none = 1;
+        matlabbatch{1}.spm.stats.factorial_design.masking.tm.tm_none = [];
         matlabbatch{1}.spm.stats.factorial_design.masking.im = 1;
-        matlabbatch{1}.spm.stats.factorial_design.masking.em = {''};
+        matlabbatch{1}.spm.stats.factorial_design.masking.em = {''}; %maskfile};
+
+%      
+        %matlabbatch{1}.spm.stats.factorial_design.masking.em = {''};
+        %matlabbatch{1}.spm.stats.factorial_design.masking.tm.tm_none = 0;
+%         matlabbatch{1}.spm.stats.factorial_design.masking.im = 0.1;
+%         matlabbatch{1}.spm.stats.factorial_design.masking.tm.tm_none = 0.1;
         matlabbatch{1}.spm.stats.factorial_design.globalc.g_omit = 1;
         matlabbatch{1}.spm.stats.factorial_design.globalm.gmsca.gmsca_no = 1;
         matlabbatch{1}.spm.stats.factorial_design.globalm.glonorm = 1;
-        
+%         
+%         SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
+%         SPM.xM.VM  =  spm_vol(Maskimage);
+%         SPM.xM.I   =  0.1;
         % estimate design matrix
         matlabbatch{2}.spm.stats.fmri_est.spmmat = {[contrastFolder  '/SPM.mat']};
         matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
