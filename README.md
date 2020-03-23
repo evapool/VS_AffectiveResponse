@@ -11,7 +11,7 @@ Folders are organised in BIDS format (see in each folder for further info)
 Please note that not these scripts have been modified for reproducibility purpose (e.g. code flexibility) and are then not exactly the same used by us. The scripts should work as it is but some of them might need to be adapted.
 
 Codes and data from the REWOD project
-David Munoz david.munoz@etu.unige.ch
+David Muñoz Tord
 
 This folder contains all codes and data necessary to reproduce the behavioral and MRI analyses
 
@@ -19,7 +19,7 @@ Please note that the codes needs:
 Matlab R2014b or a more resent version, with SPM8 or above
 FSL 3.3.0 or a more resent version
 ANTs 2.1.0 or a more resent version
-Python 2.7 &! 3.5 or a more resent version
+Python 2.7
 R 3.1.1 or a more resent version
 
 
