@@ -1,4 +1,4 @@
-function beta_mvpa_01(subID)
+function beta_mvpa_04(subID)
 
 % like mvpa_04
 % last modified on JUNE 2020 by David
@@ -32,7 +32,7 @@ addpath(genpath('/usr/local/external_toolboxes/spm12/'))
 
 % | define path
 
-ana_name          = 'MVPA-01';
+ana_name          = 'MVPA-04';
 task          = {'hedonic'};
 subID = char(subID);
 

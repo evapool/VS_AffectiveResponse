@@ -3,7 +3,7 @@ home=$(eval echo ~$user)
 
 #small function to move and copy files
 
-for subjID in 02 03 04 05 06 07 09 10 11 12 13 14 15 16 17 18 20 21 22 23 24 25 26
+for subjID in 01 02 03 04 05 06 07 09 10 11 12 13 14 15 16 17 18 20 21 22 23 24 25 26
   do
   #for taskID in hedonic PIT
     #do
@@ -15,7 +15,8 @@ for subjID in 02 03 04 05 06 07 09 10 11 12 13 14 15 16 17 18 20 21 22 23 24 25 
 
   #new directory with final preprocesssed bold files
     #cp ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/task-${taskID}.ica/filtered_func_data_clean_unwarped_Coreg.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-${taskID}_run-01_UnsmoothedBold.nii.gz
-  gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/*UnsmoothedBold.nii.gz
-  echo 'done'
+  cd ${home}/REWOD/DERIVATIVES/ANALYSIS/MVPA/hedonic/MVPA-04/sub-${subjID}/mvpa/
+  fslstats svm_smell_nosmell_smoothed.nii -m -M
+  #echo 'done'
   #done
 done

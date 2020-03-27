@@ -1,7 +1,8 @@
 function tstats_mvpa_01(subID)
 
 % created by Logan
-% last modified on MAY 2019 by Eva to get the beta on the onsets of the
+% same for MVPA -04
+% last modified on MAY 2020 by David
 %dbstop if error
 
 %subID = {'01'} ; %whatcha

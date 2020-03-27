@@ -23,8 +23,8 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD'];
 
- %maskfile = fullfile(homedir,'DERIVATIVES','ANALYSIS', 'GLM', 'hedonic', 'GLM-04', 'group', 'covariate', 'Odor-NoOdor_lik_meancent', 'all', 'Odor-NoOdor', 'mask.nii');
- %maskfile = fullfile(homedir, 'DERIVATIVES', 'EXTERNALDATA', 'LABELS', 'CORE_SHELL', 'NAcc.nii'); 
+%maskfile = fullfile(homedir,'DERIVATIVES','ANALYSIS', 'GLM', 'hedonic', 'GLM-04', 'group', 'covariate', 'Odor-NoOdor_lik_meancent', 'all', 'Odor-NoOdor', 'mask.nii');
+maskfile = fullfile(homedir, 'DERIVATIVES', 'EXTERNALDATA', 'LABELS', 'Olfa_cortex', 'mask.nii'); 
    
 
 % | add spm12 to matlab path
@@ -55,7 +55,7 @@ cd (mdl_dir)
 for i = 1:length(subj)
 
     subjX = char(subj(i));
-    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*_corrected_smoothed.nii'); 
+    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*l_corrected_smoothed.nii'); 
     old = dir(subj_dir);
 
     if copy 
@@ -126,7 +126,7 @@ if do_ttest
         matlabbatch{1}.spm.stats.factorial_design.multi_cov = struct('files', {}, 'iCFI', {}, 'iCC', {});
         matlabbatch{1}.spm.stats.factorial_design.masking.tm.tm_none = [];
         matlabbatch{1}.spm.stats.factorial_design.masking.im = 1;
-        matlabbatch{1}.spm.stats.factorial_design.masking.em = {''}; %maskfile};
+        matlabbatch{1}.spm.stats.factorial_design.masking.em = {maskfile};
 
 %      
         %matlabbatch{1}.spm.stats.factorial_design.masking.em = {''};

@@ -36,11 +36,12 @@ os.chdir(homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 import mvpa_utils
 
 # ---------------------------- Script arguments
-##subj = '01'
+#subj = '26'
 subj = str(sys.argv[1])
 #task = 'hedonic'
 task = str(sys.argv[2])
-##model = 'MVPA-01'
+
+#model = 'MVPA-04'
 model = str(sys.argv[3])
 runs2use = 1 ##??
 
@@ -66,11 +67,11 @@ mask_name = homedir+'DERIVATIVES/ANALYSIS/GLM/'+task+'/GLM-01/sub-'+subj+'/outpu
 
 #customize how trials should were labeled as classes for classifier
 #timing files 1
-if model == 'MVPA-01':
+if model == 'MVPA-01' or model == 'MVPA-04':
     class_dict = {
             'empty' : 0,
             'chocolate' : 1,
-            'neutral' : 1,  #watcha
+            'neutral' : 1, 
         }
 if model == 'MVPA-02':
     class_dict = {
@@ -86,6 +87,9 @@ if model == 'MVPA-03' or model == 'MVPA-05':
 if model == 'MVPA-05':
     mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/CORE_SHELL/NAcc.nii'
 
+if model == 'MVPA-04':
+    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
+    
 
 #use make_targets and class_dict for timing files 1, and use make_targets2 and classdict2 for timing files 2
 fds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task)
@@ -95,14 +99,12 @@ fds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict
 detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
 detrended_fds = fds.get_mapped(detrender)
 
-zscore(detrended_fds) ##
-fds_z = detrended_fds ##
+#basic preproc: zscoring (this is critical given the design of the experiment)
+zscore(detrended_fds)
+fds_z = detrended_fds
 
-fds = remove_invariant_features(fds_z) ##
-
-if model == 'MVPA-05':
-    fds = fds_z
-
+# Removing inv features #pleases the SVM but  ##triplecheck
+fds = remove_invariant_features(fds_z)
 
 # ---------------------------- load the hdf5 data 
 

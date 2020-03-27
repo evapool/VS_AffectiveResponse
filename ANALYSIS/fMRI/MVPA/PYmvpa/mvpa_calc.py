@@ -18,6 +18,7 @@ from pymvpaw import *
 from mvpa2.measures.searchlight import sphere_searchlight
 from mvpa2.datasets.miscfx import remove_invariant_features ##
 import sys
+import time
 from sh import gunzip
 from nilearn import image ## was missing this line!
 
@@ -31,14 +32,14 @@ import mvpa_utils
 
 
 # ---------------------------- Script arguments
-#subj = str(sys.argv[1])
-subj = '01'
+subj = str(sys.argv[1])
+#subj = '01'
 
-#task = str(sys.argv[2])
-task = 'hedonic'
+task = str(sys.argv[2])
+#task = 'hedonic'
 
-#model = str(sys.argv[3])
-model = 'MVPA-04'
+model = str(sys.argv[3])
+#model = 'MVPA-03'
 runs2use = 1 ##??
 
 #SVM classifier
@@ -82,7 +83,7 @@ if model == 'MVPA-05':
     mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/CORE_SHELL/NAcc.nii'
 
 if model == 'MVPA-04':
-    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Others/PIRIF.nii'
+    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
     
 ###SCRIPT ARGUMENTS END
 
@@ -100,9 +101,8 @@ detrended_fds = fds.get_mapped(detrender)
 zscore(detrended_fds)
 fds_z = detrended_fds
 
-
-#print fds.a.mapper
-#pring fds_z.a.mapper
+# Removing inv features #pleases the SVM but  ##triplecheck
+fds = remove_invariant_features(fds_z)
 
 
 #use a balancer to make a balanced dataset of even amounts of samples in each class
@@ -110,11 +110,7 @@ fds_z = detrended_fds
 balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
 ##WHATCHA
 
-# Removing inv features #pleases the SVM but messes up dimensions. ##triplecheck
-fds = remove_invariant_features(fds_z)
 
-if model == 'MVPA-05' or model == 'MVPA-04':
-    fds = (fds_z)
 
 
 #cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
@@ -127,8 +123,8 @@ if model == 'MVPA-03' or model == 'MVPA-05':
 #no balance!
 
 
-#implement full brain searchlight with spheres with a radius of 3
-svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
+#implement full brain searchlight with spheres with a radius of 3 ## now 2
+svm_sl = sphere_searchlight(cv, radius=2, space='voxel_indices',postproc=mean_sample())
 
 #searchlight
 # enable progress bar
@@ -154,15 +150,19 @@ smooth_map = image.smooth_img(unsmooth_file, fwhm=4) ##!was 8
 smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
-#gunzip(smooth_file)
+gunzip(smooth_file)
 
-# ---------------------------- Save for quik ttest
+time.sleep(5)
+# ---------------------------- Save for quick ttest
 
 # correct against chance level (0.5)
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+scores_per_voxel = h5load(vector_file)
+
 corrected_per_voxel = scores_per_voxel - 0.5
 corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
 
-# h5save(corrected_file,corrected_per_voxel)
+# # h5save(corrected_file,corrected_per_voxel)
 nimg = map2nifti(fds, corrected_per_voxel)
 unsmooth_corrected_file =  corrected_file+'.nii.gz'
 nimg.to_filename(unsmooth_corrected_file)
@@ -171,10 +171,9 @@ nimg.to_filename(unsmooth_corrected_file)
 
 smooth_map = image.smooth_img(unsmooth_corrected_file, fwhm=4) ##!was 8
 smooth_corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected_smoothed.nii.gz'
-smooth_files = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/*.nii.gz'
 smooth_map.to_filename(smooth_corrected_file)
 #unzip for spm analysis
-gunzip(smooth_files)
+gunzip(smooth_corrected_file)
 
 error_sample = np.mean(cv(fds))
 

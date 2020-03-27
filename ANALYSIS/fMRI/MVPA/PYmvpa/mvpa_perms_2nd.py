@@ -135,13 +135,13 @@ perms.sa.set_length_check(len(chunks))
 #chunks tell pymvpa which samples belong to which subject
 perms.sa['chunks'] = chunks.astype(int)
 
-fwe_rate = .05
-n_bootstrap = 10000
-feature_thresh_prob = .005
+fwe_rate = 0.1  #fwe at 0.1
+n_bootstrap = 100000
+feat_prob = .05
 #feature_thresh_prob = .5
 save_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/'+analysis_prefix+'_smell_nosmell_Perm.hdf5'
 
-group_result = Perm_GroupClusterThreshold(mean_map, perms, NN = 1, feature_thresh_prob = .005, n_bootstrap = n_bootstrap, fwe_rate = fwe_rate, h5 = 1, h5out = save_file)
+group_result = Perm_GroupClusterThreshold(mean_map, perms, NN = 1, feature_thresh_prob = feat_prob, n_bootstrap = n_bootstrap, fwe_rate = fwe_rate, h5 = 1, h5out = save_file)
 
 
 # # save thresholded mask

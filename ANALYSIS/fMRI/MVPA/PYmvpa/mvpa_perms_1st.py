@@ -25,6 +25,8 @@ os.chdir(homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 import mvpa_utils
 import time
 
+###radius 2## 6 min per perm ~10h for 100
+
 
 #PERMUTATION TESTING PROCEDURE PERFORMED AS DESCRIBED AS IN STELZER
 #https://www.sciencedirect.com/science/article/pii/S1053811912009810?via%3Dihub#bb0035
@@ -38,7 +40,7 @@ task = str(sys.argv[2])
 #task = 'hedonic'
 
 model = str(sys.argv[3])
-#model = 'MVPA-05'
+#model = 'MVPA-04'
 runs2use = 1 ##??
 
 #number of permutations to run
@@ -82,7 +84,7 @@ if model == 'MVPA-05':
     mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/CORE_SHELL/NAcc.nii'
 
 if model == 'MVPA-04':
-    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Others/PIRIF.nii'
+    mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
     
 
 # ---------------------------- define targets, classifier and searchlight
@@ -98,9 +100,6 @@ zscore(detrended_fds) ##
 fds_z = detrended_fds ##
 
 fds = remove_invariant_features(fds_z) ##
-
-if model == 'MVPA-05' or model == 'MVPA-04':
-    fds = (fds_z)
 
 #use a balancer to make a balanced dataset of even amounts of samples in each class
 balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
@@ -124,14 +123,14 @@ start_time = time.time()
 
 print 'Starting training',time.time() 
 
-if model == 'MVPA-01' or model == 'MVPA-04':
-    perm_sl = slClassPermTest_1Ss(fds, perm_count = num_perms, radius = 3,
-                                clf = clf, part = balancer, status_print = 0, h5 = 1,
-                                h5out = perm_file)
-else: 
-    perm_sl = slClassPermTest_1Ss(fds, perm_count = num_perms, radius = 3,
-                              clf = clf, part = NFoldPartitioner(), status_print = 0, h5 = 1,
-                              h5out = perm_file)
+
+perm_sl = slClassPermTest_1Ss(fds, perm_count = num_perms, radius = 2, ###
+                            clf = clf, part = balancer, status_print = 0, h5 = 1,
+                            h5out = perm_file)
+# else: 
+#     perm_sl = slClassPermTest_1Ss(fds, perm_count = num_perms, radius = 3,
+#                               clf = clf, part = NFoldPartitioner(), status_print = 0, h5 = 1,
+#                               h5out = perm_file)
 
 print 'Finished training, it took',time.time() - start_time
 print 'end'
