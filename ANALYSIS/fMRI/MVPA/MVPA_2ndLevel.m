@@ -55,7 +55,7 @@ cd (mdl_dir)
 for i = 1:length(subj)
 
     subjX = char(subj(i));
-    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*l_corrected_smoothed.nii'); 
+    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa3', '*l_corrected_smoothed.nii'); 
     old = dir(subj_dir);
 
     if copy 

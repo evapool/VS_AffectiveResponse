@@ -124,7 +124,7 @@ if model == 'MVPA-03' or model == 'MVPA-05':
 
 
 #implement full brain searchlight with spheres with a radius of 3 ## now 2
-svm_sl = sphere_searchlight(cv, radius=2, space='voxel_indices',postproc=mean_sample())
+svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
 
 #searchlight
 # enable progress bar
@@ -139,7 +139,7 @@ res_sl = svm_sl(fds) #Obtained degenerate data with zero norm for trainin
 #reverse map scores back into nifti format and save
 scores_per_voxel = res_sl.samples
 
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa3/svm_smell_nosmell'
 h5save(vector_file,scores_per_voxel)
 nimg = map2nifti(fds, scores_per_voxel) ## watcha !!
 unsmooth_file = vector_file+'.nii.gz'
@@ -147,7 +147,7 @@ nimg.to_filename(unsmooth_file)
 
 # smooth for second level
 smooth_map = image.smooth_img(unsmooth_file, fwhm=4) ##!was 8
-smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_smoothed.nii.gz'
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa3/svm_smell_nosmell_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
 gunzip(smooth_file)
@@ -156,11 +156,11 @@ time.sleep(5)
 # ---------------------------- Save for quick ttest
 
 # correct against chance level (0.5)
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa3/svm_smell_nosmell'
 scores_per_voxel = h5load(vector_file)
 
 corrected_per_voxel = scores_per_voxel - 0.5
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
+corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa3/svm_smell_nosmell_corrected'
 
 # # h5save(corrected_file,corrected_per_voxel)
 nimg = map2nifti(fds, corrected_per_voxel)
@@ -170,7 +170,7 @@ nimg.to_filename(unsmooth_corrected_file)
 # # # smooth for second level
 
 smooth_map = image.smooth_img(unsmooth_corrected_file, fwhm=4) ##!was 8
-smooth_corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected_smoothed.nii.gz'
+smooth_corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa3/svm_smell_nosmell_corrected_smoothed.nii.gz'
 smooth_map.to_filename(smooth_corrected_file)
 #unzip for spm analysis
 gunzip(smooth_corrected_file)

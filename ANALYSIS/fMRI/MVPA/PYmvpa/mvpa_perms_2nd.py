@@ -29,20 +29,20 @@ import time
 
 from sh import gunzip
 from nilearn import image ## was missing this line!
-
+#np.warnings.filterwarnings('ignore')
 
 #svm (classification) or rsa result
 analysis_prefix = 'svm'
 
 # ---------------------------- Script arguments
-subj = str(sys.argv[1])
-#subj = '01'
+#subj = str(sys.argv[1])
+subj = '01'
 
-task = str(sys.argv[2])
-#task = 'hedonic'
+#task = str(sys.argv[2])
+task = 'hedonic'
 
-model = str(sys.argv[3])
-#model = 'MVPA-04'
+#model = str(sys.argv[3])
+model = 'MVPA-04'
 runs2use = 1 ##??
 
 
@@ -135,18 +135,43 @@ perms.sa.set_length_check(len(chunks))
 #chunks tell pymvpa which samples belong to which subject
 perms.sa['chunks'] = chunks.astype(int)
 
-fwe_rate = 0.1  #fwe at 0.1
-n_bootstrap = 100000
-feat_prob = .05
-#feature_thresh_prob = .5
-save_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/'+analysis_prefix+'_smell_nosmell_Perm.hdf5'
+fwe_rate = 0.05  #fwe at 0.1
+n_bootstrap = 10000 # 100000#
+feature_thresh_prob = 0.0001 # 0.001
+NN = 1
+#feature_thresh_prob 
+save_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/'+analysis_prefix+'_smell_nosmell_Perm.hdf5'
+h5out = save_file
+#group_result = Perm_GroupClusterThreshold(mean_map, perms, NN = 1, feature_thresh_prob = feat_prob, n_bootstrap = n_bootstrap, fwe_rate = fwe_rate, h5 = 1, h5out = save_file)
+#group_result = Perm_GroupClusterThreshold(mean_map, perms, NN = 3, feature_thresh_prob = feat_prob, n_bootstrap = n_bootstrap, fwe_rate = fwe_rate, h5 = 1, h5out = save_file)
 
-group_result = Perm_GroupClusterThreshold(mean_map, perms, NN = 1, feature_thresh_prob = feat_prob, n_bootstrap = n_bootstrap, fwe_rate = fwe_rate, h5 = 1, h5out = save_file)
+
+if NN == 1: 
+    clthr = GroupClusterThreshold(feature_thresh_prob=feature_thresh_prob,n_bootstrap=n_bootstrap,fwe_rate=fwe_rate)
+elif NN == 3:
+    clthr = gct_pymvpaw.GroupClusterThreshold_NN3(feature_thresh_prob=feature_thresh_prob,n_bootstrap=n_bootstrap,fwe_rate=fwe_rate, multicomp_correction = None)
+    
+print('Beginning to bootstrap... dont hold your breath here (has taken close to an hour for an example I did with 1600 samples in perms)')
+clthr.train(perms)
+print('Null distribution and cluster measurements complete, applying to group result map')
+res = clthr(mean_map)
+print('Correction complete... see res.a for stats table etc., res.fa.clusters_fwe_thresh for a mask of clusters that survived - see doc')
+
+h5save(h5out, res, compression=9)
 
 
+group_result = res
 # # save thresholded mask
-nimg = map2nifti (fds_standard, group_result.fa.clusters_fwe_thresh)
-nii_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/'+analysis_prefix+'_smell_nosmell_Perm_thresholded.nii.gz'
+#nimg = map2nifti (fds_standard, group_result.fa.clusters_fwe_thresh)
+#nii_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/'+analysis_prefix+'_smell_nosmell_Perm_thresholdedFWE.nii.gz'
+#nimg.to_filename(nii_file)
+
+nimg = map2nifti (fds_standard, group_result.fa.featurewise_thresh)
+nii_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/'+analysis_prefix+'_smell_nosmell_Perm_featurewise_thresh.nii.gz'
+nimg.to_filename(nii_file)
+
+nimg = map2nifti (fds_standard, group_result.fa.clusters_featurewise_thresh)
+nii_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/'+analysis_prefix+'_smell_nosmell_Perm_clusters_featurewise_thresh.nii.gz'
 nimg.to_filename(nii_file)
 
 print 'Finished, it took',time.time() - start_time

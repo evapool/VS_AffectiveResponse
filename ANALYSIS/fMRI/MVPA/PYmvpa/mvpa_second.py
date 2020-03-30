@@ -108,26 +108,47 @@ fds = remove_invariant_features(fds_z)
 
 # ---------------------------- load the hdf5 data 
 
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
-scores_per_voxel = h5load(vector_file)
+# vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+# scores_per_voxel = h5load(vector_file)
 
-# ---------------------------- substract the chance level
+# # ---------------------------- substract the chance level
 
-corrected_per_voxel = scores_per_voxel - 0.5
+# corrected_per_voxel = scores_per_voxel - 0.5
 
-# ---------------------------- save
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
+# # ---------------------------- save
+# corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
 
-h5save(corrected_file,corrected_per_voxel)
-nimg = map2nifti(fds, corrected_per_voxel)
-nii_file = corrected_file+'.nii.gz'
+# h5save(corrected_file,corrected_per_voxel)
+# nimg = map2nifti(fds, corrected_per_voxel)
+# nii_file = corrected_file+'.nii.gz'
+# nimg.to_filename(nii_file)
+
+# # ----------------------------- smooth for the spm t-test analysis
+# corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected.nii.gz'
+
+# smooth_map = image.smooth_img(corrected_file, fwhm=8) ##!was 8
+# smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected8_smoothed.nii.gz'
+# smooth_map.to_filename(smooth_file)
+# #unzip for spm analysis
+# gunzip(smooth_file)
+
+
+
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_nulldist.hdf5'
+null_dist = h5load(vector_file)
+null_dist_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_nulldist'
+
+h5save(null_dist_file,null_dist)
+nimg = map2nifti(fds, null_dist)
+nii_file = null_dist_file+'.nii.gz'
 nimg.to_filename(nii_file)
 
-# ----------------------------- smooth for the spm t-test analysis
-corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected.nii.gz'
 
-smooth_map = image.smooth_img(corrected_file, fwhm=4) ##!was 8
-smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected_smoothed.nii.gz'
+# ----------------------------- smooth for the spm t-test analysis
+null_dist_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_nulldist.nii.gz'
+
+smooth_map = image.smooth_img(null_dist_file, fwhm=4) ##!was 8
+smooth_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_nulldist_smoothed.nii.gz'
 smooth_map.to_filename(smooth_file)
 #unzip for spm analysis
 gunzip(smooth_file)

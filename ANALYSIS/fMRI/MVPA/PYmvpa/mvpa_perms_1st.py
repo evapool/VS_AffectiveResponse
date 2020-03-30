@@ -110,7 +110,7 @@ clf = LinearCSVMC()
 # ---------------------------- Run
 #PERMUTATION TESTS FOR SINGLE SUBJECT LEVEL
 #CLASS LABELS ARE SHUFFLED 100 TIMES TO CREATE A NONPARAMETRIC NULL DISTRIBUTION
-vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+vector_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa3/svm_smell_nosmell'
 
 perm_file = vector_file+'_nulldist.hdf5'
 
