@@ -64,12 +64,12 @@ for taskN in task:
     ax0.set_yticks([])
     ax0.set_xlabel('Voxels', labelpad=18, fontsize=16)
     ax0.set_ylabel('Time', labelpad=18, fontsize=16)
-    ax0.set_title('Z average (%s slices) x Time (Scan) X Subject' % shape3, fontsize=16,  pad=18)
+    ax0.set_title('Z average (%s slices) x Time (%s Scan) X Subject' % (shape3, shape4), fontsize=16,  pad=18)
 
 
     pngX = homedir+'plot_all_data_'+taskN+'.png'
     plt.savefig(pngX, dpi = 1000)
     
-    print 'done task'
+    print 'done task'+taskN
 
 print 'end'

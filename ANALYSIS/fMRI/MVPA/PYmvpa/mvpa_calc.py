@@ -122,7 +122,7 @@ if model == 'MVPA-03' or model == 'MVPA-05':
 #cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
 #no balance!
 
-
+#print fds.summary()
 #implement full brain searchlight with spheres with a radius of 3 ## now 2
 svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
 

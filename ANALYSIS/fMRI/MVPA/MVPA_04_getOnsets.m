@@ -53,6 +53,8 @@ for  i=1:length(subj)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Get experimental condition
     condition = CONDITIONS;
+    subject = repelem ({subjX},54,1);
+    
     
     miniruns = reshape(repmat ([1: 6], 9,1), 1, [])';
 
@@ -150,13 +152,23 @@ for  i=1:length(subj)
     end
     fclose(fid);
     
-        % print txt file with the miniruns
+    % print txt file with the miniruns
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     fid = fopen ([ana_name '_task-' taskX '_runs.txt'],'wt');
     formatSpec = '%d \n';
     [nrows,~] = size(miniruns);
     for row = 1:nrows
         fprintf(fid,formatSpec,miniruns(row,:));
+    end
+    fclose(fid);
+    
+    % print txt file with the subject number
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    fid = fopen ([ana_name '_task-' taskX '_subj.txt'],'wt');
+    formatSpec = '%s \n';
+    [nrows,~] = size(subject);
+    for row = 1:nrows
+        fprintf(fid,formatSpec,subject{row,:});
     end
     fclose(fid);
 
