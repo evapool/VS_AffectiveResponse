@@ -10,7 +10,7 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
-
+import matplotlib; matplotlib.use('agg') #for server
 import matplotlib.pyplot as plt
 # from pymvpaw import *
 # from mvpa2.measures.searchlight import sphere_searchlight
@@ -43,26 +43,35 @@ model = 'MVPA-04'
 runs2use = 1 ##??
 
 boot = 99 #00
-numPCA = 29
+nPCA28 = 28    
+nPCA29 = 29
 
 res1 = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/res_base_'+str(boot)+'_accuracy.csv'
-res2 = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/res_'+str(numPCA)+'_'+str(boot)+'_accuracy.csv'
+res2 = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/res_'+str(nPCA28)+'_'+str(boot)+'_accuracy.csv'
+res3 = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/res_'+str(nPCA29)+'_'+str(boot)+'_accuracy.csv'
 
 
 base = np.genfromtxt(res1, delimiter='\t')
-PCA = np.genfromtxt(res2, delimiter='\t')
+PCA28 = np.genfromtxt(res2, delimiter='\t')
+PCA29 = np.genfromtxt(res3, delimiter='\t')
 
 # print the figure with the results of the cross validation
 print 'making plot for {}'.format('PCA & base')
 fig = plt.figure()
 sns.set_style('darkgrid')
+
 labelX = 'base'
 sns.distplot(base, bins=10,label= labelX)
 plt.vlines(np.average(base), 0,25, linestyles='solid')
 
-labelY = 'PCA'
-sns.distplot(PCA, bins=10,label=labelY)
-plt.vlines(np.average(PCA), 0,25, linestyles='dashed')
+labelY = 'PCA28'
+sns.distplot(PCA28, bins=10,label=labelY)
+plt.vlines(np.average(PCA28), 0,25, linestyles='dashed')
+
+labelZ = 'PCA29'
+sns.distplot(PCA29, bins=10,label=labelZ)
+plt.vlines(np.average(PCA29), 0,25, linestyles='solid')
+
 plt.legend()
 # fname = homedir+'ANALYSIS/mvpa_scripts/PYmvpa/cross_decoding/crossvalidation_'+roix+'_2runs.pdf'
 fname = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/plot_accuracy'+str(boot)+'.png'

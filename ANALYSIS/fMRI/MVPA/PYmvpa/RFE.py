@@ -9,16 +9,18 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
-import matplotlib; matplotlib.use('agg') #for server
 from mvpa2.suite import *
+from mvpa2.testing.tools import ok_, assert_array_equal, assert_true, \
+        assert_false, assert_equal, assert_not_equal, reseed_rng, assert_raises, \
+        assert_array_almost_equal, SkipTest, assert_datasets_equal, assert_almost_equal
+#import matplotlib; matplotlib.use('agg') #for server
 from pymvpaw import *
-import matplotlib.pyplot as plt
-#import seaborn as sns
-import random
-#from mvpa2.measures.searchlight import sphere_searchlight
+from mvpa2.measures.searchlight import sphere_searchlight
+from mvpa2.datasets.miscfx import remove_invariant_features #
+import time
+from sh import gunzip
+from nilearn import image ## was missing this line!
 
-# import subprocess
-# import shlex
 
 import os
 import sys
@@ -40,6 +42,10 @@ model = 'MVPA-04'
 
 runs2use = 1 ##??
 
+
+glm_ds_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii'
+#mask_name = homedir+'DERIVATIVES/PREPROC/sub-'+subj+'/ses-second/anat/sub-'+subj+'_ses-second_run-01_T1w_reoriented_brain_mask.nii'
+mask_name = homedir+'DERIVATIVES/ANALYSIS/GLM/'+task+'/GLM-01/sub-'+subj+'/output/mask.nii'
 
 class_dict = {
         'empty' : 0,
@@ -71,47 +77,41 @@ if model == 'MVPA-04':
 
 
 
-# #which ds to use and which mask to use
-sub_list=['01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21','22','23','24','25','26']
-#shuffle(sub_list)  #training set
-#sub_list=sub_list[0:19]
-# #sampling with replacement
-# sub_list = random.choices(slist, k=19)
+print 'subject id:', subj
+
+print 'smell VS no smell MVPA'
+
+#which ds to use and which mask to use
 
 
+#customize how trials should be labeled as classes for classifier
+#timing files 1
+#f model == 'MVPA-01':
 
-glm_ds_file = []
-fds = []
+###SCRIPT ARGUMENTS END
 
-for i in range(0,len(sub_list)):
-    subj = sub_list[i]
-    print 'working on subject:', subj
-    glm_ds_file.append(homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
-    #use make_targets and class_dict for timing files 1
-    fds_tmp = mvpa_utils.make_targetsFULL(subj, glm_ds_file[i], mask_name, runs2use, class_dict, homedir,  model, task)
-    
-    #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
-    detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
-    detrended_fds = fds_tmp.get_mapped(detrender)
+#use make_targets and class_dict for timing files 1, and use make_targets2 and classdict2 for timing files 2
+fds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task)
+##WHATCHA was fds 1
+#fds2 = mvpa_utils_pav.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict07, homedir, model)
+#lot_mtx
 
-    #basic preproc: zscoring (this is critical given the design of the experiment)
-    zscore(detrended_fds)
-    fds_z = detrended_fds
-    
-    # Removing inv features #pleases the SVM but  ##triplecheck
-    fds_temp = remove_invariant_features(fds_z)
+#basic preproc: detrending [likely not necessary since we work with HRF in GLM]
+detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
+detrended_fds = fds.get_mapped(detrender)
 
-    fds.append(fds_tmp)
+#basic preproc: zscoring (this is critical given the design of the experiment)
+zscore(detrended_fds)
+fds_z = detrended_fds
 
-    if len(fds) == 1:
-        full_fds = fds[i]
-    else:
-        full_fds = vstack([full_fds,fds[i]])
+# Removing inv features #pleases the SVM but  ##triplecheck
+full_fds = remove_invariant_features(fds_z)
 
-save_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/full_fds'
-save(full_fds, save_file)
-full_fds = h5load(save_file)
-#partitioned_ds.select(partitions=[1, 2])
+
+# save_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/full_fds'
+# #save(full_fds, save_file)
+# full_fds = h5load(save_file)
+# #partitioned_ds.select(partitions=[1, 2])
 
 clfsvm = LinearCSVMC()
 
@@ -129,6 +129,8 @@ fclfsvm = FeatureSelectionClassifier(clfsvm, rfesvm) #This is nothing but a Mapp
 
 sensanasvm = fclfsvm.get_sensitivity_analyzer(postproc=maxofabs_sample())
 
+if __debug__:
+    debug.active += [ 'RFEC', 'CLF' ]
 
 # manually repeating/splitting so we do both RFE sensitivity and classification
 senses, errors = [], []
@@ -142,6 +144,22 @@ senses = vstack(senses)
 errors = vstack(errors)
 
 
+# Let's compare against rerunning the beast simply for classification with CV
+errors_cv = CrossValidation(fclfsvm, NFoldPartitioner(), errorfx=mean_mismatch_error)(fds)
+# and they should match
+assert_array_equal(errors, errors_cv)
+
+# buggy!
+cv_sensana_svm = RepeatedMeasure(sensanasvm, NFoldPartitioner())
+senses_rm = cv_sensana_svm(fds)
+
+print senses.samples, senses_rm.samples
+print errors, errors_cv.samples
+
+assert_raises(AssertionError,
+                assert_array_almost_equal,
+                senses.samples, senses_rm.samples)
+raise SkipTest("Known failure for repeated measures: https://github.com/PyMVPA/PyMVPA/issues/117")
 
 
 #     delta = datetime.now() - start

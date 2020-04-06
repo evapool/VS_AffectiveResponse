@@ -13,6 +13,7 @@ import matplotlib; matplotlib.use('agg') #for server
 from mvpa2.suite import *
 from pymvpaw import *
 import matplotlib.pyplot as plt
+from scipy import linalg
 #import seaborn as sns
 
 #from mvpa2.measures.searchlight import sphere_searchlight
@@ -109,10 +110,64 @@ runs2use = 1 ##??
 #         full_fds = fds[i]
 #     else:
 #         full_fds = vstack([full_fds,fds[i]])
+def explained_variance(X, W):
+    """
+    We compute explained variance from the principal directions W using the
+    principle that W are the eigenvectors for the covariance matrix dot(X.T,
+    X).
+    """
+    mean = np.mean(X, axis=0)
+    _X = X - mean
+    W = W / np.sqrt((W ** 2).sum(axis=1)[:, np.newaxis])
+    g = np.dot(W, W.T)
+    X_red = np.dot(linalg.pinv(g), np.dot(W, _X.T))
+    return (X_red ** 2).sum() / X.shape[0]
+
+def bench(func, data, n=10):
+    """
+    Benchmark a given function. The function is executed n times and
+    its output is expected to be of type datetime.datetime.
+    All values are converted to seconds and returned in an array.
+    Parameters
+    ----------
+    func: function to benchmark
+    data: tuple (X, y, T, valid) containing training (X, y) and validation (T, valid) data.
+    Returns
+    -------
+    D : array, size=n-2
+    """
+    assert n > 2
+    score = np.inf
+    try:
+        time = []
+        for i in range(n):
+            score, t = func(*data)
+            time.append(dtime_to_seconds(t))
+        # remove extremal values
+        time.pop(np.argmax(time))
+        time.pop(np.argmin(time))
+    except Exception as detail:
+        print '%s error in function %s: ' % (repr(detail), func)
+        time = []
+    return score, np.array(time)
 
 save_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/full_fds'
 #save(full_fds, save_file)
-full_fds1 = h5load(save_file)
+full_fds = h5load(save_file)
+
+balancer  = Balancer(attr='targets',count=1,apply_selection=True)
+fds = list(balancer.generate(full_fds))
+fds = fds[0]
+
+n_components = 16
+clf = PCAMapper(output_dim=n_components)
+clf.train(fds)
+ev = explained_variance(fds.samples, clf.proj.T).sum()
+print ev
+score, res_pymvpa = misc.bench(bench_pymvpa, fds)
+print "PyMVPA: mean %s, std %s" % (np.mean(res_pymvpa), np.std(res_pymvpa))
+print "Explained variance: %s\n" % score
+
 #partitioned_ds.select(partitions=[1, 2])
 
 # clfsvm = LinearCSVMC()

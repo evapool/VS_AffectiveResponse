@@ -27,7 +27,7 @@ homedir = [home '/REWOD/'];
 analysis_dir = fullfile(homedir, 'ANALYSIS/BEHAV/build_database');
 R_dir        = fullfile(homedir,'DERIVATIVES/BEHAV');
 % add tools
-addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/my_tools')));
+addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/matlab_functions')));
 
 %% DEFINE POPULATION
 subj    = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};    % subject ID excluding 8 & 19
@@ -254,7 +254,8 @@ for i = 1:length(subj)
 
     
     
-
+    dir_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-second', 'func');
+    cd (dir_dir)
 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -309,7 +310,7 @@ for i = 1:length(subj)
     % print heater
     fprintf (fid, '%s	%s	%s	%s	%s	%s	%s	%s\n',...
         'onset', 'duration', 'trial_phase',...
-        'trial', 'condition','n_grips', 'rewarded_response', 'task');
+        'trial', 'condition','n_grips', 'rewarded_response', 'phase');
     
     % print data
     formatSpec = '%f	%f	%s	%d	%s	%d	%d	%s\n';

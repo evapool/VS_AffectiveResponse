@@ -11,7 +11,8 @@ model="MVPA-04"
 # either got to SPM to do the quick second level or:
 #MVPA_script="mvpa_perms_1st.py"  #voxel2
 #MVPA_script="mvpa_perms_2nd.py"  #fwe at 0.1  removded '24',
-MVPA_script="mvpa_debug.py"  
+#MVPA_script="mvpa_debug.py" 
+MVPA_script="grid_search.py"  
 
 
 pythonSubmit="${home}/REWOD/CODE/ANALYSIS/fMRI/dependencies/mvpa_oneSubj.sh"
@@ -21,6 +22,7 @@ pythonSubmit="${home}/REWOD/CODE/ANALYSIS/fMRI/dependencies/mvpa_oneSubj.sh"
     do
 			#qsub -o ${home}/REWOD/ClusterOutput -j oe -l walltime=00:40:00,pmem=4GB -M david.munoz@etu.unige.ch -m e -l nodes=1 -q queue1 -N ${model}_s${subjectID}_${taskID} -F "${subjectID} ${taskID} ${model} ${codeDir} ${MVPA_script}" ${pythonSubmit}
             #qsub -I -o ${home}/REWOD/ClusterOutput -j oe -l walltime=00:40:00,pmem=4GB -m n -l nodes=1 -q queue2 -N ${model}_s${subjectID}_${taskID} -F "${subjectID} ${taskID} ${model} ${codeDir} ${MVPA_script}" ${pythonSubmit}
-            qsub -o ${home}/REWOD/ClusterOutput -j oe -l walltime=24:40:00,pmem=16GB -M david.munoz@etu.unige.ch -m n -l nodes=1 -q queue1 -N ${model}_s${subjectID}_${taskID} -F "${subjectID} ${taskID} ${model} ${codeDir} ${MVPA_script}" ${pythonSubmit}
-            #qsub -o ${home}/REWOD/ClusterOutput -j oe -l walltime=4:40:00,pmem=4GB -M david.munoz@etu.unige.ch -m e -l nodes=1  -q queue1 -N ${GLM}_s${subj}_${task} -F "${subj} ${codeDir} ${matlab_script}" 
+            qsub -o ${home}/REWOD/ClusterOutput -j oe -l walltime=44:40:00,pmem=16GB -M david.munoz@etu.unige.ch -m n -l nodes=1 -q queue1 -N ${model}_s${subjectID}_${taskID} -F "${subjectID} ${taskID} ${model} ${codeDir} ${MVPA_script}" ${pythonSubmit}
+            #qsub -o ${home}/REWOD/ClusterOutput -j oe -l walltime=4:40:00,pmem=4GB -M david.munoz@etu.unige.ch -m e -l nodes=1  -q queue1 -N ${GLM}_s${subj}_${task} -F "${subj} ${codeDir} ${matlab_script}" mriqc ~/REWOD/ ~/REWOD/MRIQC participant
+            
 done

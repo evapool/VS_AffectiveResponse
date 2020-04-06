@@ -39,7 +39,7 @@ task = str(sys.argv[2])
 #task = 'hedonic'
 
 model = str(sys.argv[3])
-#model = 'MVPA-03'
+#model = 'MVPA-04'
 runs2use = 1 ##??
 
 #SVM classifier
@@ -131,10 +131,11 @@ svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sa
 if __debug__:
     debug.active += ["SLC"]
     
+res_sl = svm_sl(fds) 
+
 
 # ---------------------------- Save for perm
-#res_sl = svm_sl(fds) 
-res_sl = svm_sl(fds) #Obtained degenerate data with zero norm for trainin
+
 
 #reverse map scores back into nifti format and save
 scores_per_voxel = res_sl.samples
@@ -169,7 +170,8 @@ nimg.to_filename(unsmooth_corrected_file)
 
 # # # smooth for second level
 
-smooth_map = image.smooth_img(unsmooth_corrected_file, fwhm=4) ##!was 8
+smooth_map = image.smooth_img(unsmooth_corrected_file, fwhm=5.4) ##(FWHM; three times the voxel size) PAULI
+
 smooth_corrected_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa3/svm_smell_nosmell_corrected_smoothed.nii.gz'
 smooth_map.to_filename(smooth_corrected_file)
 #unzip for spm analysis
