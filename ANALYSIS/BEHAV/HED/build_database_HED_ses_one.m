@@ -28,7 +28,7 @@ addpath (genpath(fullfile(homedir, 'CODE/ANALYSIS/BEHAV/matlab_functions')));
 
 subj    = {'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};    % number 01 has not the same number of trials !
 
-session = {'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'};
+session = {'one';'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'; 'one'};
 
 ses = {'ses-first'};
 
@@ -188,11 +188,11 @@ for i = 1:length(subj)
         events.trial, events.condition, events.liking, events.intensity];
     
     
-    base_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-first', 'behav');
+    base_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-first', 'beh');
     cd (base_dir)
     
     % open data base
-    eventfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_run-01_events.tsv'];
+    eventfile_name = ['sub-' num2str(subjX) '_ses-first' '_task-' task '_events.tsv'];
     fid = fopen(eventfile_name,'wt');
     
     % print heater
