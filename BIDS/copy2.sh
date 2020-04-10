@@ -11,17 +11,27 @@ subjID=$1
   #mkdir ${home}/REWOD/SOURCEDATA/behav/${subj}
   #mv ${home}/REWOD/SOURCEDATA/physio/s${subj}* ${home}/REWOD/SOURCEDATA/physio/${subj}/
   
-gzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task* 
+  #gzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task* 
   #rm ${home}/REWOD/sub-${subjID}/ses-second/func/*.nii.gz
   #cp ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-${taskID}_run-01_UnsmoothedBold.nii.gz ${home}/REWOD/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-${taskID}_run-01_bold.nii.gz
   #cp ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-second/func/sub-${subj}_task-taskID_run-01_smoothBold.nii /home/cisa/REWOD/DERIVATIVES/ANALYSIS/CONN/func_PIT/
-  #mkdir /home/cisa/REWOD/DERIVATIVES/ANALYSIS/CONN/1stLEVEL/sub-${subj}
+  #mkdir ${home}/REWOD/DERIVATIVES/PREPROC/CONN/1stLEVEL/sub-${subj}
   #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-first/behav ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subj}/ses-first/beh
 
   #new directory with final preprocesssed bold files
-    #cp ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/task-${taskID}.ica/filtered_func_data_clean_unwarped_Coreg.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-${taskID}_run-01_UnsmoothedBold.nii.gz
+  #mkdir ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/derivatives
+  gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-hedonic_run-01_smoothBold.nii.gz
+  gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-PIT_run-01_smoothBold.nii.gz
+  rm -r ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/clean
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-hedonic_run-01_UnsmoothedBold.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-hedonic_run-01_Bold.nii.gz
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-PIT_run-01_UnsmoothedBold.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-PIT_run-01_Bold.nii.gz
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/ICA*  ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/derivatives/
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/task*  ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/derivatives/
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/*.tsv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/clean/
+
+  #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/*.mat ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/clean/
   #cd ${home}/REWOD/DERIVATIVES/ANALYSIS/MVPA/hedonic/MVPA-04/sub-${subjID}/mvpa/
   #fslstats svm_smell_nosmell_smoothed.nii -m -M
   #echo 'done'
     #done
-#done
+ #done

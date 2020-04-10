@@ -31,15 +31,15 @@ sys.path.insert(0, homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 os.chdir(homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 import mvpa_utils
 
-subj = str(sys.argv[1])
-task = str(sys.argv[2])
+#subj = str(sys.argv[1])
+#task = str(sys.argv[2])
 #model = str(sys.argv[3])
 
 subj = '01'
 task = 'hedonic'
 model = 'MVPA-04'
 runs2use = 1 ##??
-repeater = 20 #0 #0 #200 perms
+repeater = 2 #200 perms
 rangeX = 100 #number of different components that we want to test np.linspace(2, nSample, rangeX, dtype= int) 
 # upper bound is the number of sample in the training set
 
@@ -54,13 +54,13 @@ class_dict = {
 
 
 # 80% for train
-sub_list=['01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21'] #,'22','23','24','25','26']
+#sub_list=['01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21'] #,'22','23','24','25','26']
 #shuffle(sub_list)  #training set
 #sub_list=sub_list[0:19]
 # #sampling with replacement
 # sub_list = random.choices(slist, k=19)
 
-print 'doing train ds'
+#print 'doing train ds'
 
 # glm_ds_file = []
 # fds = []
@@ -68,7 +68,7 @@ print 'doing train ds'
 # for i in range(0,len(sub_list)):
 #     subj = sub_list[i]
 #     print 'working on subject:', subj
-#     glm_ds_file.append(homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
+#     glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
 #     #use make_targets and class_dict for timing files 1
 #     fds_tmp = mvpa_utils.make_targetsFULL(subj, glm_ds_file[i], mask_name, runs2use, class_dict, homedir,  model, task)
     
@@ -92,15 +92,15 @@ print 'doing train ds'
 
 
 
-train_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/train_ds'
+#train_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/train_ds'
 #save(train_ds, train_file)
-train_ds = h5load(train_file)
+#train_ds = h5load(train_file)
 
 
 # 20% test
-sub_list=['22','23','24','25','26']
+#sub_list=['22','23','24','25','26']
 
-print 'doing test ds'
+#print 'doing test ds'
 
 # glm_ds_file = []
 # fds = []
@@ -108,7 +108,7 @@ print 'doing test ds'
 # for i in range(0,len(sub_list)):
 #     subj = sub_list[i]
 #     print 'working on subject:', subj
-#     glm_ds_file.append(homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
+#     glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
 #     #use make_targets and class_dict for timing files 1
 #     fds_tmp = mvpa_utils.make_targetsFULL(subj, glm_ds_file[i], mask_name, runs2use, class_dict, homedir,  model, task)
     
@@ -132,14 +132,15 @@ print 'doing test ds'
 
 
 
-test_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/test_ds'
+#test_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/test_ds'
 #save(test_ds, test_file)
-test_ds = h5load(test_file)
+#test_ds = h5load(test_file)
 
 
-#full_fds = h5load(save_file)
 
-#load_file =  homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/fds'
+
+load_file =  homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/fds'
+ds = h5load(load_file)
 
 bestPCA = []
 bestC = []
@@ -151,21 +152,21 @@ for n in range(1,repeater):
 
     print 'doing repetition', n
     balancer  = Balancer(attr='targets',count=1,apply_selection=True)
-    train = list(balancer.generate(train_ds))
+    train = list(balancer.generate(ds))
     train = train[0]
 
     X_train = train.samples
     y_train = train.targets
 
 
-    test = list(balancer.generate(test_ds))
-    test = test[0]
+    #test = list(balancer.generate(test_ds))
+    #test = test[0]
 
-    X_test = test.samples
-    y_test = test.targets
+    #X_test = test.samples
+    #y_test = test.targets
 
     #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20)
-    maxPCA = 455 #len(X_train)
+    maxPCA = 24 #len(X_train)
 
     # Define a pipeline to search for the best combination of PCA truncation and classifier regularization.
     pca = PCA()
@@ -185,9 +186,9 @@ for n in range(1,repeater):
     print(grid.best_estimator_)
 
 
-    grid_predictions = grid.predict(X_test)
-    print(confusion_matrix(y_test,grid_predictions))
-    print(classification_report(y_test,grid_predictions))
+    #grid_predictions = grid.predict(X_test)
+    #print(confusion_matrix(y_test,grid_predictions))
+    #print(classification_report(y_test,grid_predictions))
 
     dict0 = grid.best_params_
     nPCA = dict0.get('PCA__n_components')
@@ -199,27 +200,27 @@ for n in range(1,repeater):
     bestC.append(nC)
 
     bAcTr = grid.best_score_
-    bAcTe = grid_predictions.mean()
-    print 'best Accuracy in test', bAcTe
+    #bAcTe = grid_predictions.mean()
+    #print 'best Accuracy in test', bAcTe
 
-    bSdTe = grid_predictions.std()
+    #bSdTe = grid_predictions.std()
 
     bestAccTr.append(bAcTr)
-    bestAccTe.append(bAcTe)
-    bestStdTe.append(bSdTe)
+    #bestAccTe.append(bAcTe)
+    #bestStdTe.append(bSdTe)
 
 
-bPCA = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/bestPCA.tsv'
+bPCA = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/bestPCA.tsv'
 np.savetxt(bPCA, bestPCA, delimiter='\t', fmt='%f')  
 
-bC = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/bestRegC.tsv'
+bC = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/bestRegC.tsv'
 np.savetxt(bC, bestC, delimiter='\t', fmt='%f')  
 
-AccTr = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/AccTrain.tsv'
+AccTr = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/AccTrain.tsv'
 np.savetxt(AccTr, bestAccTr, delimiter='\t', fmt='%f')  
 
-AccTe = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/AccTest.tsv'
-np.savetxt(AccTe, bestAccTe, delimiter='\t', fmt='%f')   
+#AccTe = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/AccTest.tsv'
+#np.savetxt(AccTe, bestAccTe, delimiter='\t', fmt='%f')   
 
-StdTe = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/StdTest.tsv'
-np.savetxt(StdTe, bestStdTe, delimiter='\t', fmt='%f')  
+#StdTe = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/StdTest.tsv'
+#np.savetxt(StdTe, bestStdTe, delimiter='\t', fmt='%f')  
