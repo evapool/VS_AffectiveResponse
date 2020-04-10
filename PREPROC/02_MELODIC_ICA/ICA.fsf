@@ -107,6 +107,9 @@ set fmri(st_file) ""
 # BET brain extraction // we already did it with an individual threshold in PrepForFEAT
 set fmri(bet_yn) 0
 
+# Alternative (to BETting) mask image #input brain mask from previous BET
+set fmri(alternative_mask) #\"$fmri(alternative_mask)\"
+
 # Spatial smoothing FWHM (mm)
 set fmri(smooth) 0
 
