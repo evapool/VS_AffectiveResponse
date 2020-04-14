@@ -14,7 +14,7 @@ removedsub = '24';
 %% define task variable
 %sessionX = 'second';
 task = 'hedonic';
-ana_name = 'MVPA-04'; % output folder for this analysis 
+ana_name = 'MVPA-01'; % output folder for this analysis 
 copy = 1;
 %% define path
 
@@ -23,8 +23,8 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD'];
 
-%maskfile = fullfile(homedir,'DERIVATIVES','ANALYSIS', 'GLM', 'hedonic', 'GLM-04', 'group', 'covariate', 'Odor-NoOdor_lik_meancent', 'all', 'Odor-NoOdor', 'mask.nii');
-maskfile = fullfile(homedir, 'DERIVATIVES', 'EXTERNALDATA', 'LABELS', 'Olfa_cortex', 'mask.nii'); 
+maskfile = fullfile(homedir,'DERIVATIVES', 'GLM', 'hedonic', 'GLM-04', 'group', 'covariate', 'Odor-NoOdor_lik_meancent', 'all', 'Odor-NoOdor', 'mask.nii');
+%maskfile = fullfile(homedir, 'DERIVATIVES', 'EXTERNALDATA', 'LABELS', 'Olfa_cortex', 'mask.nii'); 
    
 
 % | add spm12 to matlab path
@@ -36,7 +36,7 @@ spm_jobman('initcfg');
 
 
 
-mdl_dir = fullfile(homedir,'DERIVATIVES','ANALYSIS','MVPA','hedonic',ana_name);
+mdl_dir = fullfile(homedir,'DERIVATIVES','MVPA','hedonic',ana_name);
 groupdir = fullfile (mdl_dir, 'group');
 %% create group dir
 
@@ -55,7 +55,7 @@ cd (mdl_dir)
 for i = 1:length(subj)
 
     subjX = char(subj(i));
-    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa3', '*l_corrected_smoothed.nii'); 
+    subj_dir =fullfile(mdl_dir, [ 'sub-' subjX], 'mvpa', '*l_corrected_smoothed.nii'); 
     old = dir(subj_dir);
 
     if copy 

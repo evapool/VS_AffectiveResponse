@@ -3,128 +3,150 @@
 """
 Created on Mon Apr 29 16:47:57 2019
 
-@author: created by David on June 13 2020
+@author: logancross
+
+modified by David on June 13 2020
 """
 def warn(*args, **kwargs):
     pass
-import warnings, sys, os
+import warnings
 warnings.warn = warn
-import matplotlib; matplotlib.use('agg') #for server
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 from mvpa2.suite import *
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+from pymvpaw import *
+from mvpa2.measures.searchlight import sphere_searchlight
 from mvpa2.datasets.miscfx import remove_invariant_features ##
+import sys
+import time
+from sh import gunzip
+from nilearn import image ## was missing this line!
+
+import os
 # import utilities
 homedir = os.path.expanduser('~/REWOD/')
 #add utils to path
 sys.path.insert(0, homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 os.chdir(homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 import mvpa_utils
+import Get_FDS
 
 
 # ---------------------------- Script arguments
 #subj = str(sys.argv[1])
+#subj = '01'
+
 #task = str(sys.argv[2])
-#model = str(sys.argv[3])
-
-subj = '01'
 task = 'hedonic'
-model = 'MVPA-04'
+
+#model = str(sys.argv[3])
+model = 'MVPA-01'
+
 runs2use = 1 ##??
-perm = 10.0 #0 #200 perms
+
+#SVM classifier
+clf = LinearCSVMC(C=1)  #Regulator
+##if model == 'MVPA-05':
+    #clf = kNN()
 
 
-print 'subject id:', subj
-
-print 'smell VS no smell MVPA perms #', perm
-
-#which ds to use and which mask to use
-#load_file = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/full_fds'
-#save(full_fds, save_file)
-#full_fds = h5load(save_file)
-
-load_file =  homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/fds'
-ds = h5load(load_file)
+print 'smell VS no smell MVPA'
 
 
-#clf = LinearCSVMC()
-SVM = LinearCSVMC(C=-1.0)
+sub_list=['01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21','22','23','24','25','26']
 
-clf = MappedClassifier(SVM, PCAMapper(reduce=True)) #output_dim=numPCA
-
-partitioner = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
-
-
-
-cv = CrossValidation(
-        clf,
-        partitioner,
-        errorfx=prediction_target_matches,
-        postproc=BinomialProportionCI(width=.95, meth='jeffreys'))
-
-cv_result = cv(ds)
-acc = np.average(cv_result)
-sDev = np.std(cv_result)
-ci = cv_result.samples[:, 0]
-CIlow = ci[0] 
-CIup = ci[1]
-
-print 'Lower CI', CIlow
-print "mean accuracy", acc
-print 'Upper CI', CIup
+for i in range(0,len(sub_list)):
+	
+	
+	subj = sub_list[i]
+	print 'subject id:', subj
+	fds = Get_FDS.get_ind(subj, model, task)
+	#use make_targets and class_dict for timing files 1, and use make_targets2 and classdict2 for timing files 2
+	# fds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task)
 
 
-repeater = Repeater(count=perm) # more
+	# #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
+	# detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
+	# detrended_fds = fds.get_mapped(detrender)
 
-permutator = AttributePermutator('targets',limit={'partitions': 1},count=1)
-null_cv = CrossValidation(clf,ChainNode([partitioner, permutator],space=partitioner.get_space()),postproc=mean_sample())
+	# #basic preproc: zscoring (this is critical given the design of the experiment)
+	# zscore(detrended_fds)
+	# fds_z = detrended_fds
 
-#MonteCarlo Null distance calculation
-distr_est = MCNullDist(repeater, tail='left', measure=null_cv, enable_ca=['dist_samples'])
-
-cv_mc = CrossValidation(clf,partitioner,postproc=mean_sample(),null_dist=distr_est,enable_ca=['stats'])
-err = cv_mc(ds)
-err1 = np.average(err)
-print "error MC", err1
+	# # Removing inv features #pleases the SVM but  ##triplecheck
+	# fds = remove_invariant_features(fds_z)
 
 
+	#use a balancer to make a balanced dataset of even amounts of samples in each class
+	#if model == 'MVPA-01':
+	balancer = ChainNode([NFoldPartitioner(),Balancer(attr='targets',count=1,limit='partitions',apply_selection=True)],space='partitions')
 
-def make_plot(dist_samples, empirical, CIlow, CIup):
-        sns.set_style('darkgrid')
-        plt.hist(dist_samples, bins=20, normed=True, alpha=0.8, label='Null Distribution')
-        plt.axvline(CIlow, color='red', ls='--', alpha=0.5, label='Lower 95% CI')
-        plt.axvline(empirical, color='red', label='Empirical average cross-validated classification error ')
-        plt.axvline(CIup, color='red', ls='--', alpha=0.5, label='Upper 95% CI')
-        plt.axvline(0.5, color='black', ls='--', label='chance-level for a binary classification with balanced samples')
-        plt.legend()
+	#cross validate using NFoldPartioner - which makes cross validation folds by chunk/run
+	#if model == 'MVPA-01':
+	cv = CrossValidation(clf, balancer, errorfx=lambda p, t: np.mean(p == t))
 
-fname = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/plot_acc.png'
-# fname = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/plot_acc.png'
+	if model == 'MVPA-03' or model == 'MVPA-05':
+		cv = CrossValidation(clf, NFoldPartitioner(), errorfx=lambda p, t: np.mean(p == t))
+	#cv = CrossValidation(clf, NFoldPartitioner(1), errorfx=lambda p, t: np.mean(p == t))
+	#no balance!
 
-null_dist = np.ravel(cv_mc.null_dist.ca.dist_samples)
-make_plot(null_dist,acc, CIlow, CIup)  #plot
+	#print fds.summary()
+	#implement full brain searchlight with spheres with a radius of 3 ## now 2
+	svm_sl = sphere_searchlight(cv, radius=3, space='voxel_indices',postproc=mean_sample())
 
+	#searchlight
+	# enable progress bar
+	if __debug__:
+		debug.active += ["SLC"]
 
-plt.savefig(fname)
-# p = np.asscalar(cv_mc.ca.null_prob) #old pval
-# print p
-
-
-pVal = len(np.where(null_dist>=acc)[0])/perm #p_val
-
-nPCA = clf.mapper.node.get_output_dim() #number of pca
-table = [acc, CIlow, CIup, sDev, perm,  pVal] #tsv evrything
+	res_sl = svm_sl(fds) #n_jobs=10) 
 
 
-dist = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/null_dist.tsv'
-accu = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/acc_ciL_ciU_sDev_pVal_nPCA_perm.tsv'
-
-np.savetxt(dist, null_dist, delimiter='\t', fmt='%f')   
-np.savetxt(accu, table, delimiter='\t', fmt='%f')  
+	# ---------------------------- Save for perm
 
 
+	#reverse map scores back into nifti format and save
+	scores_per_voxel = res_sl.samples
 
+	vector_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+	h5save(vector_file,scores_per_voxel)
+	nimg = map2nifti(fds, scores_per_voxel) ## watcha !!
+	unsmooth_file = vector_file+'.nii.gz'
+	nimg.to_filename(unsmooth_file)
 
+	# smooth for second level
+	smooth_map = image.smooth_img(unsmooth_file, fwhm=5.4) ##!was 8
+	smooth_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_smoothed.nii.gz'
+	smooth_map.to_filename(smooth_file)
+	#unzip for spm analysis
+	gunzip(smooth_file)
 
-# # print 'end'
+	#time.sleep(5)
+	# ---------------------------- Save for quick ttest
+
+	# correct against chance level (0.5)
+	vector_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell'
+	scores_per_voxel = h5load(vector_file)
+
+	corrected_per_voxel = scores_per_voxel - 0.5
+	corrected_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected'
+
+	# # h5save(corrected_file,corrected_per_voxel)
+	nimg = map2nifti(fds, corrected_per_voxel)
+	unsmooth_corrected_file =  corrected_file+'.nii.gz'
+	nimg.to_filename(unsmooth_corrected_file)
+
+	# # # smooth for second level
+
+	smooth_map = image.smooth_img(unsmooth_corrected_file, fwhm=5.4) ##(FWHM; three times the voxel size) PAULI
+
+	smooth_corrected_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/svm_smell_nosmell_corrected_smoothed.nii.gz'
+	smooth_map.to_filename(smooth_corrected_file)
+	#unzip for spm analysis
+	gunzip(smooth_corrected_file)
+
+	acc_sample = np.mean(cv(fds))
+
+	print 'acc across splits'
+	print acc_sample
+	print 'end'

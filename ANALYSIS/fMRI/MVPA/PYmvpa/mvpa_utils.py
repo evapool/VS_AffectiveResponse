@@ -7,24 +7,18 @@ Created on Mon Apr 29 15:56:35 2019
 
 modified by david on May 13 2020
 """
-
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning) 
-
 from mvpa2.suite import *
-#from os import listdir
 import os
-import time
 import pylab as pl
 
 # ---------------------------- Aux functions
 
 def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task):
 
-    start_time = time.time()
+    #start_time = time.time()
     #print 'Starting making targets',time.time() - start_time
     
-    onsets_folder = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/timing'
+    onsets_folder = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/timing'
     
     trial_list = []
     trial_categ_list = []
@@ -68,10 +62,10 @@ def make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, mo
 
 def make_targetsFULL(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir, model, task):
 
-    start_time = time.time()
+    #start_time = time.time()
     #print 'Starting making targets',time.time() - start_time
     
-    onsets_folder = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/sub-'+subj+'/timing'
+    onsets_folder = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/timing'
     
     trial_list = []
     trial_categ_list = []

@@ -7,7 +7,7 @@ Created on Mon Apr 29 16:47:57 2019
 """
 def warn(*args, **kwargs):
     pass
-import warnings
+import warnings, os, sys
 warnings.warn = warn
 
 import matplotlib; matplotlib.use('agg') #for server
@@ -19,11 +19,9 @@ import matplotlib.pyplot as plt
 # import time
 # from sh import gunzip
 # from nilearn import image ## was missing this line!
-
-import os
-import sys
 import seaborn as sns
 import numpy as np
+import pandas as pd
 # import utilities Un   
 homedir = os.path.expanduser('~/REWOD/')
 #add utils to path
@@ -40,58 +38,65 @@ task = 'hedonic'
 #model = str(sys.argv[3])
 model = 'MVPA-04'
 
-runs2use = 1 ##??
-
-boot = 99 #00
-nPCA28 = 28    
-nPCA29 = 29
-
-res1 = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/res_base_'+str(boot)+'_accuracy.csv'
-res2 = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/res_'+str(nPCA28)+'_'+str(boot)+'_accuracy.csv'
-res3 = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/res_'+str(nPCA29)+'_'+str(boot)+'_accuracy.csv'
 
 
-base = np.genfromtxt(res1, delimiter='\t')
-PCA28 = np.genfromtxt(res2, delimiter='\t')
-PCA29 = np.genfromtxt(res3, delimiter='\t')
+
+PCA_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/bestPCA.tsv'
+C_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/bestRegC.tsv'
+G_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/bestRegG.tsv'
+K_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/bestRegK.tsv'
+#res1 = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/res_base_'+str(boot)+'_accuracy.csv'
+#res2 = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/res_'+str(nPCA28)+'_'+str(boot)+'_accuracy.csv'
+#res3 = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/res_'+str(nPCA29)+'_'+str(boot)+'_accuracy.csv'
+
+
+PCA = np.genfromtxt(PCA_file, delimiter='\t', dtype='str')
+C = np.genfromtxt(C_file, delimiter='\t', dtype='str')
+G = np.genfromtxt(G_file, delimiter='\t', dtype='str')
+K = np.genfromtxt(K_file, delimiter='\t', dtype='str')
+
+
+df = pd.DataFrame({"PCA": PCA,"C": C, "G": G, "K": K})
+
 
 # print the figure with the results of the cross validation
-print 'making plot for {}'.format('PCA & base')
+print 'making plot for {}'.format('hyperparameters')
 fig = plt.figure()
 sns.set_style('darkgrid')
 
-labelX = 'base'
-sns.distplot(base, bins=10,label= labelX)
-plt.vlines(np.average(base), 0,25, linestyles='solid')
+#label1 = 'PCA'
+#sns.distplot(PCA, bins=20,label= label1)
+#plt.vlines(np.average(base), 0,25, linestyles='solid')
 
-labelY = 'PCA28'
-sns.distplot(PCA28, bins=10,label=labelY)
-plt.vlines(np.average(PCA28), 0,25, linestyles='dashed')
+sns.catplot(x='PCA', kind="count", data=df)
+PCAname = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/plot_PCA.png'
+plt.savefig(PCAname)
 
-labelZ = 'PCA29'
-sns.distplot(PCA29, bins=10,label=labelZ)
-plt.vlines(np.average(PCA29), 0,25, linestyles='solid')
 
-plt.legend()
-# fname = homedir+'ANALYSIS/mvpa_scripts/PYmvpa/cross_decoding/crossvalidation_'+roix+'_2runs.pdf'
-fname = homedir+'DERIVATIVES/ANALYSIS/MVPA/'+task+'/'+model+'/plot_accuracy'+str(boot)+'.png'
+sns.catplot(x='C', kind="count", data=df)
+Cname = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/plot_C.png'
+plt.savefig(Cname)
 
-plt.savefig(fname)
-# proc=subprocess.Popen(shlex.split('lpr {f}'.format(f=fname)))
-# plt.close(fig)
 
-# print the figure with the results of the cross validation
-# print 'making plot for {}'.format(roix)
-# fig = plt.figure()
-# sns.set_style('darkgrid')
-# labelX = roix+ ': t = {}, p = {}'.format(*t_nz)
-# sns.distplot(res_cv1_nz, bins=10,label= labelX)
-# plt.vlines(np.average(res_cv1_z), 0,10, linestyles='solid')
-# labelX = roix+ ': t = {}, p = {}'.format(*t_z)
-# sns.distplot(res_cv1_z, bins=10,label=' zscore ' +labelX)
-# plt.vlines(np.average(res_cv1_z), 0,10, linestyles='dashed')
-# plt.legend()
-# fname = homedir+'ANALYSIS/mvpa_scripts/PYmvpa/cross_decoding/crossvalidation_'+roix+'_2runs.pdf'
-# plt.savefig(fname)
-# proc=subprocess.Popen(shlex.split('lpr {f}'.format(f=fname)))
-# plt.close(fig)
+sns.catplot(x='G', kind="count", data=df)
+
+Gname = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/plot_G.png'
+plt.savefig(Gname)
+
+
+sns.catplot(x='K', kind="count", data=df)
+Kname = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/plot_K.png'
+plt.savefig(Kname)
+
+fig = plt.figure()
+sns.set_style('darkgrid')
+
+acc_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/AccTest.tsv'
+acc = np.genfromtxt(acc_file, delimiter='\t')
+
+label1 = 'Accuracy'
+sns.distplot(acc, bins=10,label= label1)
+plt.vlines(np.average(acc), 0,25, linestyles='solid')
+ACCname = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/plot_acc.png'
+plt.savefig(ACCname)
+

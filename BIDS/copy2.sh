@@ -20,9 +20,10 @@ subjID=$1
 
   #new directory with final preprocesssed bold files
   #mkdir ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/derivatives
-  gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-hedonic_run-01_smoothBold.nii.gz
-  gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-PIT_run-01_smoothBold.nii.gz
-  rm -r ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/clean
+  #gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-hedonic_run-01_smoothBold.nii.gz
+  #gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-PIT_run-01_smoothBold.nii.gz
+  rm ${home}/REWOD/sub-${subjID}/ses-second/func/*.nii.gz
+  #${home}/REWOD/SOURCEDATA/brain/bids/sub-${subjID}/ses-second/func/*.nii.gz
   #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-hedonic_run-01_UnsmoothedBold.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-hedonic_run-01_Bold.nii.gz
   #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-PIT_run-01_UnsmoothedBold.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-PIT_run-01_Bold.nii.gz
   #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/ICA*  ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/derivatives/
