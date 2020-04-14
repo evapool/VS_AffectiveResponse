@@ -58,7 +58,7 @@ set fmri(inputtype) 2
 set fmri(filtering_yn) 1
 
 # Brain/background threshold, %
-set fmri(brain_thresh) 10
+set fmri(brain_thresh) 0 #10 #use our mask only 
 
 # Critical z for design efficiency calculation
 set fmri(critical_z) 5.3
