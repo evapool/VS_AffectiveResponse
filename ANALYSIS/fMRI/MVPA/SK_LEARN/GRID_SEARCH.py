@@ -39,7 +39,7 @@ import Get_FDS
 #model = str(sys.argv[3])
 
 task = 'hedonic'
-model = 'MVPA-04'
+model = 'MVPA-05'
 
 repeater = 100+1 #100 #200 perms count + 1
 scaler = StandardScaler()

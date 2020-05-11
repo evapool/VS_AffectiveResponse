@@ -34,14 +34,14 @@ import mvpa_utils
 import Get_FDS
 
 
-#subj = str(sys.argv[1])
-#task = str(sys.argv[2])
-#model = str(sys.argv[3])
+subj = str(sys.argv[1])
+task = str(sys.argv[2])
+model = str(sys.argv[3])
 
-task = 'hedonic'
-model = 'MVPA-04'
+#task = 'hedonic'
+#model = 'MVPA-05'
 
-repeater = 1+1 #100 #200 perms count + 1
+repeater = 200+1 #100 #200 perms count + 1
 scaler = StandardScaler()
 
 #tuned hyperparameters from gridsearch
@@ -57,43 +57,39 @@ if  model == 'MVPA-05':
     C = 0.001 
     kernel = 'rbf'
 
-
-ACC_IND = []
+ACC_NULL = []
 
 #full participants list
 sub_list=['01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21','22','23','24','25','26']
 
-#for n in range(1,repeater):
-for i in range(0,len(sub_list)):
-    
-    subj = sub_list[i]
-    
+for n in range(1,repeater):
+#for i in range(0,len(sub_list)):
+
     start_time = time.time()
 
     print ''
-    print '------ doing subj ', subj
-    print '------ for model ', model
+    print '------ doing rep ', n
+
+    [train_ds, test_ds] = Get_FDS.get_rand(sub_list, model, task) 
 
 
-    ds = Get_FDS.get_ind(subj, model, task) 
-    #ds_test = Get_FDS.get_conc_FDS(sub_test, model, task) 
-    #load_file =  homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/fds'
-    #ds = h5load(load_file)
-    
-    #groups = ds.chunks
-    #In time series data, Kfold is not a right approach as kfold cv 
-    # will shuffle you data and you will lose pattern within series. Here is an approach
+    y_train = train_ds.targets 
+
+    y_test = test_ds.targets 
+
+    random.shuffle(y_train) # shuffling the training labels at random !!
+
+    y = np.concatenate((y_train, y_test), axis =0)
+
+    ds = vstack([train_ds, test_ds])
+
+    X = ds.samples
+
     ps = PredefinedSplit(ds.chunks) # to choose manually the split
     ps.get_n_splits() #split the data set intro train and test (or CV)
     #for train_index, test_index in ps.split():
         #print("TRAIN:", train_index, "TEST:", test_index)
 
-    X = ds.samples
-    y = ds.targets
-    #cvLOO=LeaveOneGroupOut().split(X, y, groups)
-
-    #X_test = ds_test[0].samples
-    #y_test = ds_test[0].targets
 
     # Fit on training set only.
     scaler.fit(X)
@@ -108,28 +104,22 @@ for i in range(0,len(sub_list)):
     pca.fit(X)
 
     X = pca.transform(X)
-    
+
     #classifier
     svm = SVC(C = C, gamma = G, kernel = kernel)
 
-   
+
     #it not really a cross validation since there is only one training set, I was just lazy
     res = cross_validate(svm, X, y, cv=ps, scoring='accuracy', verbose=1, n_jobs=10) 
-    acc_ind = np.average(res['test_score'])
-    print 'Average test accuracy:', acc_ind
-    
-    #grid_predictions = grid.predict(X_test)
-    #print(confusion_matrix(y_test,grid_predictions))
-    #print(classification_report(y_test,grid_predictions))
-    #evaluator = grid.scorer_
-    #acc_ind = evaluator(BEST, X_test, y_test)
-    #print 'Average test accuracy in test:', acc_ind
-
-    ACC_IND.append(acc_ind)
+    acc_null = np.average(res['test_score'])
+    print 'Average test accuracy in NULL:', acc_null
 
 
-    ind = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/ind_acc.tsv'  #subj or group
-    np.savetxt(ind, ACC_IND, delimiter='\t', fmt='%f')  
+    ACC_NULL.append(acc_null)
+
+
+    null = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/null_acc.tsv'  #subj or group
+    np.savetxt(null, ACC_NULL, delimiter='\t', fmt='%f')  
 
     #print 'finished repetition', n
     elapsed = time.time() - start_time
@@ -139,4 +129,4 @@ for i in range(0,len(sub_list)):
 
 
 
- 
+
