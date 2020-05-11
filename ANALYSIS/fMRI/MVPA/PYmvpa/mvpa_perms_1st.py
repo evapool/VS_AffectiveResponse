@@ -30,18 +30,18 @@ import Get_FDS
 #FIRST LEVEL PERMUTATIONS FOR A SINGLE SUBJECT PERFORMED HERE
 
 # ---------------------------- Script arguments
-#subj = str(sys.argv[1])
-subj = '01'
+subj = str(sys.argv[1])
+#subj = '01'
 
-#task = str(sys.argv[2])
-task = 'hedonic'
+task = str(sys.argv[2])
+#task = 'hedonic'
 
-#model = str(sys.argv[3])
-model = 'MVPA-01'
-runs2use = 1 ##??
+model = str(sys.argv[3])
+#model = 'MVPA-01'
+
 
 #number of permutations to run
-num_perms = 2#00
+num_perms = 10#00
 
 print 'subject id: ', subj
 print 'number of perms: ', num_perms
@@ -66,8 +66,8 @@ perm_file = vector_file+'_nulldist.hdf5'
 
 #searchlight
 # enable progress bar
-if __debug__:
-    debug.active += ["SLC"]
+#if __debug__:
+    #debug.active += ["SLC"]
 
 start_time = time.time()
 

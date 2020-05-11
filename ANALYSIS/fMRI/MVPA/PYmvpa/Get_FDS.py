@@ -19,79 +19,6 @@ os.chdir(homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 import mvpa_utils
 
 
-def get_train(model, task):
-    
-    runs2use = 1 ##??
-
-    if model == 'MVPA-01' or model == 'MVPA-04':
-        mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
-
-        class_dict = {
-                'empty' : 0,
-                'chocolate' : 1,
-                'neutral' : 1,  #watcha
-            }
-
-
-    # 80% for train
-    sub_list=['01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21'] #,'22','23','24','25','26']
-    #shuffle(sub_list)  #training set
-    #sub_list=sub_list[0:19]
-    # #sampling with replacement
-    # sub_list = random.choices(slist, k=19)
-
-    print 'doing train ds'
-
-    glm_ds_file = []
-    fds = []
-
-    for i in range(0,len(sub_list)):
-        subj = sub_list[i]
-        print 'working on subject:', subj
-        #glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
-        glm_ds_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii'
-
-        #use make_targets and class_dict for timing files 1
-        ds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) #glm_ds_file[i]
-
-        #balancing out at the subject level
-        if model == 'MVPA-04':
-            balancer  = Balancer(attr='targets',count=1,apply_selection=True)
-            ds = list(balancer.generate(ds))
-            ds = ds[0]
-
-
-        #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
-        detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
-        detrended_fds = ds.get_mapped(detrender)
-
-        #basic preproc: zscoring (this is critical given the design of the experiment)
-        zscore(detrended_fds)
-        ds = detrended_fds
-
-        #changing chunks from miniruns to subjects
-        subX = int(subj)
-        lenX = len(ds)
-        subChunk = np.linspace(subX, subX, lenX, dtype=int)
-        ds.chunks = subChunk
-
-        # Removing inv features #pleases the SVM but  ##triplecheck
-        #ds = remove_invariant_features(ds)
-
-        fds.append(ds)
-
-        if len(fds) == 1:
-            train_ds = fds[i]
-        else:
-            train_ds = vstack([train_ds,fds[i]])
-
-
-    train_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/train_ds'
-    save(train_ds, train_file)
-
-    return train_ds
-    #get_train(homedir, model, task)
-
 def get_full(model, task):
     
     runs2use = 1 ##??
@@ -165,76 +92,6 @@ def get_full(model, task):
     #get_train(homedir, model, task)
 
 
-def get_test(model, task):
-    
-    runs2use = 1 ##??
-
-    if model == 'MVPA-04':
-        mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
-
-        class_dict = {
-                'empty' : 0,
-                'chocolate' : 1,
-                'neutral' : 1,  #watcha
-            }
-
-
-    # 20% for test
-    sub_list=['22','23','24','25','26']
-
-    print 'doing test ds'
-
-    glm_ds_file = []
-    fds = []
-
-    for i in range(0,len(sub_list)):
-        subj = sub_list[i]
-        print 'working on subject:', subj
-        #glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
-        glm_ds_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii'
-
-        #use make_targets and class_dict for timing files 1
-        ds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) #glm_ds_file[i]
-
-        #balancing out at the subject level
-        if model == 'MVPA-04':
-            balancer  = Balancer(attr='targets',count=1,apply_selection=True)
-            ds = list(balancer.generate(ds))
-            ds = ds[0]
-        
-        #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
-        detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
-        detrended_fds = ds.get_mapped(detrender)
-
-        #basic preproc: zscoring (this is critical given the design of the experiment)
-        zscore(detrended_fds)
-        ds = detrended_fds
-
-        #changing chunks from miniruns to subjects
-        subX = int(subj)
-        lenX = len(ds)
-        subChunk = np.linspace(subX, subX, lenX, dtype=int)
-        ds.chunks = subChunk
-
-
-        # Removing inv features #pleases the SVM but  ##triplecheck
-        #ds = remove_invariant_features(ds)
-
-        fds.append(ds)
-
-        if len(fds) == 1:
-            test_ds = fds[i]
-        else:
-            test_ds = vstack([test_ds,fds[i]])
-
-
-    test_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/test_ds'
-    save(test_ds, test_file)
-
-    #get_test(homedir, model, task)
-    return test_ds
-
-
 
 def get_ind(subj, model, task):
 
@@ -290,122 +147,231 @@ def get_ind(subj, model, task):
     save(fds, sub_file)
 
     return fds
+ 
+def get_ind(subj, model, task):
     
-#     runs2use = 1 
+    runs2use = 1 
 
-#     if model == 'MVPA-04':
-#         mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
+    if model == 'MVPA-04':
+        mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
 
-#         class_dict = {
-#                 'empty' : 0,
-#                 'chocolate' : 1,
-#                 'neutral' : 1,  #watcha
-#             }
+    class_dict = {
+            'empty' : 0,
+            'chocolate' : 1,
+            'neutral' : 1,  #watcha
+        }
 
 
-#     print 'working on subject:', subj
-#     glm_ds_file = (homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
+    #full list
+    sub_list=['01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21','22','23','24','25','26']
+    sub_test = [subj]
+
+    #remove test from training
+    sub_train = set(sub_list) - set(sub_test)       
+    sub_train = list(sub_train)
+
+    print 'doing train ds'
+
+    glm_ds_file = []
+    fds = []
     
-#     #use make_targets and class_dict for timing files 1
-#     ds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) 
+    for i in range(0,len(sub_train)):
+        subjX = sub_train[i]
+        print 'working on train subject:', subjX
+        glm_ds_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subjX+'/output/tstat_all_trials_4D.nii'
 
-#     #balancing out at the subject level
-#     if model == 'MVPA-04':
-#         balancer  = Balancer(attr='targets',count=1,apply_selection=True)
-#         ds = list(balancer.generate(ds))
-#         ds = ds[0]
+        #use make_targets and class_dict for timing files 1
+        ds = mvpa_utils.make_targets(subjX, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) #glm_ds_file[i]
 
-#     #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
-#     detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
-#     detrended_fds = ds.get_mapped(detrender)
+        #balancing out at the subject level
+        if model == 'MVPA-04':
+            balancer  = Balancer(attr='targets',count=1,apply_selection=True)
+            ds = list(balancer.generate(ds))
+            ds = ds[0]
 
-#     #basic preproc: zscoring (this is critical given the design of the experiment)
-#     zscore(detrended_fds)
-#     ds = detrended_fds
+        # The indices which have the value -1 will be kept in train.
+        #subX = int(subjX)
+        lenX = len(ds)
+        subChunk = np.linspace(-1, -1, lenX, dtype=int)
+        ds.chunks = subChunk
 
-#     # Removing inv features #pleases the SVM but  ##triplecheck
-#     #ds = remove_invariant_features(ds)
+        #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
+        detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
+        detrended_fds = ds.get_mapped(detrender)
 
-#     fds.append(ds)
+        #basic preproc: zscoring (this is critical given the design of the experiment)
+        zscore(detrended_fds)
+        ds = detrended_fds
 
-#     if len(fds) == 1:
-#         train_ds = fds[i]
-#     else:
-#         train_ds = vstack([train_ds,fds[i]])
+        # Removing inv features #pleases the SVM but  ##triplecheck
+        #ds = remove_invariant_features(ds)
 
+        fds.append(ds)
 
-# train_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/mvpa/fds_train'
-# save(train_ds, train_file)
-
-# return train_ds
-
-
-
-
-# def get_test(model, task):
+        if len(fds) == 1:
+            train_ds = fds[i]
+        else:
+            train_ds = vstack([train_ds,fds[i]])
     
-#     runs2use = 1 ##??
+    fds = []
 
-#     if model == 'MVPA-04':
-#         mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
+    for i in range(0,len(sub_test)):
+        
+        subjX = sub_test[i]
+        print 'working on test subject:', subjX
+        #glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
+        glm_ds_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subjX+'/output/tstat_all_trials_4D.nii'
 
-#     class_dict = {
-#             'empty' : 0,
-#             'chocolate' : 1,
-#             'neutral' : 1,  #watcha
-#         }
+        #use make_targets and class_dict for timing files 1
+        ds = mvpa_utils.make_targets(subjX, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) #glm_ds_file[i]
 
+        #balancing out at the subject level
+        if model == 'MVPA-04':
+            balancer  = Balancer(attr='targets',count=1,apply_selection=True)
+            ds = list(balancer.generate(ds))
+            ds = ds[0]
 
-#     # 20% for test
-#     sub_list=['22','23','24','25','26']
+        # The indices which have zero or positive values, will be kept in test
+        #subX = int(subjX)
+        lenX = len(ds)
+        subChunk = np.linspace(0, 0, lenX, dtype=int)
+        ds.chunks = subChunk
 
-#     print 'doing test ds'
+        #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
+        detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
+        detrended_fds = ds.get_mapped(detrender)
 
-#     glm_ds_file = []
-#     fds = []
+        #basic preproc: zscoring (this is critical given the design of the experiment)
+        zscore(detrended_fds)
+        ds = detrended_fds
 
-#     for i in range(0,len(sub_list)):
-#         subj = sub_list[i]
-#         print 'working on subject:', subj
-#         #glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
-#         glm_ds_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii'
+        # Removing inv features #pleases the SVM but  ##triplecheck
+        #ds = remove_invariant_features(ds)
 
-#         #use make_targets and class_dict for timing files 1
-#         ds = mvpa_utils.make_targets(subj, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) #glm_ds_file[i]
+        fds.append(ds)
 
-#         #balancing out at the subject level
-#         if model == 'MVPA-04':
-#             balancer  = Balancer(attr='targets',count=1,apply_selection=True)
-#             ds = list(balancer.generate(ds))
-#             ds = ds[0]
+        if len(fds) == 1:
+            test_ds = fds[i]
+        else:
+            test_ds = vstack([test_ds,fds[i]])
 
-#         #changing chunks from miniruns to subjects
-#         subX = int(subj)
-#         lenX = len(ds)
-#         subChunk = np.linspace(subX, subX, lenX, dtype=int)
-#         ds.chunks = subChunk
-
-#         #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
-#         detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
-#         detrended_fds = ds.get_mapped(detrender)
-
-#         #basic preproc: zscoring (this is critical given the design of the experiment)
-#         zscore(detrended_fds)
-#         ds = detrended_fds
-
-#         # Removing inv features #pleases the SVM but  ##triplecheck
-#         #ds = remove_invariant_features(ds)
-
-#         fds.append(ds)
-
-#         if len(fds) == 1:
-#             test_ds = fds[i]
-#         else:
-#             test_ds = vstack([test_ds,fds[i]])
+    fds = vstack([train_ds,test_ds])
+    return fds
 
 
-#     test_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/test_ds'
-#     save(test_ds, test_file)
 
-#     #get_test(homedir, model, task)
-#     return test_ds
+def get_80_20(subj, model, task):
+    
+    runs2use = 1 
+
+    if model == 'MVPA-04':
+        mask_name = homedir+'DERIVATIVES/EXTERNALDATA/LABELS/Olfa_cortex/Olfa_AMY_full.nii'
+
+    class_dict = {
+            'empty' : 0,
+            'chocolate' : 1,
+            'neutral' : 1,  #watcha
+        }
+
+
+    #full list
+    sub_list = subj
+
+    #randomly choose 5
+    sub_test = random.sample(sub_list,5) 
+
+    #remove them from training
+    sub_train = set(sub_list) - set(sub_test)       
+    sub_train = list(sub_train)
+    
+    print 'doing train ds'
+
+    glm_ds_file = []
+    fds = []
+
+    for i in range(0,len(sub_train)):
+        subjX = sub_train[i]
+        print 'working on train subject:', subjX
+        #glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
+        glm_ds_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subjX+'/output/tstat_all_trials_4D.nii'
+
+        #use make_targets and class_dict for timing files 1
+        ds = mvpa_utils.make_targets(subjX, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) #glm_ds_file[i]
+
+        #balancing out at the subject level
+        if model == 'MVPA-04':
+            balancer  = Balancer(attr='targets',count=1,apply_selection=True)
+            ds = list(balancer.generate(ds))
+            ds = ds[0]
+
+        # The indices which have the value -1 will be kept in train.
+        #subX = int(subjX)
+        lenX = len(ds)
+        subChunk = np.linspace(-1, -1, lenX, dtype=int)
+        ds.chunks = subChunk
+
+        #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
+        detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
+        detrended_fds = ds.get_mapped(detrender)
+
+        #basic preproc: zscoring (this is critical given the design of the experiment)
+        zscore(detrended_fds)
+        ds = detrended_fds
+
+        # Removing inv features #pleases the SVM but  ##triplecheck
+        #ds = remove_invariant_features(ds)
+
+        fds.append(ds)
+
+        if len(fds) == 1:
+            train_ds = fds[i]
+        else:
+            train_ds = vstack([train_ds,fds[i]])
+    
+    fds = []
+
+    for i in range(0,len(sub_test)):
+        
+        subjX = sub_test[i]
+        print 'working on test subject:', subjX
+        #glm_ds_file.append(homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subj+'/output/tstat_all_trials_4D.nii')
+        glm_ds_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/sub-'+subjX+'/output/tstat_all_trials_4D.nii'
+
+        #use make_targets and class_dict for timing files 1
+        ds = mvpa_utils.make_targets(subjX, glm_ds_file, mask_name, runs2use, class_dict, homedir,  model, task) #glm_ds_file[i]
+
+        #balancing out at the subject level
+        if model == 'MVPA-04':
+            balancer  = Balancer(attr='targets',count=1,apply_selection=True)
+            ds = list(balancer.generate(ds))
+            ds = ds[0]
+
+        # The indices which have zero or positive values, will be kept in test
+        #subX = int(subjX)
+        lenX = len(ds)
+        subChunk = np.linspace(0, 0, lenX, dtype=int)
+        ds.chunks = subChunk
+
+        #basic preproc: detrending [likely not necessary since we work with HRF in GLM]
+        detrender = PolyDetrendMapper(polyord=1, chunks_attr='chunks')
+        detrended_fds = ds.get_mapped(detrender)
+
+        #basic preproc: zscoring (this is critical given the design of the experiment)
+        zscore(detrended_fds)
+        ds = detrended_fds
+
+        # Removing inv features #pleases the SVM but  ##triplecheck
+        #ds = remove_invariant_features(ds)
+
+        fds.append(ds)
+
+        if len(fds) == 1:
+            test_ds = fds[i]
+        else:
+            test_ds = vstack([test_ds,fds[i]])
+
+    #train_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/all_ds'
+    #save(train_ds, train_file)
+    fds = vstack([train_ds,test_ds])
+    return fds
+
