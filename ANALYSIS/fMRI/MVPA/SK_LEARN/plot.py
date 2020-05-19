@@ -29,14 +29,14 @@ os.chdir(homedir+'CODE/ANALYSIS/fMRI/MVPA/PYmvpa')
 task = 'hedonic'
 
 #model = str(sys.argv[3])
-model = 'MVPA-05'
+model = 'MVPA-04'
 
 if model == 'MVPA-04':
-    label1 = 'Inidivudal Test Accuracy (Nucleus Accumbens)'
+    label1 = 'Individudal Test Accuracy (Olfactory cortex)'
     name = 'olf_cort'
 
 if model == 'MVPA-05':
-    label1 = 'Inidivudal Test Accuracy (Olfactory cortex)'
+    label1 = 'Individudal Test Accuracy (Nucleus Accumbens)'
     name = 'nacc'
 
 acc_file = homedir+'DERIVATIVES/MVPA/'+task+'/'+model+'/grid_acc.tsv'
@@ -97,9 +97,13 @@ plt.savefig(Kname)
 fig = plt.figure()
 sns.set_style('darkgrid')
 
+if model == 'MVPA-04':
+    sns.distplot(acc, bins=10,label= label1)
+    sns.distplot(null, kde=False, bins=7,label='null')
+else:
+    sns.distplot(acc, bins=15,label= label1)
+    sns.distplot(null, bins=15,label='null')
 
-sns.distplot(acc, bins=15,label= label1)
-sns.distplot(null, bins=15,label='null')
 plt.vlines(np.average(acc), 0,25, linestyles='solid')
 plt.vlines(np.average(null), 0,25, linestyles='dashed')
 plt.legend()

@@ -11,9 +11,9 @@ function GLM_15_ndLevel()
 
 %does t-test and full_factorial
 do_ttest = 1;
-remove = 1;
-removesub = {'sub-16'; 'sub-25'} ;
-removedsub = '16-25';
+remove = 0;
+removesub = {'sub-10'} ;
+removedsub = '10';
 
 %% define task variable
 %sessionX = 'second';
@@ -26,14 +26,14 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-mdldir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile (homedir, 'DERIVATIVES/GLM/', task);% mdl directory (timing and outputs of the analysis)
 name_ana = 'GLM-15'; % output folder for this analysis 
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 
 %% specify spm param
-addpath /usr/local/MATLAB/R2018a/spm12 ; 
-%addpath /usr/local/external_toolboxes/spm12/ ;
+%addpath /usr/local/MATLAB/R2018a/spm12 ; 
+addpath /usr/local/external_toolboxes/spm12/ ;
 
 addpath ([homedir 'CODE/ANALYSIS/fMRI/dependencies']);
 spm('Defaults','fMRI');

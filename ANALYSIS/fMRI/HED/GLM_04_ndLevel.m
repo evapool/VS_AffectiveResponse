@@ -11,8 +11,8 @@ function GLM_04_ndLevel()
 %does t-test and full_factorial
 do_covariate = 1;
 remove = 1;
-removesub = {'sub-23'} ;
-removedsub = 'no variance neutral';
+removesub = {'sub-10'} ;
+removedsub = '10';
 
 
 %% define task variable
@@ -26,8 +26,8 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD/'];
 
-mdldir   = fullfile(homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
-covdir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task, name_ana, 'group_covariates'); % director with the extracted second level covariates
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/', task);% mdl directory (timing and outputs of the analysis)
+covdir   = fullfile (homedir, 'DERIVATIVES/GLM/', task, name_ana, 'group_covariates'); % director with the extracted second level covariates
 
 groupdir = fullfile (mdldir,name_ana, 'group/');
 

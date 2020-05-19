@@ -28,8 +28,8 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD/'];
 
-mdldir   = fullfile(homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
-covdir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task, name_ana, 'group_covariates'); % director with the extracted second level covariates
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/', task);% mdl directory (timing and outputs of the analysis)
+covdir   = fullfile (homedir, 'DERIVATIVES/GLM/', task, name_ana, 'group_covariates'); % director with the extracted second level covariates
 
 groupdir = fullfile (mdldir,name_ana, 'group/');
 

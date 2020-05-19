@@ -25,7 +25,7 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-mdldir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/', task);% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile (homedir, 'DERIVATIVES/GLM/', task);% mdl directory (timing and outputs of the analysis)
 name_ana = 'GLM-01'; % output folder for this analysis 
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
