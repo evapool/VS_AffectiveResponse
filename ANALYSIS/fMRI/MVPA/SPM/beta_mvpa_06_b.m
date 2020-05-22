@@ -1,9 +1,11 @@
-function beta_mvpa_04(subID)
+function beta_mvpa_06(subID)
 
-% like mvpa_04
-% last modified on JUNE 2020 by David
+% like mvpa_03 but extracts betas on both cs and ant
+% created by Logan
+% last modified on JUNE 2020 by Davis  to get the beta on the onsets of the
+% reward and empty odor recption only!
 
-disp 'running beta_everytrial_mvpa_01'
+disp 'running beta_everytrial_mvpa_06'
 
 
 %subID = {'01'}; 
@@ -12,8 +14,9 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD'];
 
+Maskimage =  fullfile (homedir,'DERIVATIVES', 'EXTERNALDATA', 'LABELS', 'OFC', 'full_OFC.nii');
 
-mdldir        = fullfile (homedir, '/DERIVATIVES');
+mdldir        = fullfile (homedir, '/DERIVATIVES/ANALYSIS');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
 
@@ -23,7 +26,7 @@ addpath('/usr/local/external_toolboxes/spm12/');
 
 %% specify fMRI parameters
 param.TR = 2.4;
-param.im_format = 'UnsmoothedBold.nii'; 
+param.im_format = '_Bold.nii'; 
 param.ons_unit = 'secs'; 
 spm('Defaults','fMRI');
 spm_jobman('initcfg');
@@ -32,7 +35,7 @@ addpath(genpath('/usr/local/external_toolboxes/spm12/'))
 
 % | define path
 
-ana_name          = 'MVPA-04';
+ana_name          = 'MVPA-06';
 task          = {'hedonic'};
 subID = char(subID);
 
@@ -45,11 +48,7 @@ mkdir(out_dir)
 
 % | initialize batch
 clear matlabbatch % Every preprocessing step needs this line
-%matlabbatch{1}.spm.stats.fmri_spec.dir = {out_dir};
-%matlabbatch{1}.spm.stats.fmri_spec.timing.units = param.ons_unit;
-%matlabbatch{1}.spm.stats.fmri_spec.timing.RT = param.TR;
-%matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t = 16;
-%matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 8;
+
 
 
 % | define batch
@@ -87,7 +86,7 @@ SPM.nscan   = nscans;
 
 num_trials = length(onsets.All);
 
-%anticipation phase
+%odor reception phase
 for t=1:num_trials
     %separate regressor for each trial
     SPM.Sess(ses).U(t).name = {['Trial ',num2str(t)]};
@@ -126,7 +125,7 @@ SPM.Sess(ses).U(t).dur = durations.liking;
 SPM.Sess(ses).U(t).orth = 0; %no ortho!!
 SPM.Sess(ses).U(t).P(1).name = 'none'; 
 
-%liking
+%intensity
 t = t + 1;
 SPM.Sess(ses).U(t).name = {'q_intensity'};
 SPM.Sess(ses).U(t).ons = onsets.intensity;
@@ -134,6 +133,13 @@ SPM.Sess(ses).U(t).dur = durations.intensity;
 SPM.Sess(ses).U(t).orth = 0; %no ortho!!
 SPM.Sess(ses).U(t).P(1).name = 'none'; 
 
+%control
+t = t + 1;
+SPM.Sess(ses).U(t).name = {'control'};
+SPM.Sess(ses).U(t).ons = onsets.odor.control ;
+SPM.Sess(ses).U(t).dur = durations.odor.control ;
+SPM.Sess(ses).U(t).orth = 0; %no ortho!!
+SPM.Sess(ses).U(t).P(1).name = 'none'; 
         
 %high pass filter
 SPM.xX.K(1).HParam = 128;
@@ -169,10 +175,10 @@ SPM.Sess(ses).C.name = {};
 % set threshold of mask!!
 %==========================================================================
 %SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
-Maskimage =  fullfile (homedir,'DERIVATIVES','PREPROC', ['sub-' subID],'ses-second', 'anat', ['sub-' subID '_ses-second_run-01_T1w_reoriented_brain_mask.nii']);
-SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
+%Maskimage =  fullfile (homedir,'DERIVATIVES', 'EXTERNALDATA', 'LABELS', 'CORE_SHELL', 'NAcc.nii'); 
+SPM.xM.gMT =  0;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
 SPM.xM.VM  =  spm_vol(Maskimage);
-SPM.xM.I   =  0.1;
+SPM.xM.I   =  0;
 %matlabbatch{1}.spm.stats.fmri_spec.mask = {[standard_mask,',1']}; % here enter the mask based on the subject anatomical
      
  % OPTIONS: microtime time resolution and microtime onsets (this paramter

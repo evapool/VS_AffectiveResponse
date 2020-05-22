@@ -8,7 +8,7 @@ function GLM_03_stLevel(subID)
 % + 4 modulated contrast (*eff)
 % Ortho = 0 & modulator is mean centered
 % last modified on JULY 2019 by David Munoz
-
+%dbstop if error
 
 %% What to do
 firstLevel    = 1;
@@ -24,22 +24,23 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-mdldir   = fullfile(homedir, 'DERIVATIVES/ANALYSIS/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, 'DERIVATIVES/PREPROC');% directory with  post processed functional scans
 name_ana = 'GLM-03'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
 %addpath /usr/local/MATLAB/R2018a/spm12 ;
+
 %% specify fMRI parameters
 param.TR = 2.4;
-param.im_format = 'nii'; 
+param.im_format = 'smoothBold.nii'; 
 param.ons_unit = 'secs';
 spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
-%% define experiment setting parameters
-subj       =  {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+%% define experiment setting parameters '01';'02';
+subj       =  {'01'; '02'; '03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'PIT'};
 
 %% define experimental design parameters
@@ -178,8 +179,6 @@ end
         for j = 1:nscans(ses)
             scanID    = [scanID; {[subjfuncdir,'/', V.name, ',', num2str(j)]}];
         end
-
-        
         
         SPM.xY.P    = char(scanID);
         SPM.nscan   = nscans;
@@ -194,7 +193,6 @@ end
             ONSname = spm_select('List',[subjoutdir '/timing/'],[name_ana '_task-' taskX '_onsets.mat']);
             cd([subjoutdir '/timing/']) % path
             ONS = load(ONSname);
-            cd([subjoutdir '/output/'])
             
             nconds=length(param.Cnam{ses});
             
@@ -271,11 +269,9 @@ end
             %multiple regressors for mvts parameters ( no movement regressor after FIX denosing)
 
         
-        
-        
            %rnam = {'X','Y','Z','x','y','z'};
            rnam = {'effort'};
-           physio        = fullfile('~/REWOD',['sub-' subjX], 'ses-second', 'physio');
+           physio        = fullfile('~/REWOD','SOURCEDATA','physio', subjX);
         
            cd (physio)
         
@@ -287,6 +283,8 @@ end
            
         end
         
+        
+        cd([subjoutdir '/output/'])
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % basis functions and timing parameters
@@ -464,12 +462,12 @@ end
             jobs{1}.stats{1}.con.consess{icon}.tcon.convec = Ct(icon,:);
         end
         
-        % F constrats
-        for iconf = 1:1 % until the number of F constrast computed
-            jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};
-            jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.convec = Cf(iconf);
-        end
-        
+%         % F constrats
+%         for iconf = 1:1 % until the number of F constrast computed
+%             jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};
+%             jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.convec = Cf(iconf);
+%         end
+%         
         
         % run the job
         spm_jobman('run',jobs)

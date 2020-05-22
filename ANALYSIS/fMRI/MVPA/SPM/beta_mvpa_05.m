@@ -38,8 +38,8 @@ ana_name          = 'MVPA-05';
 task          = {'hedonic'};
 subID = char(subID);
 
-in_dir = fullfile(homedir,'DERIVATIVES','ANALYSIS','MVPA','hedonic',ana_name,['sub-' subID],'timing');
-out_dir       = fullfile(homedir,'DERIVATIVES','ANALYSIS','MVPA','hedonic',ana_name,['sub-' subID],'output');
+in_dir = fullfile(homedir,'DERIVATIVES','MVPA','hedonic',ana_name,['sub-' subID],'timing');
+out_dir       = fullfile(homedir,'DERIVATIVES','MVPA','hedonic',ana_name,['sub-' subID],'output');
 %func_dir      = fullfile(homedir,'DATA','brain','cleanBIDS',['sub-' subID], 'func');
 func_dir  = fullfile(homedir, '/DERIVATIVES/PREPROC', [ 'sub-' subID], 'ses-second', 'func');
 mkdir(out_dir)

@@ -6,7 +6,7 @@ clear all
 
 %define variables
 task = 'hedonic';
-model_H0       =  '15';
+model_H0       =  '04';
 models       =  {'04'; '15'};
 
 
@@ -26,17 +26,16 @@ cd(BMSdir)
 for i = 1:length(models)
     
     model_files{i,1} = fullfile(BMSdir, ['GLM-' models{i} '_model_LFM.nii,1']); 
-    model_names{i} = ['GLM-' models{i}];
 end
 
 jobs{1}.spm.tools.MACS.MF_visualize.data = model_files;
-jobs{1}.spm.tools.MACS.MF_visualize.overlay = {fullfile(BMSdir, ['MS_SMM_BMS_10/MS_SMM_map_pos_2_mod_2_GLM-' model_H0 '.nii,1'])};
+jobs{1}.spm.tools.MACS.MF_visualize.overlay = {fullfile(BMSdir, ['MS_SMM_BMS_10/MS_SMM_map_pos_1_mod_1_GLM-' model_H0 '.nii,1'])};
 jobs{1}.spm.tools.MACS.MF_visualize.thresh = '>0';
 jobs{1}.spm.tools.MACS.MF_visualize.PlotType = 'bar';
 jobs{1}.spm.tools.MACS.MF_visualize.LineSpec = 'b';
 
 
-jobs{1}.spm.tools.MACS.MF_visualize.XTicks = model_names;
+jobs{1}.spm.tools.MACS.MF_visualize.XTicks = '{04 15}'; 
 %jobs{1}.spm.tools.MACS.MF_visualize.XTicks = 'cellstr(num2str([1:2]''))''';
 jobs{1}.spm.tools.MACS.MF_visualize.YLimits = '[0,1]';
 jobs{1}.spm.tools.MACS.MF_visualize.Title = 'Bayesian Model Selection';

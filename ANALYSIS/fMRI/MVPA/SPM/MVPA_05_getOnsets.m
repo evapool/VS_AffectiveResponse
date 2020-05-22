@@ -13,7 +13,7 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD'];
 
-mdldir        = fullfile (homedir, '/DERIVATIVES/ANALYSIS/MVPA');
+mdldir        = fullfile (homedir, '/DERIVATIVES/MVPA');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 addpath (genpath(fullfile(homedir,'/CODE/ANALYSIS/fMRI/dependencies')));
 

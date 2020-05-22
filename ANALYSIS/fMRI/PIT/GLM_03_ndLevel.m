@@ -11,8 +11,8 @@ function GLM_03_ndLevel()
 
 do_ttest = 1;
 remove = 0;
-removesub = {'sub-24'} ; %
-removedsub = '24';
+removesub = {'sub-10'} ; %
+removedsub = '10';
 
 %% define path
 
@@ -20,10 +20,9 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD/'];
 
-mdldir   = fullfile(homedir, 'DERIVATIVES/ANALYSIS/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
 name_ana = 'GLM-03'; % output folder for this analysis 
-groupdir = fullfile (mdldir,name_ana, 'group/');
-
+groupdir = fullfile(mdldir,name_ana, 'group/');
 
 %% specify spm param
 

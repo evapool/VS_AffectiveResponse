@@ -9,25 +9,22 @@ function GLM_04_ndLevel
 % + 4 modulated contrast (*eff)
 % last modified on JULY 2019 by David Munoz
 
-
 do_covariate = 1;
 remove = 0;
-removesub = {'sub-24'};
-removedsub = '24';
-
+removesub = {'sub-10'};
+removedsub = '10';
 
 %% define path
-
 
 cd ~
 home = pwd;
 homedir = [home '/REWOD/'];
 
 %%
-mdldir   = fullfile(homedir, 'DERIVATIVES/ANALYSIS/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
 name_ana = 'GLM-04'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
-covdir   = fullfile (homedir, 'DERIVATIVES/ANALYSIS/PIT/GLM-04/group_covariates'); % director with the extracted second level covariates
+covdir   = fullfile (homedir, 'DERIVATIVES/GLM/PIT/GLM-04/group_covariates'); % director with the extracted second level covariates
 
 
 %% specify spm param
@@ -47,13 +44,13 @@ if do_covariate
     % covariate of interest name become folder
     covariateNames = {'CSp-CSm_eff_rank' %1
         'CSp-Baseline_eff_rank' %2
-        'CSm-Baseline_eff_rank'%3
+        'CSm-Baseline_eff_rank' %3
         'CSp-CSm&Baseline_eff_rank'}; %4
 
     % These contrast names become sub-folders
     contrastNames = {'CSp-CSm' %1
-        'CSp-Baseline'% 2
-        'CSp-CSm&Baseline'%3
+        'CSp-Baseline' %2
+        'CSp-CSm&Baseline' %3
         'CSm-Baseline'}; %4
 
     conImages = {'con_0001'
