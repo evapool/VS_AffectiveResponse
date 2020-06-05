@@ -6,9 +6,9 @@ dbstop if error
 
 glm = ['GLM-' model];
 
-cHeader = {'R2adj'; 'R2'; 'AIC'; 'BIC'; 'LME'};
+cHeader = {'R2adj'; 'R2'; 'AIC'} %; 'BIC'; 'LME'
 
-mea_list = {'MA_GoF_R2_adj.nii'; 'MA_GoF_R2.nii'; 'MA_ICs_AIC.nii'; 'MA_ICs_BIC.nii'; 'MA_cvLME.nii'}; %
+mea_list = {'MA_GoF_R2_adj.nii'; 'MA_GoF_R2.nii'; 'MA_ICs_AIC.nii'} %; 'MA_ICs_BIC.nii'; 'MA_cvLME.nii'
 
 
 %define path

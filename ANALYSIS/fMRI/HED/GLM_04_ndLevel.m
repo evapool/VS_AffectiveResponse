@@ -10,7 +10,7 @@ function GLM_04_ndLevel()
 
 %does t-test and full_factorial
 do_covariate = 1;
-remove = 1;
+remove = 0;
 removesub = {'sub-10'} ;
 removedsub = '10';
 
@@ -53,14 +53,11 @@ if do_covariate % covariate of interest name become folder
     % These contrast names become folders
     contrastNames = {
         'reward-neutral'%2
-        
-
         'Reward-NoReward'};%4
     
     
     conImages = {
         'con_0002'
-
         'con_0005'};
     
     

@@ -9,26 +9,21 @@ if(!require(pacman)) {
 }
 pacman::p_load(readr, dplyr, reshape, reshape2, Rmisc, corrplot, ggpubr, gridExtra, grid, mosaic, psychometric, RNOmni)
 
-analysis_path <- file.path('~/REWOD/DERIVATIVES/BEHAV') 
-figures_path  <- file.path('~/REWOD/DERIVATIVES/FIGURES/BEHAV') 
-
-setwd(analysis_path)
-
-#mod1 <- read_csv("~/REWOD/DERIVATIVES/BMS/hedonic/GoF_NAcc/GLM-04.csv")
-mod1 <- read_csv("~/REWOD/DERIVATIVES/BMS/PIT/GoF_NAcc/GLM-04.csv")
+mod1 <- read_csv("~/REWOD/DERIVATIVES/BMS/hedonic/GoF_NAcc/GLM-04.csv")
+#mod1 <- read_csv("REWOD/DERIVATIVES/BMS/PIT/GoF_NAcc/GLM-04.csv")
 mod1 <- tibble::rowid_to_column(mod1, "ID")
 mod1[is.na(mod1)] <- 'mod1'
 
-#mod2 <- read_csv("~/REWOD/DERIVATIVES/BMS/hedonic/GoF_NAcc/GLM-15.csv")
-mod2 <- read_csv("~/REWOD/DERIVATIVES/BMS/PIT/GoF_NAcc/GLM-03.csv")
+mod2 <- read_csv("~/REWOD/DERIVATIVES/BMS/hedonic/GoF_NAcc/GLM-15.csv")
+#mod2 <- read_csv("REWOD/DERIVATIVES/BMS/PIT/GoF_NAcc/GLM-03.csv")
 mod2 <- tibble::rowid_to_column(mod2, "ID")
 mod2[is.na(mod2)] <- 'mod2'
 
 df_full = rbind(mod1, mod2)
 
 AVG <- df_full %>%
-  group_by(X4) %>%
-  dplyr::select(R2, R2adj, AIC) %>% # select variables to summarise %LME, AIC, BIC,
+  group_by(X6) %>%
+  dplyr::select(R2, R2adj) %>% # select variables to summarise %LME, AIC, BIC,
   summarise_each(funs(m = mean))
 
 # AVG = cbind(AVG, c('AVG', 'AVG'))
@@ -48,16 +43,15 @@ AVG <- df_full %>%
 #plot diff
 #diff = mod2$R2 - mod1$R2
 #diffadj = mod2$R2adj - mod1$R2adj
-diffAIC = mod2$AIC - mod1$AIC
-
+diffBIC = mod2$BIC - mod1$BIC
 #diff <- append(diff, mean(diff))
 ID = c('01','02','03','04','05','06','07','09','10','11','12','13','14','15','16','17','18','20','21','22','23','24','25','26') #, 'mean')
 
-mod_comp = tibble(cbind(diffAIC, ID))
+mod_comp = tibble(cbind(diffBIC, ID))
 
 # R2 -diff in favor of mod2
-diff = ggplot(data=mod_comp, aes(x=ID, y=diffAIC)) +
-  geom_bar(fill = 'blue', stat="identity", position=position_dodge())
+diff = ggplot(data=mod_comp, aes(x=ID, y=diffBIC)) +
+  geom_bar(fill = 'red', stat="identity", position=position_dodge())
 
 diff +  #details to make it look good
   theme_bw() +
@@ -75,7 +69,7 @@ diff +  #details to make it look good
         axis.line.x = element_blank(),
         strip.background = element_rect(fill="white"))+ 
   labs( y = "\u0394 AIC \nModel 2 (Within) - Model 1 (Between) ",
-        title = "Model Comparison - PIT") #,
+        title = "Model Comparison - Hedonic") #,
 
 
 

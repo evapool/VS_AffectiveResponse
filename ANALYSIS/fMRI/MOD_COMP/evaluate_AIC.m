@@ -7,9 +7,10 @@ clear all
 
 
 %define variables
-task = 'hedonic';
+%task = 'hedonic';
+task = 'PIT';
 subj       =  {'01'; '02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
-model       =  {'04'; '15'};
+model       =  {'03'; '04'};
 
 %define paths
 cd ~

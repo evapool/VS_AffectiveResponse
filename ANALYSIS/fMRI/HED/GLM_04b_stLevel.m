@@ -1,4 +1,4 @@
-function GLM_04_stLevel(subID) 
+function GLM_04b_stLevel(subID) 
 
 % intended for REWOD HED
 % get onsets for main model
@@ -27,7 +27,7 @@ homedir = [home '/REWOD/'];
 
 mdldir   = fullfile(homedir, '/DERIVATIVES/GLM/', task);% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-04'; % output folder for this analysis
+name_ana = 'GLM-04b'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
@@ -39,8 +39,8 @@ param.ons_unit = 'secs';
 spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
-%% define experiment setting parameters
-subj       =  {'01'} %;'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+%% define experiment setting parameters '02';'03';'04';'05';
+subj       =  {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
@@ -179,8 +179,9 @@ end
         tmp{ses}           = spm_select('List',smoothfolder,targetscan.name);
        
          
-        Maskimage = [subjfuncdir '/anat/sub-' subjX '_ses-second_run-01_T1w_reoriented_brain_mask.nii'];
-
+        %Maskimage = [subjfuncdir '/anat/sub-' subjX '_ses-second_run-01_T1w_reoriented_brain_mask.nii'];
+        Maskimage = fullfile(homedir, 'DERIVATIVES/EXTERNALDATA/LABELS/OFC/OFC_Fo2.nii');
+        
         
         % get the number of EPI for each session
         cd (smoothfolder);
@@ -354,12 +355,23 @@ end
         % set threshold of mask!!
         %==========================================================================
         %SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
-        SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
-        SPM.xM.VM  =  spm_vol(Maskimage);
-        SPM.xM.I   =  0.1;
+        %SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
+
+        %spm.stats.fmri_spec.mask = {'/home/cisa/REWOD/DERIVATIVES/EXTERNALDATA/LABELS/CORE_SHELL/NAcc.nii,1'};
+        %SPM.xM.I   =  0;
+        
+        %SPM.xM.T           = SPM.xM.T;
+        %SPM.xM.TH          = SPM.xM.TH * -Inf;
+
+
         % Configure design matrix
         %==========================================================================
         SPM = spm_fmri_spm_ui(SPM);
+        
+        %SPM.xM.TH = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
+        %SPM.xM.I           = 0;
+        SPM.xM.VM  =  spm_vol(Maskimage);
+        SPM.xM.xs.Masking  = 'Striatum mask, made with FSL';
         
         % Estimate parameters
         %==========================================================================

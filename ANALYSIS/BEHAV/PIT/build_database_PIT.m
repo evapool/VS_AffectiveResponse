@@ -59,7 +59,7 @@ for i = 1:length(subj)
     RIM.ntrials = size(ResultsRimind.TrialOnset,2);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%  get onsets
-    
+    %Good reshape(data.PIT.Onsets.StartTrial',1,[])'; % BADDDD reshape(data.PIT.Onsets.StartTrial,1,ntrials)';
     PIT.ONSETS.trialstart   = reshape(ResultsPIT.Onset,PIT.ntrials,1);
     ResultsPIT.onset        = reshape(ResultsPIT.Onset,PIT.ntrials,1)';
     PIT.ONSETS.trigger      = reshape(ResultsPIT.TriggerOnset,PIT.ntrials,1);
