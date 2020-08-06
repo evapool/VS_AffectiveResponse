@@ -24,7 +24,7 @@ homedir = [home '/REWOD'];
 %subj = {'02'};
 
 
-physiodir   = fullfile(homedir, '/SOURCEDATA/physiology');
+physiodir   = fullfile(homedir, '/SOURCEDATA/physio');
 MRIdir   = fullfile(homedir, '/SOURCEDATA/brain');
 run = {'RUN_1_TR2400_TE41_1800um_000*'}; %PIT
 
@@ -36,7 +36,7 @@ run = {'RUN_1_TR2400_TE41_1800um_000*'}; %PIT
 
 
 
-subj={'11'}%;'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj={'01'}%;'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 %physioID = {'s11'; 's13'; 's14'; 's15'; 's16'; 's17'; 's18'; 's20'; 's21'; 's22'; 's23'; 's24'; 's25'; 's26''s10'; 's11'; 's13'; 's14'; 's15'; 's16'; 's17'; 's18'; 's20'; 's21'; 's22'; 's23'; 's24'; 's25'; 's26'};
 %10';'12';'14'; '16';
 
@@ -76,6 +76,7 @@ for  i=1:length(subj)
     % OPEN FILE
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     cd (physiodir)
+    cd (subj{i})
     
     filename = [num2str(participantID) '.acq'];
     addpath /home/cisa/REWOD/CODE/ANALYSIS/PHYSIO
@@ -118,13 +119,13 @@ for  i=1:length(subj)
         
     end
     
-    cd (physiodir);
+    %cd (physiodir);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % EXTRACT SIGNAL FOR TAPAS TOOLBOX AND SAVE INPUT VARIABLES
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    %Sycronize the physiological data to the MRI session
+    %Sycronize the physiological data to the MRI session not two 5 in X (sampling rate * TR) 
     scanner_start = min (find((physio.data (:,MRI_volume)) == 5)); % First MRI volume trigger
     time_Physio = (length(physio.data (scanner_start:length(physio.data))))/sampling_rate; % The last image is acquired
     scanner_end = (num_EPI * TR) * sampling_rate;
@@ -134,10 +135,10 @@ for  i=1:length(subj)
     heartEPI = physio.data (scanner_start:pyhsio_end,heart_channel); % SpO wave form
     
     
-    cd (subjdir) % we save these variables in the subject directory with the nii images
+    %cd (subjdir) % we save these variables in the subject directory with the nii images
     save (['respEPI_' subjX '.mat'], 'respEPI');
     save (['heartEPI_' subjX '.mat'], 'heartEPI');
-    cd (physiodir)
+    %cd (physiodir)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % CREATE AND SAVE THE EFFORT REGRESSOR
@@ -164,7 +165,7 @@ for  i=1:length(subj)
         end
         
         
-        cd (subjdir)
+        %cd (subjdir)
         % save the reg as a file text in the participant directory
         fid = fopen('regressor_effort.txt','wt');
         for ii = 1:length(effort_reg)
