@@ -142,10 +142,38 @@ set.seed(123)
 system.time(boot.out <- bootMer(mod,FUN=coef.out,nsim=1000,use.u=TRUE))
 coef.conf = confint(boot.out,method="boot",boot.type="perc",level=0.95)
 coef.conf
-#This paints a slightly more interesting picture. We have no person 
+#This paints a slightly more interesting picture. We have one person 
 #with no significant decreases in liking for the neutral stimulus,
 #In other words, the proportion of people preferring the reward stim from the neutral stim is 
-#estimated to be 100% (24/24)!.
+#estimated to be 96% (23/24)!.
+
+# > coef.conf
+# 2.5 %      97.5 %
+#   [1,] -22.097854 -15.3981256
+# [2,] -23.849763 -16.3243634
+# [3,] -11.926957  -0.8848230
+# [4,] -19.099847 -12.9719988
+# [5,] -23.602331 -16.5157630
+# [6,] -23.012752 -15.6108323
+# [7,]  -7.918265   0.2604946
+# [8,] -15.066342  -7.5394401
+# [9,] -19.000003 -12.5361719
+# [10,]  -9.917984  -2.1133027
+# [11,] -23.727080 -15.6164994
+# [12,] -14.969074  -4.3188563
+# [13,] -11.563129  -3.6353199
+# [14,] -11.180472  -4.7447221
+# [15,] -12.272361  -6.5216738
+# [16,] -12.812225  -4.1851672
+# [17,] -13.633907  -5.1727962
+# [18,] -16.397199  -9.1308239
+# [19,] -17.508154  -9.6845467
+# [20,] -15.994223  -7.8881373
+# [21,] -17.667754  -7.4282208
+# [22,] -14.194433  -5.6137141
+# [23,] -12.128672  -4.8118686
+# [24,] -26.458025 -17.8183389
+
 
 
 # The END - Special thanks to Ben Meuleman, Eva R. Pool and Yoann Stussi -----------------------------------------------------------------

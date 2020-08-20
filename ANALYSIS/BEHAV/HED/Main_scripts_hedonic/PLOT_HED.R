@@ -66,12 +66,12 @@ plt0 = ggplot(df.observed.jit, aes(x=condition,  y=emmean)) +
   geom_blank() +
   geom_flat_violin(aes( fill = condition), alpha = .4, position = position_nudge(x = .3, y = 0), adjust = 1.5, trim = F, color = 'white') + 
   geom_line(aes(condjit, group = id), alpha = 0.1) +
-  geom_point(aes(condjit), size=1, alpha=0.5)
+  geom_point(aes(condjit), size=1, alpha=0.3)
 #group
 plt = plt0  +
   geom_bar(data = df.predicted.jit,aes( fill = condition), stat = "identity", position=position_dodge2(width=0.9), alpha = 0.4, width = 0.5) +
-  geom_errorbar(data = df.predicted.jit, aes(group = condition, ymin=emmean - SE, ymax=emmean + SE), size=0.5, width=0.1,  color = "black", position=position_dodge(width = 0.5)) +
-  geom_point(data = df.predicted.jit, size = 2,  shape = 23, color= "black", fill = 'grey40',  position=position_dodge2(width = 0.5))
+  geom_errorbar(data = df.predicted.jit, aes(group = condition, ymin=emmean - SE, ymax=emmean + SE), size=0.5, width=0.2,  color = "black", position=position_dodge(width = 0.5)) +
+  geom_point(data = df.predicted.jit, size = 1.5,  shape = 23, color= "black", fill = 'grey40',  position=position_dodge2(width = 0.5))
 
 
 plot = plt +   theme_bw() +
@@ -115,20 +115,53 @@ dfLIK <- summarySEwithin(df,
                          idvar = "id")
 
 dfLIK$condition = factor(dfLIK$condition,levels(dfLIK$condition)[c(1,3,2)])
-dfLIK$trialxcondition =as.numeric(dfLIK$trialxcondition)
+dfLIK$trial =as.numeric(dfLIK$trialxcondition)
+for (i in  1:length(dfLIK$trial)) {
+  if(dfLIK$condition[i] == -1) {
+    dfLIK$trial[i] = dfLIK$trial[i] + 0.15
+  }
+  else if(dfLIK$condition[i] == 0) {
+    dfLIK$trial[i] = dfLIK$trial[i] - 0.15
+  }
+}
 
-
-ggplot(dfLIK, aes(x = trialxcondition, y = perceived_liking, color=condition)) +
-  geom_line(alpha = .7, size = 1, position =position_dodge(width = 0.5)) +
-  geom_point(position =position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymax = perceived_liking +se, ymin = perceived_liking -se), width=0.5, alpha=0.7, size=0.4, position = position_dodge(width = 0.5))+
+plotTRIAL = ggplot(dfLIK, aes(x = trial, y = perceived_liking, color=condition)) +
+  geom_line(alpha = .7, size = 1, show.legend = F) +
+  geom_errorbar(aes(ymax = perceived_liking + se, ymin = perceived_liking - se), width=0.5, alpha=0.7, size=0.4, linetype='dashed')+ 
+  geom_point(color = 'grey40') +
   scale_colour_manual(values = c("1"="blue", "0"="red", "-1"="black"),labels=c("Reward", "Neutral", "Control")) +
   scale_y_continuous(expand = c(0, 0),  limits = c(40,80),  breaks=c(seq.int(40,80, by = 5))) +  #breaks = c(4.0, seq.int(5,16, by = 2.5)),
   scale_x_continuous(expand = c(0, 0), limits = c(0,18.5), breaks=c(seq.int(1,18, by = 1)))+ 
-  theme_classic() +
-  theme(plot.margin = unit(c(1, 1, 1, 1), units = "cm"), axis.title.x = element_text(size=16),
-        axis.title.y = element_text(size=16), legend.position = c(0.9, 0.9), legend.title=element_blank()) +
-  labs(x = "Trials",y = "Pleasantness Ratings")
+  guides(color = guide_legend(override.aes = list(linetype = c(1, 1, 1), size = 0.7) ) ) +
+  theme_bw() +
+  theme(aspect.ratio = 1/1.7,
+        plot.margin = unit(c(1, 1, 1.2, 1), units = "cm"),
+        plot.title = element_text(hjust = 0.5),
+        plot.caption = element_text(hjust = 0.5),
+        panel.grid.major.x = element_blank(), #element_line(size=.2, color="lightgrey") ,
+        panel.grid.major.y = element_line(size=.2, color="lightgrey") ,
+        axis.text.x =  element_text(size=12,  colour = "black"), #element_blank(), #element_text(size=10,  colour = "black", vjust = 0.5),
+        axis.text.y = element_text(size=10,  colour = "black"),
+        axis.title.x =  element_text(size=16), 
+        axis.title.y = element_text(size=16),  
+        axis.line.x = element_blank(),
+        legend.position = c(0.9, 0.89), 
+        legend.title=element_blank(),
+        legend.text=element_text(size=7),        
+        legend.key.size = unit(0.07, "cm"),
+        legend.key.width = unit(1, "line"),
+        strip.background = element_rect(fill="white"))+ 
+  labs(x = "Trial", y =  "Pleasantness Ratings", title = "") #Solution
+
+
+plot(plotTRIAL)
+
+cairo_pdf(file.path(figures_path,paste(task, 'trial&pleas.pdf',  sep = "_")),
+          width     = 6,
+          height    = 5.5)
+
+plot(plotTRIAL)
+dev.off()
 
 #The End, thanks Yoann
 
