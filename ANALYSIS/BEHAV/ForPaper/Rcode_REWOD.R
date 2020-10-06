@@ -20,15 +20,20 @@
 
 #--------------------------------------  PRELIMINARY STUFF ----------------------------------------
 #load libraries
-pacman::p_load(apaTables, MBESS, afex, car, ggplot2, dplyr, plyr, tidyr, 
-               reshape, Hmisc, Rmisc,  ggpubr, ez, gridExtra, plotrix, 
-               lsmeans, BayesFactor, effectsize, devtools,misty)
 
 if(!require(pacman)) {
   install.packages("pacman")
   library(pacman)
 }
 
+pacman::p_load(apaTables, MBESS, afex, car, ggplot2, dplyr, plyr, tidyr, 
+               reshape, Hmisc, Rmisc,  ggpubr, ez, gridExtra, plotrix, 
+               lsmeans, BayesFactor, effectsize, devtools,misty)
+
+if(!require(devtools)) {
+  install.packages("devtools")
+  library(devtools)
+}
 
 # get tool
 devtools::source_gist("2a1bb0133ff568cbe28d", 
@@ -37,8 +42,8 @@ devtools::source_gist("2a1bb0133ff568cbe28d",
 #SETUP
 
 # Set path
-#home_path       <- '/Users/evapool/mountpoint2'
-home_path       <- '~/REWOD'
+home_path       <- '/Users/evapool/mountpoint2'
+#home_path       <- '~/REWOD'
 
 # Set working directory
 analysis_path <- file.path(home_path, 'CODE/ANALYSIS/BEHAV/ForPaper')
@@ -80,7 +85,7 @@ timeline_theme <- theme_bw(base_size = 32, base_family = "Helvetica")+
         axis.line = element_line(size = 0.5),
         panel.border = element_blank())
 
-
+pal = viridis::inferno(n=5)
 
 # -------------------------------------------------------------------------------------------------
 #                                             PAVLOVIAN
@@ -165,15 +170,16 @@ pp <- ggplot(PAV.means, aes(x = factor(condition, levels = c("CS+","CS-")), y = 
   geom_point(alpha = .3, position = position_jitterdodge(jitter.width = .2, jitter.height = 0)) +
   geom_line(aes(group = id, y = liking), alpha = .2, size = 0.5, color = 'gray') +
   geom_crossbar(data = dfL, aes(y = liking, ymin=liking-se, ymax=liking+se), width = 0.85 , alpha = 0.1)+
-  
   ylab('Liking Ratings')+
   xlab('Pavlovian stimulus')+
-  scale_fill_manual(values=c("CS+"= "#006600", "CS-"= "black")) +
-  scale_color_manual(values=c("CS+"= "#006600", "CS-"= "black")) +
   ylim(low=0., high=100)+
-  theme_bw()
+  scale_fill_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
+  scale_color_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
+  theme_bw() 
+
 
 ppp <- pp + averaged_theme 
+
 
 pdf(file.path(figures_path,'Figure_PavlovianLiking.pdf'))
 print(ppp)
@@ -193,8 +199,8 @@ pp <- ggplot(PAV.means, aes(x = factor(condition, levels = c("CS+","CS-")), y = 
   geom_crossbar(data = dfR, aes(y = RT, ymin=RT-se, ymax=RT+se), width = 0.85 , alpha = 0.1)+
   ylab('Reaction Times (ms)')+
   xlab('Pavlovian stimulus')+
-  scale_fill_manual(values=c("CS+"="#006600", "CS-"="black")) +
-  scale_color_manual(values=c("CS+"="#006600", "CS-"="black")) +
+  scale_fill_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
+  scale_color_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
   ylim(low=200, high=700)+
   theme_bw()
 
@@ -273,7 +279,7 @@ inst.BF
 
 
 # -------------------------------------- PLOT  ---------------------------------------------------------
-  
+
 #over time
 dfTRIAL <- summarySEwithin(INST.means,
                            measurevar = "n_grips",
@@ -282,9 +288,9 @@ dfTRIAL <- summarySEwithin(INST.means,
 dfTRIAL$trial       <- as.numeric(dfTRIAL$trial)
 
 pp <- ggplot(INST.means, aes(x =trial, y = n_grips)) +
-  geom_point(data = dfTRIAL, alpha = 0.5, color = "#0F2080") +
-  geom_line(data = dfTRIAL, color = "#0F2080") +
-  geom_ribbon(data = dfTRIAL,aes(ymin=n_grips-se, ymax=n_grips+se), fill = "#0F2080", alpha = 0.3)+
+  geom_point(data = dfTRIAL, alpha = 0.5, color = pal[4]) +
+  geom_line(data = dfTRIAL, color = pal[4]) +
+  geom_ribbon(data = dfTRIAL,aes(ymin=n_grips-se, ymax=n_grips+se), fill = pal[4], alpha = 0.3)+
   ylab('Number of Grips')+
   xlab('Trial') +
   scale_y_continuous(expand = c(0, 0),  limits = c(0,25),  breaks=c(seq.int(0,25, by = 5))) +
@@ -304,7 +310,7 @@ dfT <- summarySEwithin(INST.T,
                        measurevar = "n_grips",
                        withinvars = "trial", 
                        idvar = "id")
-  
+
 
 pp <- ggplot(INST.T, aes(x = factor(trial , levels = c("1","2")), y = n_grips, 
                          fill = factor(trial, levels = c("1","2")), color = factor(trial, levels = c("1","2")))) +
@@ -314,8 +320,8 @@ pp <- ggplot(INST.T, aes(x = factor(trial , levels = c("1","2")), y = n_grips,
   geom_crossbar(data = dfT, aes(y = n_grips, ymin=n_grips-se, ymax=n_grips+se), width = 0.85 , alpha = 0.1)+
   ylab('Number of Grips')+
   xlab('Trial')+
-  scale_fill_manual(values=c("#0F2080", "#0F2080")) +
-  scale_color_manual(values=c("#0F2080", "#0F2080")) +
+  scale_fill_manual(values=c(pal[4], pal[4])) +
+  scale_color_manual(values=c(pal[4], pal[4])) +
   scale_y_continuous(expand = c(0, 0),  limits = c(0,25),  breaks=c(seq.int(0,25, by = 5))) +
   theme_bw()
 
@@ -414,8 +420,8 @@ pp <- ggplot(PIT.means, aes(x = factor(condition, levels = c("CS+","CS-")), y = 
   geom_crossbar(data = dfG, aes(y = n_grips, ymin=n_grips-se, ymax=n_grips+se), width = 0.85 , alpha = 0.1)+
   ylab('Number of Grips')+
   xlab('Pavlovian stimulus')+
-  scale_fill_manual(values=c("CS+" = "#006600","CS-"="black")) +
-  scale_color_manual(values=c("CS+" = "#006600","CS-"="black"))  +
+  scale_fill_manual(values=c("CS+" = pal[2],"CS-"=pal[1])) +
+  scale_color_manual(values=c("CS+" = pal[2],"CS-"=pal[1]))  +
   scale_y_continuous(expand = c(0, 0),  limits = c(-2,30),  breaks=c(seq.int(0,30, by = 5))) +
   theme_bw()
 
@@ -453,7 +459,7 @@ PIT.p <- summarySEwithin(PIT.s,
                          idvar = "id")
 PIT.p$trial <- as.numeric(PIT.p$trialxcondition)+9
 PIT.p$Task_Name <- paste0("PIT")
-PIT.p = select(PIT.p, c( 'trial', 'N' , 'n_grips', 'sd', 'se', 'ci', 'Task_Name', 'condition'))
+PIT.p = select(PIT.p, c('trial', 'N' , 'n_grips', 'sd', 'se', 'ci', 'Task_Name', 'condition'))
 
 # merge all data bases
 newdf <- rbind(RIM.p,PE.p)
@@ -461,7 +467,7 @@ df <- rbind(PIT.p, newdf)
 df$condition <- droplevels(df$condition)
 
 
-  
+
 # plot
 pp <- ggplot(df, aes(x = as.numeric(trial), y = n_grips,
                      color = condition, 
@@ -472,9 +478,9 @@ pp <- ggplot(df, aes(x = as.numeric(trial), y = n_grips,
   ylab('Number of Grips')+
   xlab('Trial')+
   scale_color_manual(labels = c( 'PIT: CS-', 'PIT: CS+','Part. Ext.', 'Rem.'), 
-                     values = c("Reminder"="#0F2080", "Partial Extinction"="#0F2080", "CSplus"='#006600', 'CSminus'="black")) +
+                     values = c("Reminder"=pal[4], "Partial Extinction"=pal[4], "CSplus" =pal[2], 'CSminus'=pal[1])) +
   scale_fill_manual(labels = c('PIT: CS-', 'PIT: CS+','Part. Ext.', 'Rem.'), 
-                    values = c("Reminder"="#0F2080", "Partial Extinction"="#0F2080", "CSplus"='#006600', 'CSminus'="black")) +
+                    values = c("Reminder"=pal[4], "Partial Extinction"=pal[4], "CSplus"= pal[2], 'CSminus'=pal[1])) +
   #ylim(low=0, high=17)+
   labs(fill = 'Phase', color = 'Phase') +
   
@@ -641,7 +647,7 @@ dfG <- summarySEwithin(HED.means,
 maxl = 95
 minl = 0
 
- 
+
 pp <- ggplot(HED.means, aes(x = factor(condition, levels = c("pleasant","neutral")), y = perceived_liking, 
                             fill = condition, 
                             color = condition)) +
@@ -654,8 +660,8 @@ pp <- ggplot(HED.means, aes(x = factor(condition, levels = c("pleasant","neutral
   ylab('Perceived liking') +
   xlab('Odorant') +
   scale_y_continuous(expand = c(0, 0),  limits = c(0,100),  breaks=c(seq.int(0,100, by = 20))) +
-  scale_fill_manual(values=c("pleasant"= "#990000", "neutral"="black")) +
-  scale_color_manual(values=c("pleasant"="#990000", "neutral"="black")) +
+  scale_fill_manual(values=c("pleasant"= pal[3], "neutral"=pal[1])) +
+  scale_color_manual(values=c("pleasant"=pal[3], "neutral"=pal[1])) +
   theme_bw()
 
 ppp <- pp + averaged_theme
@@ -675,7 +681,7 @@ HED.p <- summarySEwithin(HED.s,
 df <- rbind(HED.p)
 df$condition <- droplevels(df$condition)
 
-  
+
 # plot
 pp <- ggplot(df, aes(x = as.numeric(trialxcondition), y = perceived_liking,
                      color =condition, 
@@ -686,9 +692,9 @@ pp <- ggplot(df, aes(x = as.numeric(trialxcondition), y = perceived_liking,
   ylab('Perceived liking')+
   xlab('Trial') +
   scale_color_manual(labels = c('pleasant', 'neutral'), 
-                     values = c( "pleasant"='#990000', 'neutral'="black")) +
+                     values = c( "pleasant"=pal[3], 'neutral'=pal[1])) +
   scale_fill_manual(labels = c('pleasant', 'neutral'), 
-                    values = c( "pleasant"='#990000', 'neutral'="black")) +
+                    values = c( "pleasant"=pal[3], 'neutral'=pal[1])) +
   scale_y_continuous(expand = c(0, 0),  limits = c(0,100),  breaks=c(seq.int(0,100, by = 20))) +
   labs(color='Odorant', fill= 'Odorant') +
   annotate("rect", xmin=0.8, xmax=3.5, ymin=minl, ymax=maxl, alpha=0.2, fill="gray") +
@@ -707,9 +713,5 @@ ppp <- pp + averaged_theme
 pdf(file.path(figures_path,'Figure_Hedonic_time.pdf'))
 print(ppp)
 dev.off()
-
-
-
-
 
 
