@@ -55,33 +55,35 @@ for i = 1:length(subj)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%  get onsets
 
-    ONSETS.trialstart  = data.tTrialStart; 
-    ONSETS.trialEnd  = data.tTrialEnd; 
-    ONSETS.sniffSignalOnset  = data.sniffSignalOnset; 
-    ONSETS.ValveOpen      = data.tValveOpen;
-    ONSETS.ValveClose      = data.tValveClose;
+    ONSETS.start             = data.tTrialStart; 
+    ONSETS.end               = data.tTrialEnd; 
+    ONSETS.smell             = data.sniffSignalOnset; %receive smell 
+    ONSETS.ValveOpen         = data.tValveOpen;
+    ONSETS.ValveClose        = data.tValveClose;
     %ONSETS.break       = data.Onsets.Startjitter;
-    ONSETS.ITI         = data.sniffSignalOnset+data.duration.asterix1+data.duration.oCommitISI+ data.duration.asterix2+data.duration.jitter+data.duration.Liking+data.duration.IQCross+data.duration.Intensity;
-    ONSETS.liking          = data.sniffSignalOnset+data.duration.asterix1+data.duration.oCommitISI+ data.duration.asterix2+data.duration.jitter;
-    ONSETS.intensity       = data.sniffSignalOnset+data.duration.asterix1+data.duration.oCommitISI+ data.duration.asterix2+data.duration.jitter+data.duration.Liking+data.duration.IQCross;
+    ONSETS.ITI               = data.sniffSignalOnset+data.duration.asterix1+data.duration.oCommitISI+ data.duration.asterix2+data.duration.jitter+data.duration.Liking+data.duration.IQCross+data.duration.Intensity;
+    ONSETS.liking            = data.sniffSignalOnset+data.duration.asterix1+data.duration.oCommitISI+ data.duration.asterix2+data.duration.jitter;
+    ONSETS.intensity         = data.sniffSignalOnset+data.duration.asterix1+data.duration.oCommitISI+ data.duration.asterix2+data.duration.jitter+data.duration.Liking+data.duration.IQCross;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%  get durations
-    DURATIONS.trialstart  = data.duration.asterix1 + data.duration.asterix2;
+    
+    DURATIONS.start       = data.duration.count1 + data.duration.count2 + data.duration.count3 + data.duration.oCommitOdor;
+    DURATIONS.smell       = data.duration.asterix1 + data.duration.asterix2 + data.duration.oCommitISI;% 
     DURATIONS.break       = data.duration.jitter;
     DURATIONS.liking      = data.duration.Liking;
     DURATIONS.intensity   = data.duration.Intensity;
     DURATIONS.ITI         = data.duration.ITI;
-    DURATIONS.SendTriggerStart         = data.duration.SendTriggerStart;
+    DURATIONS.SendTriggerStart   = data.duration.SendTriggerStart;
     DURATIONS.CommitOdor         = data.duration.oCommitOdor;
-    DURATIONS.CommitISI         = data.duration.oCommitISI;
-    DURATIONS.SendTriggerSniff         = data.duration.SendTriggerSniff;
-    DURATIONS.fixation      = data.duration.IQCross;
+    DURATIONS.CommitISI          = data.duration.oCommitISI;
+    DURATIONS.SendTriggerSniff   = data.duration.SendTriggerSniff;
+    DURATIONS.fixation           = data.duration.IQCross;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%  get condition name and the trial and drift
     % fix the cell bug for odorLabel
-    A =strcmp(data.odorLabel,'empty');
+    A = strcmp(data.odorLabel,'empty');
     B = strcmp(data.odorLabel,'chocolate');
     data.odorLabel2 = categorical(zeros(1,data.Trial(end))'+ A + A + B);
     data.odorLabel2 = mergecats(data.odorLabel2,'2','empty');
@@ -136,9 +138,9 @@ for i = 1:length(subj)
     PHYSIO.EMG = data.COR(IdX,:);
     %EMG.BASE = data.BASE(IdX,:);
     
-    ONSETS.EMG     =    ONSETS.sniffSignalOnset + 2.5;
+    ONSETS.EMG     =    ONSETS.smell+ 2.5;
     DURATIONS.EMG  =    zeros(length(ONSETS.EMG),1) + 0.5;
-    
+    %what is that 2.5?
     
     
     
@@ -147,18 +149,16 @@ for i = 1:length(subj)
     func_dir = fullfile (homedir, 'DERIVATIVES', 'PREPROC', ['sub-' num2str(subjX)], 'ses-second', 'func');
     cd (func_dir)
     matfile_name = ['sub-' num2str(subjX) '_ses-second' '_task-' task '_run-01_events.mat'];
-    %cd (behavior_dir)
+
     save(matfile_name, 'ONSETS', 'DURATIONS', 'BEHAVIOR', 'CONDITIONS', 'ODOR', 'TRIAL', 'DRIFT', 'PHYSIO' )
     
 
-
-    
-    
    
-    
+    func_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-second', 'func');
+    cd (func_dir)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% save tvs file according to BIDS format
-    phase = {'trialstart';'liking'; 'EMG'; 'intensity'; 'ITI'};
+    phase = {'start'; 'smell'; 'liking';'intensity'; 'ITI'};
     nevents = ntrials*length(phase);
     
     % put everything in the event structure

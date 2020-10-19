@@ -1,4 +1,4 @@
-function GLM_15_stLevel(subID) 
+function GLM_20_stLevel(subID) 
 
 % intended for REWOD HED
 % get onsets for model with 1st level modulators
@@ -6,7 +6,9 @@ function GLM_15_stLevel(subID)
 % Durations =1 
 % Model on ONSETs (start, 3*odor + 2*questions)
 % 1 contrast odor*liking & odor*intensity,
-% last modified on July 2019 by David Munoz
+% last modified on Oct 2020 by Eva
+
+display('*** starting***')
 
 %% What to do
 firstLevel    = 1;
@@ -15,18 +17,18 @@ copycontrasts = 1;
 
 %% define task variable
 %sessionX = 'second';
-task = 'hedonic';
+%task = 'hedonic';
 
 %% define path
 
-cd ~
-home = pwd;
-homedir = [home '/REWOD/'];
+%cd ~
+%home = pwd;
+homedir = ['/home/REWOD/'];
 
 
-mdldir   = fullfile(homedir, '/DERIVATIVES/GLM/', task);% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, '/DERIVATIVES/GLM/hedonic');% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-15'; % output folder for this analysis
+name_ana = 'GLM-20'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
@@ -34,19 +36,20 @@ addpath('/usr/local/external_toolboxes/spm12/');
 
 %% specify fMRI parameters
 param.TR = 2.4;
-param.im_format = 'smoothBold.nii'; 
+param.im_format = 'nii'; 
 param.ons_unit = 'secs'; 
 spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters
-subj       = {'01'; '02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       = subID; %[{'01'; '02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
 param.task = {'hedonic'};
 
 %% define experimental design parameters
 param.Cnam     = cell (length(param.task), 1);
 param.duration = cell (length(param.task), 1);
 param.onset = cell (length(param.task), 1);
+
 
 for i = 1:length(param.task)
     
@@ -100,60 +103,61 @@ for i = 1:length(param.task)
     
 end
 
+
 %% apply design for first level analysis for each participant
 
-for i = 1:length(subj)
-    
-    % participant's specifics
-    subjX = char(subj(i));
-    subjoutdir =fullfile(mdldir,name_ana, [ 'sub-' subjX]); % subj{i,1}
-    subjfuncdir=fullfile(funcdir, [ 'sub-' subjX], 'ses-second'); % subj{i,1}
-    fprintf('participant number: %s \n', subj{i});
-    cd (subjoutdir)
-    
-    if ~exist('output','dir')
-        mkdir ('output');
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%% DO FIRST LEVEL ANALYSIS %%%%%%%%%%%%%%%%%%%%%%%%%
-    if firstLevel == 1
-        [SPM] = doFirstLevel(subjoutdir,subjfuncdir,name_ana,param,subjX);
-    else
-        cd (fullfile(subjoutdir,'output'));
-        load SPM
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%%%%  DO CONTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if contrasts == 1
-        doContrasts(subjoutdir,param, SPM);
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%% COPY CONTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if copycontrasts == 1
-        
-        mkdir (groupdir); % make the group directory where contrasts will be copied
-        cd (fullfile(subjoutdir,'output'))
-        
-        list_dir = dir(fullfile(subjoutdir,'output', 'con*'));
-        list_files = '';
-        for ii = 1:length(list_dir)
-            copyfile(list_dir(ii).name, [groupdir, 'sub-' subjX '_' list_dir(ii).name])
-        end
-        
-        
-        list_dir = dir(fullfile(subjoutdir,'output', 'ess*'));
-        list_files = '';
-        for iii = 1:length(list_dir)
-            copyfile(list_dir(iii).name, [groupdir, 'sub-' subjX '_' list_dir(iii).name])
-        end
-        
-        display('contrasts copied!');
-    end
-    
+%for i = 1:length(subj)
+
+% participant's specifics
+subjX = char(subID);
+subjoutdir =fullfile(mdldir,name_ana, [ 'sub-' subjX]); % subj{i,1}
+subjfuncdir=fullfile(funcdir, [ 'sub-' subjX], 'ses-second'); % subj{i,1}
+fprintf('participant number: %s \n', subjX);
+cd (subjoutdir)
+
+if ~exist('output','dir')
+    mkdir ('output');
 end
 
+%%%%%%%%%%%%%%%%%%%%% DO FIRST LEVEL ANALYSIS %%%%%%%%%%%%%%%%%%%%%%%%%
+if firstLevel == 1
+    [SPM] = doFirstLevel(subjoutdir,subjfuncdir,name_ana,param,subjX);
+else
+    cd (fullfile(subjoutdir,'output'));
+    load SPM
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%  DO CONTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if contrasts == 1
+    doContrasts(subjoutdir,param, SPM);
+end
+
+%%%%%%%%%%%%%%%%%%%%% COPY CONTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if copycontrasts == 1
+    
+    mkdir (groupdir); % make the group directory where contrasts will be copied
+    cd (fullfile(subjoutdir,'output'))
+    
+    list_dir = dir(fullfile(subjoutdir,'output', 'con*'));
+    list_files = '';
+    for ii = 1:length(list_dir)
+        copyfile(list_dir(ii).name, [groupdir, 'sub-' subjX '_' list_dir(ii).name])
+    end
+    
+    
+    list_dir = dir(fullfile(subjoutdir,'output', 'ess*'));
+    list_files = '';
+    for iii = 1:length(list_dir)
+        copyfile(list_dir(iii).name, [groupdir, 'sub-' subjX '_' list_dir(iii).name])
+    end
+    
+    display('contrasts copied!');
+end
+
+%end
+
 %% function section
-    function [SPM] = doFirstLevel(subjoutdir,subjfuncdir, name_ana, param, ~)
+    function [SPM] = doFirstLevel(subjoutdir,subjfuncdir, name_ana, param, subjX)
         
         % variable initialization
         ntask = size(param.task,1);
@@ -169,7 +173,7 @@ end
             
         taskX = char(param.task(ses));
         smoothfolder       = [subjfuncdir '/func'];
-        targetscan         = dir (fullfile(smoothfolder, [im_style '*' taskX '*' param.im_format]));
+        targetscan         = dir (fullfile(smoothfolder, [im_style '*' taskX '*smoothBold.' param.im_format]));
         tmp{ses}           = spm_select('List',smoothfolder,targetscan.name);
         
         Maskimage = [subjfuncdir '/anat/sub-' subjX '_ses-second_run-01_T1w_reoriented_brain_mask.nii'];
@@ -394,21 +398,21 @@ end
         %%
         
         % con1
-        Ctnames{1} = 'odor_lik';
-        weightPos  = ismember(conditionName, {'task-hed.odorxlik^1'}) * 1; 
+        Ctnames{1} = 'odor_int';
+        weightPos  = ismember(conditionName, {'task-hed.odorxint^1'}) * 1; 
         Ct(1,:)    = weightPos;
         
      
-        %con2
-        Ctnames{2} = 'odor_int';
-        weightPos  = ismember(conditionName, {'task-hed.odorxint^1'}) * 1; 
-        Ct(2,:)    = weightPos;
-        
+%         %con2
+%         Ctnames{2} = 'odor_int';
+%         weightPos  = ismember(conditionName, {'task-hed.odorxint^1'}) * 1; 
+%         Ct(2,:)    = weightPos;
+%         
         
         %con3
-        Ctnames{3} = 'odor';
+        Ctnames{2} = 'odor';
         weightPos  = ismember(conditionName, {'task-hed.odor'}) * 1; 
-        Ct(3,:)    = weightPos;
+        Ct(2,:)    = weightPos;
 
         
 

@@ -1,6 +1,6 @@
 ####################################################################################################
 #                                                                                                  #
-#                                                                                                  #                      
+#                                                                                                  #   #                                                                                                  #
 #                                    TITLE OF THE PAPER                                            #
 #                                                                                                  #
 #                                                                                                  #
@@ -18,9 +18,10 @@
 
 
 
+
+
 #--------------------------------------  PRELIMINARY STUFF ----------------------------------------
 #load libraries
-
 if(!require(pacman)) {
   install.packages("pacman")
   library(pacman)
@@ -38,6 +39,8 @@ if(!require(devtools)) {
 # get tool
 devtools::source_gist("2a1bb0133ff568cbe28d", 
                       filename = "geom_flat_violin.R")
+
+
 
 #SETUP
 
@@ -161,21 +164,26 @@ dfL <- summarySEwithin(PAV.means,
                        withinvars = "condition", 
                        idvar = "id")
 
-
+dfL$cond <- ifelse(dfL$condition == "CS+", -0.25, 0.25)
+PAV.means$cond <- ifelse(PAV.means$condition == "CS+", -0.25, 0.25)
+set.seed(666)
+PAV.means <- PAV.means %>% mutate(condjit = jitter(as.numeric(cond), 0.3),
+                                  grouping = interaction(id, cond))
 
 # Liking
-pp <- ggplot(PAV.means, aes(x = factor(condition, levels = c("CS+","CS-")), y = liking, 
+pp <- ggplot(PAV.means, aes(x = cond, y = liking, 
                             fill = condition, color = condition)) +
-  geom_flat_violin(scale = "count", trim = FALSE, alpha = .1, aes(x = factor(condition, levels = c("CS+","CS-")), y = liking, fill = condition, color = NA))+
-  geom_point(alpha = .3, position = position_jitterdodge(jitter.width = .2, jitter.height = 0)) +
-  geom_line(aes(group = id, y = liking), alpha = .2, size = 0.5, color = 'gray') +
-  geom_crossbar(data = dfL, aes(y = liking, ymin=liking-se, ymax=liking+se), width = 0.85 , alpha = 0.1)+
+  geom_line(aes(x = condjit, group = id, y = liking), alpha = .5, size = 0.5, color = 'gray' ) +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, aes(fill = condition, color = NA)) +
+  geom_point(aes(x = condjit), alpha = .3) +
+  geom_crossbar(data = dfL, aes(y = liking, ymin=liking-se, ymax=liking+se), width = 0.2 , alpha = 0.1)+
   ylab('Liking Ratings')+
-  xlab('Pavlovian stimulus')+
-  ylim(low=0., high=100)+
-  scale_fill_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
-  scale_color_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
-  theme_bw() 
+  xlab('Conditioned stimulus')+
+  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 25)), limits = c(-0.5,100.5)) +
+  scale_x_continuous(labels=c("CS+", "CS-"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
+  scale_fill_manual(values=c("CS+"= pal[2], "CS-"=  pal[1]), guide = 'none') +
+  scale_color_manual(values=c("CS+"= pal[2], "CS-"=  pal[1]), guide = 'none') +
+  theme_bw()
 
 
 ppp <- pp + averaged_theme 
@@ -191,18 +199,22 @@ dfR <- summarySEwithin(PAV.means,
                        withinvars = "condition", 
                        idvar = "id")
 
-pp <- ggplot(PAV.means, aes(x = factor(condition, levels = c("CS+","CS-")), y = RT, 
-                            fill = factor(condition, levels = c("CS+","CS-")), color = condition)) +
-  geom_flat_violin(scale = "count", trim = FALSE, alpha = .1, aes(x = factor(condition, levels = c("CS+","CS-")), y = RT, fill = condition, color = NA))+
-  geom_point(alpha = .3, position = position_jitterdodge(jitter.width = .2, jitter.height = 0)) +
-  geom_line(aes(group = id, y = RT), alpha = .2, size = 0.5, color = 'gray') +
-  geom_crossbar(data = dfR, aes(y = RT, ymin=RT-se, ymax=RT+se), width = 0.85 , alpha = 0.1)+
+dfR$cond <- ifelse(dfL$condition == "CS+", -0.25, 0.25)
+
+pp <- ggplot(PAV.means, aes(x = cond, y = RT, 
+                            fill = condition, color = condition)) +
+  geom_line(aes(x = condjit, group = id, y = RT), alpha = .5, size = 0.5, color = 'gray') +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, aes(fill = condition, color = NA))+
+  geom_point(aes(x = condjit), alpha = .3,) +
+  geom_crossbar(data = dfR, aes(y = RT, ymin=RT-se, ymax=RT+se), width = 0.2 , alpha = 0.1)+
   ylab('Reaction Times (ms)')+
-  xlab('Pavlovian stimulus')+
-  scale_fill_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
-  scale_color_manual(values=c("CS+"= pal[2], "CS-"=  pal[1])) +
-  ylim(low=200, high=700)+
+  xlab('Conditioned stimulus')+
+  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(200,700, by = 100)), limits = c(180,700.5)) +
+  scale_x_continuous(labels=c("CS+", "CS-"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
+  scale_fill_manual(values=c("CS+"= pal[2], "CS-"=  pal[1]), guide = 'none') +
+  scale_color_manual(values=c("CS+"= pal[2], "CS-"=  pal[1]), guide = 'none') +
   theme_bw()
+
 
 ppp <- pp + averaged_theme 
 
@@ -235,9 +247,6 @@ INST  <- ddply(INST, "id", transform, bin = as.numeric(cut2(trial, g = 6)))
 INST$trial                    <- factor(INST$trial)
 
 
-INST.T <- subset(INST, trial == 1 | trial == 2)
-
-
 # get the averaged dataset
 INST.means <- aggregate(INST$n_grips, by = list(INST$id, INST$trial), FUN='mean') # extract means
 colnames(INST.means) <- c('id','trial','n_grips')
@@ -248,13 +257,13 @@ colnames(INST.means) <- c('id','trial','n_grips')
 # --------------------------------------- all trials
 
 # stat
-anova.Ins.all <- aov_car(n_grips ~ trial+ Error (id/trial), data = INST, anova_table = list(correction = "GG", es = "pes"))
+anova.Ins.all <- aov_car(n_grips ~ trial+ Error (id/trial), data = INST.means, anova_table = list(correction = "GG", es = "pes"))
 
 # effect sizes (90%CI)
 F_to_eta2(f = c(1.54), df = c(5.08), df_error = c(116.84))
 
 # Bayes factors
-inst.BF.all <- anovaBF(n_grips ~ trial  + id, data = INST, 
+inst.BF.all <- anovaBF(n_grips ~ trial  + id, data = INST.means, 
                        whichRandom = "id", iterations = 50000)
 inst.BF.all  <- recompute(inst.BF.all  , iterations = 50000)
 inst.BF.all 
@@ -287,6 +296,7 @@ dfTRIAL <- summarySEwithin(INST.means,
                            idvar = "id")
 dfTRIAL$trial       <- as.numeric(dfTRIAL$trial)
 
+
 pp <- ggplot(INST.means, aes(x =trial, y = n_grips)) +
   geom_point(data = dfTRIAL, alpha = 0.5, color = pal[4]) +
   geom_line(data = dfTRIAL, color = pal[4]) +
@@ -311,19 +321,27 @@ dfT <- summarySEwithin(INST.T,
                        withinvars = "trial", 
                        idvar = "id")
 
+dfT$trial <- ifelse(dfT$trial == 1, -0.25, 0.25)
+INST.T$trial <- ifelse(INST.T$trial == 1, -0.25, 0.25)
+set.seed(666)
+INST.T <- INST.T %>% mutate(trialjit = jitter(as.numeric(trial), 0.3),
+                            grouping = interaction(id, trial))
 
-pp <- ggplot(INST.T, aes(x = factor(trial , levels = c("1","2")), y = n_grips, 
-                         fill = factor(trial, levels = c("1","2")), color = factor(trial, levels = c("1","2")))) +
-  geom_flat_violin(scale = "count", trim = FALSE, alpha = .1, aes(x = factor(trial, levels = c("1","2")), y = n_grips, fill = factor(trial, levels = c("1","2"))), color = NA) +
-  geom_point(alpha = .3, position = position_jitterdodge(jitter.width = .2, jitter.height = 0)) +
-  geom_line(aes(group = id, y = n_grips), alpha = .2, size = 0.5, color = 'gray') +
-  geom_crossbar(data = dfT, aes(y = n_grips, ymin=n_grips-se, ymax=n_grips+se), width = 0.85 , alpha = 0.1)+
+
+pp <- ggplot(INST.T, aes(x = trial, y = n_grips, 
+                         fill = factor(trial), color = factor(trial))) +
+  geom_line(aes(x = trialjit, group = id, y = n_grips), alpha = .5, size = 0.5, color = 'gray') +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, aes(fill = factor(trial), color = NA))+
+  geom_point(aes(x = trialjit), alpha = .3) +
+  geom_crossbar(data = dfT, aes(y = n_grips, ymin=n_grips-se, ymax=n_grips+se), width = 0.2 , alpha = 0.1)+
   ylab('Number of Grips')+
   xlab('Trial')+
-  scale_fill_manual(values=c(pal[4], pal[4])) +
-  scale_color_manual(values=c(pal[4], pal[4])) +
-  scale_y_continuous(expand = c(0, 0),  limits = c(0,25),  breaks=c(seq.int(0,25, by = 5))) +
+  scale_fill_manual(values=c(pal[4], pal[4]), guide = 'none') +
+  scale_color_manual(values=c(pal[4], pal[4]), guide = 'none') +
+  scale_y_continuous(expand = c(0, 0),  limits = c(-.5,25.5),  breaks=c(seq.int(0,25, by = 5))) +
+  scale_x_continuous(labels=c("1", "2"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
   theme_bw()
+
 
 ppp <- pp + averaged_theme
 
@@ -396,7 +414,7 @@ PIT.BF.trial <- recompute(PIT.BF.trial, iterations = 50000)
 PIT.BF.trial
 
 # Bayes factors trial effect
-PIT.BF.int <- anovaBF(n_grips ~ condition*trialxcondition + id, data = PIT.means, 
+PIT.BF.int <- anovaBF(n_grips ~ condition*trialxcondition + id, data = PIT.s, 
                       whichRandom = "id", iterations = 50000)
 PIT.BF.int  <- recompute(PIT.BF.int, iterations = 50000)
 PIT.BF.int[4]/ PIT.BF.int[3]
@@ -412,17 +430,25 @@ dfG <- summarySEwithin(PIT.means,
                        withinvars = "condition", 
                        idvar = "id")
 
-pp <- ggplot(PIT.means, aes(x = factor(condition, levels = c("CS+","CS-")), y = n_grips, 
+dfG$cond <- ifelse(dfG$condition == "CS+", -0.25, 0.25)
+PIT.means$cond <- ifelse(PIT.means$condition == "CS+", -0.25, 0.25)
+set.seed(666)
+PIT.means <- PIT.means %>% mutate(condjit = jitter(as.numeric(cond), 0.3),
+                                  grouping = interaction(id, cond))
+
+
+pp <- ggplot(PIT.means, aes(x = cond, y = n_grips, 
                             fill = condition, color = condition)) +
-  geom_flat_violin(scale = "count", trim = FALSE, alpha = .1, aes(x = factor(condition, levels = c("CS+","CS-")), y = n_grips, fill = condition), color = NA) +
-  geom_point(alpha = .3, position = position_jitterdodge(jitter.width = .2, jitter.height = 0)) +
-  geom_line(aes(group = id, y = n_grips), alpha = .2, size = 0.5, color = 'gray') +
-  geom_crossbar(data = dfG, aes(y = n_grips, ymin=n_grips-se, ymax=n_grips+se), width = 0.85 , alpha = 0.1)+
+  geom_line(aes(x = condjit, group = id, y = n_grips), alpha = .5, size = 0.5, color = 'gray') +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, aes(fill = condition, color = NA))+
+  geom_point(aes(x = condjit), alpha = .3,) +
+  geom_crossbar(data = dfG, aes(y = n_grips, ymin=n_grips-se, ymax=n_grips+se), width = 0.2 , alpha = 0.1)+
   ylab('Number of Grips')+
-  xlab('Pavlovian stimulus')+
-  scale_fill_manual(values=c("CS+" = pal[2],"CS-"=pal[1])) +
-  scale_color_manual(values=c("CS+" = pal[2],"CS-"=pal[1]))  +
-  scale_y_continuous(expand = c(0, 0),  limits = c(-2,30),  breaks=c(seq.int(0,30, by = 5))) +
+  xlab('Conditioned stimulus')+
+  scale_fill_manual(values=c("CS+" = pal[2],"CS-"=pal[1]), guide = 'none') +
+  scale_color_manual(values=c("CS+" = pal[2],"CS-"=pal[1]), guide = 'none')  +
+  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,30, by = 5)), limits = c(-1,30.5)) +
+  scale_x_continuous(labels=c("CS+", "CS-"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
   theme_bw()
 
 
@@ -545,8 +571,38 @@ for (i in 4:length(Trial)) {
 
 HED$rep <- factor(HED$rep)
 
+# code change vector
+HED$value         <- dplyr::recode(HED$condition, "chocolate" = "1", "neutral" = "-1", "empty" = "0")
+HED$value         <- as.numeric(as.character(HED$value))
+HED$changeValue   <- NA
+for (i in 1:length(HED$value)) {
+  if(i == 1) {HED$changeValue[i] = HED$value[i]}
+  else if (i > 1) {
+    if (HED$value[i-1] > HED$value[i]) {HED$changeValue[i] = -1}
+    else if (HED$value[i-1] < HED$value[i]) {HED$changeValue[i] = 1}
+    else if (HED$value[i-1] == HED$value[i]) {HED$changeValue[i] = 0}
+    }
+}
+
+HED$changeAbs   <- NA
+for (i in 1:length(HED$value)) {
+  if(i == 1) {HED$changeAbs[i] = 1}
+  else if (i > 1) {
+    if (HED$value[i-1] > HED$value[i]) {HED$changeAbs[i] = 1}
+    else if (HED$value[i-1] < HED$value[i]) {HED$changeAbs[i] = 1}
+    else if (HED$value[i-1] == HED$value[i]) {HED$changeAbs[i] = -2}
+  }
+}
+
 
 # -------------------------------------- STATS -----------------------------------------------
+
+HED.lik.changeValue     <- aov_car(perceived_liking ~ changeValue+ Error (id/changeValue), data = HED, anova_table = list(correction = "GG", es = "pes"))
+HED.lik.change          <- aov_car(perceived_liking ~ changeAbs+ Error (id/changeAbs), data = HED, anova_table = list(correction = "GG", es = "pes"))
+
+HED.int.change         <- aov_car(perceived_intensity ~ changeAbs+ Error (id/changeAbs), data = HED, anova_table = list(correction = "GG", es = "pes"))
+HED.int.changeValue    <- aov_car(perceived_intensity ~ changeValue+ Error (id/changeValue), data = HED, anova_table = list(correction = "GG", es = "pes"))
+
 
 #------------------------------ pleastness
 HED.s <- subset (HED, condition == 'neutral'| condition == 'chocolate')
@@ -561,6 +617,7 @@ colnames(HED.trial) <- c('id','trialxcondition','perceived_liking')
 HED.stat     <- aov_car(perceived_liking ~ condition*trialxcondition + Error (id/condition*trialxcondition), data = HED.s, anova_table = list(correction = "GG", es = "pes"))
 # effect sizes (90%CI)
 F_to_eta2(f = c(1136.66,2.19,4.29), df = c(1,8.42,8.94), df_error = c(23,193.55,205.52))
+
 
 # Bayes factors  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 
@@ -590,8 +647,6 @@ colnames(HED.means.choco) <- c('id','rep','perceived_liking')
 
 HED.means.neutral <- aggregate(HED.neutral$perceived_liking, by = list(HED.neutral$id, HED.neutral$rep), FUN='mean') # extract means
 colnames(HED.means.neutral) <- c('id','rep','perceived_liking')
-
-
 
 
 HED.stat.choco.rep     <- aov_car(perceived_liking ~ rep + Error (id/rep), data = HED.means.choco, anova_table = list(correction = "GG", es = "pes"))
@@ -644,25 +699,30 @@ dfG <- summarySEwithin(HED.means,
                        withinvars = "condition", 
                        idvar = "id")
 
+dfG$cond <- ifelse(dfG$condition == "pleasant", -0.25, 0.25)
+HED.means$cond <- ifelse(HED.means$condition == "pleasant", -0.25, 0.25)
+set.seed(666)
+HED.means <- HED.means %>% mutate(condjit = jitter(as.numeric(cond), 0.3),
+                                  grouping = interaction(id, cond))
+
+
 maxl = 95
 minl = 0
 
-
-pp <- ggplot(HED.means, aes(x = factor(condition, levels = c("pleasant","neutral")), y = perceived_liking, 
-                            fill = condition, 
-                            color = condition)) +
-  geom_flat_violin(scale = "count", trim = FALSE, alpha = .1, 
-                   aes(x = factor(condition, levels = c("pleasant","neutral")),
-                       y = perceived_liking, fill = condition, color = NA))+
-  geom_point(alpha = .3, position = position_jitterdodge(jitter.width = .2, jitter.height = 0)) +
-  geom_line(aes(group = id, y = perceived_liking), alpha = .2, size = 0.5, color = 'gray') +
-  geom_crossbar(data = dfG, aes(y = perceived_liking, ymin=perceived_liking-se, ymax=perceived_liking+se), width = 0.85 , alpha = 0.1)+
+pp <- ggplot(HED.means, aes(x = cond, y = perceived_liking, 
+                            fill = condition, color = condition)) +
+  geom_line(aes(x = condjit, group = id, y = perceived_liking), alpha = .5, size = 0.5, color = 'gray') +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, aes(fill = condition, color = NA))+
+  geom_point(aes(x = condjit), alpha = .3,) +
+  geom_crossbar(data = dfG, aes(y = perceived_liking, ymin=perceived_liking-se, ymax=perceived_liking+se), width = 0.2 , alpha = 0.1)+
   ylab('Perceived liking') +
   xlab('Odorant') +
-  scale_y_continuous(expand = c(0, 0),  limits = c(0,100),  breaks=c(seq.int(0,100, by = 20))) +
-  scale_fill_manual(values=c("pleasant"= pal[3], "neutral"=pal[1])) +
-  scale_color_manual(values=c("pleasant"=pal[3], "neutral"=pal[1])) +
+  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 20)), limits = c(-0.5,100.5)) +
+  scale_x_continuous(labels=c("Pleasant", "Neutral"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
+  scale_fill_manual(values=c("pleasant"= pal[3], "neutral"=pal[1]), guide = 'none') +
+  scale_color_manual(values=c("pleasant"=pal[3], "neutral"=pal[1]), guide = 'none') +
   theme_bw()
+
 
 ppp <- pp + averaged_theme
 
@@ -684,8 +744,7 @@ df$condition <- droplevels(df$condition)
 
 # plot
 pp <- ggplot(df, aes(x = as.numeric(trialxcondition), y = perceived_liking,
-                     color =condition, 
-                     fill = condition)) +
+                     color =condition, fill = condition)) +
   geom_line(alpha = .7, size = 1, show.legend = F) +
   geom_ribbon(aes(ymax = perceived_liking + se, ymin = perceived_liking - se, fill = condition, color =NA),  alpha=0.4) + 
   geom_point() +

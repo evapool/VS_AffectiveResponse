@@ -13,14 +13,12 @@ pacman::p_load(robust, permuco, MASS, ggplot2, dplyr, plyr, tidyr, reshape, resh
 
 #SETUP
 task = 'PIT'
-con_name1 = 'CSp_CSm'
-con_name2 = 'R_NoR'
+roi_name1 = 'cmOFC'
+roi_name2 = 'shell-core'
 
 con1 = 'CSp-CSm'
-con2 = 'Reward_NoReward'
 
 mod1 = 'eff'
-mod2 = 'lik'
 
 k = 2
 n = 24
@@ -36,30 +34,21 @@ GLM_path <- file.path('~/REWOD/DERIVATIVES/GLM', task)
 setwd(GLM_path)
 
 # open dataset 
-BETAS_CSp <- read.delim(file.path(GLM_path, 'ROI', paste('extracted_betas_',con_name1,'.txt',sep="")), header = T, sep ='\t') # read in dataset
+BETAS_CSp_OFC <- read.delim(file.path(GLM_path, 'ROI', paste('extracted_betas_',roi_name1,'.txt',sep="")), header = T, sep ='\t') # read in dataset
+
+BETAS_CSp_VS <- read.delim(file.path(GLM_path, 'ROI', paste('extracted_betas_',roi_name2,'.txt',sep="")), header = T, sep ='\t') # read in dataset
 
 
-EFF_CSp <- read.delim(file.path(GLM_path, 'GLM-04', 'group_covariates', paste(con1,'_', mod1, '_rank.txt',sep="")), header = T, sep ='\t') # read in dataset
+  EFF_CSp <- read.delim(file.path(GLM_path, 'GLM-04', 'group_covariates', paste(con1,'_', mod1, '_rank.txt',sep="")), header = T, sep ='\t') # read in dataset
 
 
-GLM_path <- file.path('~/REWOD/DERIVATIVES/GLM/hedonic') 
 
-BETAS_R_NoR <- read.delim(file.path(GLM_path, 'ROI', paste('extracted_betas_',con_name2, '_via_', con_name1, '.txt',sep="")), header = T, sep ='\t') # read in dataset
-LIK_CSp    <- read.delim(file.path(GLM_path, 'GLM-04', 'group_covariates', paste(con2,'_', mod2, '_rank.txt',sep="")), header = T, sep ='\t') # read in dataset
-
-
-# merge
-R_NoR_df = merge(BETAS_R_NoR, LIK_CSp, by.x = "ID", by.y = "subj", all.x = TRUE)
-#CSp_CSp = merge(CSp_CSp, INT_CSp, by.x = "ID", by.y = "subj", all.x = TRUE)
-
-CSp_df = merge(BETAS_CSp, EFF_CSp, by.x = "ID", by.y = "subj", all.x = TRUE)
+CSp_df = merge(BETAS_CSp_VS, EFF_CSp, by.x = "ID", by.y = "subj", all.x = TRUE)
 
 
 
 # define factors
 CSp_df$ID <- factor(CSp_df$ID)
-R_NoR_df$ID <- factor(R_NoR_df$ID)
-#CSp_CSp$ID <- factor(CSp_CSp$ID)
 
 
 
@@ -91,27 +80,21 @@ eff = zscore(eff)
 CSp_df$eff = zscore(eff)
 A1 <- ggplotRegression(lm(CSp_df[[2]]~eff)) + rremove("x.title")
 A2 <- ggplotRegression(lm(CSp_df[[3]]~eff)) + rremove("x.title")
-A3 <- ggplotRegression(lm(CSp_df[[5]]~eff)) + rremove("x.title")
-A4 <- ggplotRegression(lm(CSp_df[[6]]~eff)) + rremove("x.title")
-A5 <- ggplotRegression(lm(R_NoR_df[[3]]~R_NoR_df$lik)) + rremove("x.title")
-A6 <- ggplotRegression(lm(R_NoR_df[[4]]~R_NoR_df$lik)) + rremove("x.title")
-A7 <- ggplotRegression(lm(R_NoR_df[[5]]~R_NoR_df$lik)) + rremove("x.title")
-A8 <- ggplotRegression(lm(R_NoR_df[[6]]~R_NoR_df$lik)) + rremove("x.title")
+A3 <- ggplotRegression(lm(CSp_df[[4]]~eff)) + rremove("x.title")
+A4 <- ggplotRegression(lm(CSp_df[[5]]~eff)) + rremove("x.title")
+
 
 
 figure1 <- ggarrange(A1,A2,A3,A4,
-                     labels = c( "LEFT_BLVP_betas",   "cluster_BLVP_L_betas"   ,  "cluster_core_right_betas", "pcore_RIGHT_betas"  ),
+                     labels = c( "pcore_LEFT_betas",   "pcore_RIGHT_betas",  "pshell_LEFT_betas" ,
+                                 "pshell_RIGHT_betas" ),
                      ncol = 2, nrow = 2,
                      vjust=3, hjust=0) 
 
-figure2 <- ggarrange(A5,A6, A7, A8, 
-                     labels = c( "LEFT_BLVP_LIK"    ,      "cluster_BLVP_L_LIK"   ,  "cluster_core_right_LIK", "pcore_RIGHT_LIK"  ),
-                     ncol = 2, nrow = 2,
-                     vjust=3, hjust=0) 
 
 figure <- annotate_figure(figure1,
-                           top = text_grob("Coeficient of determination: CSp for EFFORT", color = "black", face = "bold", size = 14),
-                           bottom = "Figure 1", fig.lab.face = "bold")
+                          top = text_grob("Coeficient of determination: CSp for EFFORT", color = "black", face = "bold", size = 14),
+                          bottom = "Figure 1", fig.lab.face = "bold")
 #figure
 
 
@@ -554,9 +537,9 @@ figure9 # BLVP
 
 
 figure10 <- ggarrange(P3,P4,P7,P8,
-                     labels = c( " A",   " B"   ,  " C", " D"  ),
-                     ncol = 2, nrow = 2,
-                     vjust=2, hjust=0) 
+                      labels = c( " A",   " B"   ,  " C", " D"  ),
+                      ncol = 2, nrow = 2,
+                      vjust=2, hjust=0) 
 
 figure10 # pcore
 
@@ -565,3 +548,4 @@ figure10 # pcore
 
 
 
+  

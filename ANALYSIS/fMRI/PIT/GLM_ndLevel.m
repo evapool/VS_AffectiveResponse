@@ -1,7 +1,7 @@
 function GLM_04_ndLevel
 
 % intended for REWOD PIT
-% get onsets for model with 2st level covariates mean centered by rank by conditions
+% get onsets for model with 2st level covariates mean centered by zscore by conditions
 % SO BY NOW YOU SHOULD HAVE RUN THE normalize_PIT.R script !
 % Durations =1 (except grips)
 % Model on ONSETs 3*CS with modulator
@@ -42,10 +42,10 @@ spm_jobman('initcfg');
 if do_covariate
 
     % covariate of interest name become folder
-    covariateNames = {'CSp-CSm_eff_rank' %1
-        'CSp-Baseline_eff_rank' %2
-        'CSm-Baseline_eff_rank' %3
-        'CSp-CSm&Baseline_eff_rank'}; %4
+    covariateNames = {'CSp-CSm_eff_zscore' %1
+        'CSp-Baseline_eff_zscore' %2
+        'CSm-Baseline_eff_zscore' %3
+        'CSp-CSm&Baseline_eff_zscore'}; %4
 
     % These contrast names become sub-folders
     contrastNames = {'CSp-CSm' %1

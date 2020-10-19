@@ -1,22 +1,23 @@
-function GLM_15_stLevel(subID) 
+function GLM_stLevel(subID)
 
-% intended for REWOD HED
-% get onsets for model with 1st level modulators
-% GLM control for odor.all, mod by intenisty and liking
-% Durations =1 
-% Model on ONSETs (start, 3*odor + 2*questions)
-% 1 contrast odor*liking & odor*intensity,
-% last modified on July 2019 by David Munoz
+% intended for REWOD PIT
+% get onsets for model with 2st level covariates
+% Durations =1 (except grips)
+% Model on ONSETs 3*CS with modulator
+% 4 contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base,  CSm-Base)
+% last modified on JULY 2019 by David Munoz
+% with grips as regressor
+
+dbstop if error
 
 %% What to do
 firstLevel    = 1;
-contrasts    = 1;
+constrasts    = 1;
 copycontrasts = 1;
 
 %% define task variable
 %sessionX = 'second';
-task = 'hedonic';
-
+task = 'PIT';
 %% define path
 
 cd ~
@@ -24,14 +25,14 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-mdldir   = fullfile(homedir, '/DERIVATIVES/GLM/', task);% mdl directory (timing and outputs of the analysis)
-funcdir  = fullfile(homedir, '/DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-15'; % output folder for this analysis
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
+funcdir  = fullfile(homedir, 'DERIVATIVES/PREPROC');% directory with  post processed functional scans
+name_ana = 'GLM-04_MRM'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
+
 
 addpath('/usr/local/external_toolboxes/spm12/');
 %addpath /usr/local/MATLAB/R2018a/spm12 ;
-
 %% specify fMRI parameters
 param.TR = 2.4;
 param.im_format = 'smoothBold.nii'; 
@@ -40,8 +41,8 @@ spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters
-subj       = {'01'; '02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
-param.task = {'hedonic'};
+subj       =  {'01'; '02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'}; %subID; 
+param.task = {'PIT'};
 
 %% define experimental design parameters
 param.Cnam     = cell (length(param.task), 1);
@@ -53,51 +54,49 @@ for i = 1:length(param.task)
     % Specify each conditions of your desing matrix separately for each session. The sessions
     % represent a line in Cnam, and the conditions correspond to a item in the line
     % these names must correspond identically to the names from your ONS*mat.
-    param.Cnam{i} = {'start',... %1
-        'odor',...
-        'control',...
-        'liking',...%5 
-        'intensity'};%6
-
-        
-     param.onset{i} = {'ONS.onsets.trialstart',... %1
-        'ONS.onsets.odor.conc', ...
-        'ONS.onsets.odor.control', ...
-        'ONS.onsets.liking',...%5 
-        'ONS.onsets.intensity'};%6
+    param.Cnam{i} = {'REM',...%1
+        'PE',...%2
+        'CSplus',...%3
+        'CSminus',...%4
+        'Baseline'};%5
+    
+    param.onset{i} = {'ONS.onsets.CS.REM',...%1
+        'ONS.onsets.CS.PE',...%2
+        'ONS.onsets.CS.CSp',...%3
+        'ONS.onsets.CS.CSm',...%4
+        'ONS.onsets.CS.Baseline'};%5
 
     
-    % duration of the blocks (if events, put '0'). Specify it for each condition of each session
+    
     % the values must be included in your onsets in seconds
-    param.duration{i} = {'ONS.durations.trialstart',...
-        'ONS.durations.odor.conc',...
-         'ONS.durations.odor.control',...
-        'ONS.durations.liking',...
-        'ONS.durations.intensity'};
-
+    param.duration{i} = {'ONS.durations.CS.REM',...
+        'ONS.durations.CS.PE',...
+        'ONS.durations.CS.CSp',...
+        'ONS.durations.CS.CSm',...
+        'ONS.durations.CS.Baseline'};
+    
     
     % parametric modulation of your events or blocks (ex: linear time, or emotional value, or pupillary size, ...)
     % If you have a parametric modulation
     param.modulName{i} = {'none',...%1
-        'multiple',...%2
         'none',...%2
         'none',...%3
-        'none'}; %6
+        'none',...%4
+        'none'};%5
     
     param.modul{i} = {'none',...%1
-        'ONS.modulators.odor.conc',... %2
-        'none',... %3
-        'none',... %3
-        'none'}; %6
+        'none',...%2
+        'none',...%3
+        'none',... %4
+        'none'}; %5
     
     % value of the modulators, If you have a parametric modulation
     param.time{i} = {'0',... %1
-        '1',... %2
+        '0',... %2
         '0',... %3
-        '0',... %3
-        '0'};%6
-    
-    
+        '0',... %4
+        '0'};%5
+   
 end
 
 %% apply design for first level analysis for each participant
@@ -111,7 +110,7 @@ for i = 1:length(subj)
     fprintf('participant number: %s \n', subj{i});
     cd (subjoutdir)
     
-    if ~exist('output','dir')
+    if ~exist('output','dir');
         mkdir ('output');
     end
     
@@ -123,12 +122,12 @@ for i = 1:length(subj)
         load SPM
     end
     
-    %%%%%%%%%%%%%%%%%%%%%%%  DO CONTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if contrasts == 1
+    %%%%%%%%%%%%%%%%%%%%%%%  DO CONSTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if constrasts == 1
         doContrasts(subjoutdir,param, SPM);
     end
     
-    %%%%%%%%%%%%%%%%%%%%% COPY CONTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%% COPY CONSTRASTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if copycontrasts == 1
         
         mkdir (groupdir); % make the group directory where contrasts will be copied
@@ -153,11 +152,11 @@ for i = 1:length(subj)
 end
 
 %% function section
-    function [SPM] = doFirstLevel(subjoutdir,subjfuncdir, name_ana, param, ~)
+    function [SPM] = doFirstLevel(subjoutdir,subjfuncdir, name_ana, param, subjX)
         
         % variable initialization
         ntask = size(param.task,1);
-        im_style = 'sub'; % ['sub-'subjX '_task-'];
+        im_style = 'sub';
         nscans = [];
         scanID = [];
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,8 +165,8 @@ end
         % select post processed images for each Session
         %for 
         ses = 1:ntask;
-            
         taskX = char(param.task(ses));
+        
         smoothfolder       = [subjfuncdir '/func'];
         targetscan         = dir (fullfile(smoothfolder, [im_style '*' taskX '*' param.im_format]));
         tmp{ses}           = spm_select('List',smoothfolder,targetscan.name);
@@ -184,9 +183,8 @@ end
         for j = 1:nscans(ses)
             scanID    = [scanID; {[smoothfolder,'/', V.name, ',', num2str(j)]}];
         end
-            
-        %end
-        
+
+       
         SPM.xY.P    = char(scanID);
         SPM.nscan   = nscans;
         
@@ -206,8 +204,8 @@ end
             
             
             %%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!! %%%%%%%%%%%%%%%%%%%%%%%
-            % ATTENTION HERE WE NEED TO INITALIZE c for every new session 
-         
+            % ATTENTION HERE WE NEED TO INITALIZE c for every new session
+            
             c = 0; % we need a counter because we include only condition that are non empty
             
             for cc=1:nconds
@@ -220,16 +218,15 @@ end
                     SPM.Sess(ses).U(c).ons       = eval(param.onset{ses}{cc});
                     SPM.Sess(ses).U(c).dur       = eval(param.duration{ses}{cc});
                     
+                    SPM.Sess(ses).U(c).orth = 0; %no ortho !!
                     SPM.Sess(ses).U(c).P(1).name = 'none';
-                    SPM.Sess(ses).U(c).orth = 0;
-                    
                     
                     if isfield (param, 'modul') % this parameters are specified only if modulators are defined in the design
                         
-                        if ~ strcmp(param.modul{ses}{cc}, 'none')
+                        if ~ strcmp (param.modul{ses}{cc}, 'none')
                             
                             if isstruct (eval(param.modul{ses}{cc}))
-                                SPM.Sess(ses).U(c).orth = 0; %!! no ortho BUT be careful
+                                
                                 mod_names = fieldnames (eval(param.modul{ses}{cc}));
                                 nc = 0; % intialize the modulators count
                                 
@@ -237,30 +234,35 @@ end
                                     
                                     nc = nc+1;
                                     mod_name = char(mod_names(nmod));
-                                    
-                                    if  ~ round(std(eval([param.modul{ses}{cc} '.' mod_name])),10)== 0  %verify that there is variance in mod
+                                    if  ~ round(std(eval([param.modul{ses}{cc} '.' mod_name])),10)== 0
                                       
                                     
                                         SPM.Sess(ses).U(c).P(nc).name  = mod_name;
                                         SPM.Sess(ses).U(c).P(nc).P     = eval([param.modul{ses}{cc} '.' mod_name]);
                                         SPM.Sess(ses).U(c).P(nc).h     = 1;
-                                        
                                     else
 
-                                       SPM.Sess(ses).U(c).P(nc).name  = [];
-                                       SPM.Sess(ses).U(c).P(nc).P     = [];
-                                       SPM.Sess(ses).U(c).P(nc).h     = []; 
+                                       SPM.Sess(ses).U(c).P(1).name  = [];
+                                       SPM.Sess(ses).U(c).P(1).P     = [];
+                                       SPM.Sess(ses).U(c).P(1).h     = []; 
                                     end
 
                                 end
                                 
-
-                            else
                                 
-                                SPM.Sess(ses).U(c).P(1).name  = char(param.modulName{ses}{cc});
-                                SPM.Sess(ses).U(c).P(1).P     = eval(param.modul{ses}{cc});
-                                SPM.Sess(ses).U(c).P(1).h     = 1; 
-                           
+                             else
+                                if std(eval(param.modul{ses}{cc}))== 0  %if std deviation = 0 no variability so we have to take ou P or else it will ruin contrasts
+                                    SPM.Sess(ses).U(c).P(1).name  = [];
+                                    SPM.Sess(ses).U(c).P(1).P     = [];
+                                    SPM.Sess(ses).U(c).P(1).h     = [];   
+                                    
+                                else    
+                                    SPM.Sess(ses).U(c).P(1).name  = char(param.modulName{ses}{cc});
+                                    SPM.Sess(ses).U(c).P(1).P     = eval(param.modul{ses}{cc});
+                                    SPM.Sess(ses).U(c).P(1).h     = 1;
+                                
+
+                                end
                             end
                         end
                     end
@@ -269,22 +271,26 @@ end
         end
         
         %-----------------------------
-        %multiple regressors for mvts parameters ( no movement regressor after ICA)
-        
-        %rnam = {'X','Y','Z','x','y','z'};
+
         for ses=1:ntask
             
             SPM.Sess(ses).C.C = [];
             SPM.Sess(ses).C.name = {};
             
-            %movement
-                        %targetfile         = dir (fullfile(smoothfolder, ['rp_*' taskX '*.txt']));
+           %rnam = {'X','Y','Z','x','y','z'};
+           rnam = {'effort'};
+           physio        = fullfile('~/REWOD/SOURCEDATA/physio/', subjX);
 
-                        %fn = spm_select('List',smoothfolder,targetfile.name);% path
-                        %[r1,r2,r3,r4,r5,r6] = textread([smoothfolder '/' fn(1,:)],'%f%f%f%f%f%f'); % path
-                        %SPM.Sess(ses).C.C = [r1 r2 r3 r4 r5 r6];
-                        %SPM.Sess(ses).C.name = rnam;
+           cd (physio)
+        
+           effort = dlmread('regressor_effort.txt');
+           
+           SPM.Sess(ses).C.C = effort;
+           SPM.Sess(ses).C.name = rnam;
+
         end
+        
+        cd([subjoutdir '/output/'])
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -323,7 +329,7 @@ end
         %--------------------------------------------------------------------------
         SPM.xBF.UNITS      = param.ons_unit;
         
-        % % OPTIONS: 1|2 = order of convolution: du haut--> bas tete ou l'inverse
+        % % OPTIONS: 1|2 = order of convolution: du haut--> bas t?te ou l'inverse
         %--------------------------------------------------------------------------
         SPM.xBF.Volterra   = 1;
         
@@ -331,13 +337,13 @@ end
         %--------------------------------------------------------------------------
         SPM.xGX.iGXcalc    = 'None';
         
-        % low frequency confound: high-pass cutoff (secs) [Inf = no filtering] 
+        % low frequency confound: high-pass cutoff (secs) [Inf = no filtering]
         %--------------------------------------------------------------------------
         SPM.xX.K(1).HParam = 128;
         
         % intrinsic autocorrelations: OPTIONS: 'none'|'AR(1) + w'
         %--------------------------------------------------------------------------
-        SPM.xVi.form       = 'AR'; %AR(0.2)? SOSART ?
+        SPM.xVi.form       = 'AR(1)';
         
         % specify SPM working dir for this sub
         %==========================================================================
@@ -345,11 +351,9 @@ end
         
         % set threshold of mask!!
         %==========================================================================
-        %SPM.xM.gMT = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
-        SPM.xM.gMT =  0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
-        SPM.xM.VM  =  spm_vol(Maskimage);
-        SPM.xM.I   =  0.1;
-        
+        SPM.xM.gMT = 0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.VM  = spm_vol(Maskimage);
+        SPM.xM.I   = 0.1;
         
         % Configure design matrix
         %==========================================================================
@@ -358,12 +362,12 @@ end
         % Estimate parameters
         %==========================================================================
         disp ('estimating model')
-        SPM = spm_spm(SPM); %SPM = spm_rwls_spm(SPM);
+        SPM = spm_spm(SPM);
         
         disp ('first level done');
     end
 
- 
+
     function [] = doContrasts(subjoutdir, param, SPM)
         
         % define the SPM.mat that contains the design of the first level analysis
@@ -372,7 +376,7 @@ end
         [files]=spm_select('List',path_ana,'SPM.mat');
         jobs{1}.stats{1}.con.spmmat = {fullfile(path_ana,files)};
         
-        % define  T contrasts in a human friendly readable way
+        % define  T constrasts in a human friendly readable way
         %------------------------------------------------------------------
         
         % | GET THE NAMES FROM THE ONSETS PARAMETERS OF THE SPM MODEL
@@ -381,49 +385,48 @@ end
         for j = 1:ncondition
             
             %taskN = SPM.xX.name{j} (4);
-            task  = 'task-hed.'; %taskN in the middle
+            task  = 'task-PIT.'; 
             conditionName{j} = strcat(task,SPM.xX.name{j} (7:end-6)); %this cuts off the useless parts of the names
             
         end
+        
         conditionName{ncondition} = strcat(task,'constant'); %just for the last condition
         
-         Ct = []; Ctnames = []; ntask = size(param.task,1);
+        Ct = []; Ctnames = []; ntask = size(param.task,1);
         
-        % | contrasts FOR T-TESTS
-        
-        %%
+        % | CONSTRASTS FOR T-TESTS
         
         % con1
-        Ctnames{1} = 'odor_lik';
-        weightPos  = ismember(conditionName, {'task-hed.odorxlik^1'}) * 1; 
+        Ctnames{1} = 'CSp';
+        weightPos  = ismember(conditionName, {'task-PIT.CSplus'}) * 1;
         Ct(1,:)    = weightPos;
-        
-     
-        %con2
-        Ctnames{2} = 'odor_int';
-        weightPos  = ismember(conditionName, {'task-hed.odorxint^1'}) * 1; 
+
+        % con2
+        Ctnames{2} = 'CSm';
+        weightPos  = ismember(conditionName, {'task-PIT.CSminus'}) * 1;
         Ct(2,:)    = weightPos;
         
         
-        %con3
-        Ctnames{3} = 'odor';
-        weightPos  = ismember(conditionName, {'task-hed.odor'}) * 1; 
+        % con3
+        Ctnames{3} = 'Base'; 
+        weightPos  = ismember(conditionName, {'task-PIT.Baseline'}) * 1;
         Ct(3,:)    = weightPos;
+        
+    
 
         
+        % define F constrasts
+        %------------------------------------------------------------------
+        Cf = []; Cfnames = [];
+        
+        Cfnames{end+1} = 'F_PIT';
+        
+        %create a identidy matrix (nconditionXncondition) 
+        F_PIT = eye(ncondition);
 
-%         % define F contrasts
-%         %------------------------------------------------------------------
-%         Cf = []; Cfnames = [];
-%         
-%         Cfnames{end+1} = 'F_HED';
-%         
-%         %create a identidy matrix (nconditionXncondition) 
-%         F_hedonic = eye(ncondition);
-%   
-%         
-%         Cf = repmat(F_hedonic,1,ntask);
-%         
+        
+        Cf = repmat(F_PIT,1,ntask);
+        
         % put the contrast matrix
         %------------------------------------------------------------------
         
@@ -432,18 +435,20 @@ end
             jobs{1}.stats{1}.con.consess{icon}.tcon.name = Ctnames{icon};
             jobs{1}.stats{1}.con.consess{icon}.tcon.convec = Ct(icon,:);
         end
-%         
-%          % F contrats
-%          for iconf = 1:1 % until the number of F contrast computed
-%              jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};
-%              jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.convec = Cf(iconf);
-%          end
-%         
+        
+        % F constrats
+        for iconf = 1:1 % until the number of F constrast computed
+            jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};
+            jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.convec = Cf(iconf);
+        end
+        
         
         % run the job
         spm_jobman('run',jobs)
         
         disp ('contrasts created!')
+        
+        
     end
 
 

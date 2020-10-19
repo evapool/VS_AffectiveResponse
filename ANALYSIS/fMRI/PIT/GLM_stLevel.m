@@ -35,7 +35,7 @@ addpath('/usr/local/external_toolboxes/spm12/');
 %addpath /usr/local/MATLAB/R2018a/spm12 ;
 %% specify fMRI parameters
 param.TR = 2.4;
-param.im_format = 'nii'; 
+param.im_format = 'smoothBold.nii'; 
 param.ons_unit = 'secs'; 
 spm('Defaults','fMRI');
 spm_jobman('initcfg');

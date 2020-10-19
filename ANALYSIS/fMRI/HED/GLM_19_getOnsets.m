@@ -1,22 +1,22 @@
-function GLM_15_getOnsets()
+function GLM_19_getOnsets()
 
 % intended for REWOD HED
 % get onsets for model with 1st level modulators
 % Duration =1 
 % Model on ONSETs (start, 3*odor + 2*questions)
-% last modified on JULY 2019 by David Munoz
+% last modified on OCT 2020 by Eva
 
 %% define paths
 
 cd ~
 home = pwd;
-homedir = [home '/REWOD'];
+homedir = [home '/mountpoint2'];
 
 
 mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
-ana_name      = 'GLM-15b';
+ana_name      = 'GLM-19';
 %session       = {'second'};
 task          = {'hedonic'};
 subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
@@ -90,22 +90,22 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         modulators.odor.conc.lik = modulators.odor.conc.lik(Idx,:);
         
         
-        %mod for intensity
-        modulators.odor.reward.int  = BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS));
-        modulators.odor.neutral.int = BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS));
-        modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
-        
-        modulators.odor.conc.int = vertcat(modulators.odor.reward.int, modulators.odor.neutral.int);
-       
-        %mean_centering mod
-        cent_int  = mean(modulators.odor.conc.int);
-     
-        for j = 1:length(modulators.odor.conc.int)
-            modulators.odor.conc.int(j)  = modulators.odor.conc.int(j) - cent_int;
-        end
-              
-              
-        modulators.odor.conc.int = modulators.odor.conc.int(Idx,:);
+%         %mod for intensity
+%         modulators.odor.reward.int  = BEHAVIOR.intensity (strcmp ('chocolate', CONDITIONS));
+%         modulators.odor.neutral.int = BEHAVIOR.intensity (strcmp ('neutral', CONDITIONS));
+%         modulators.odor.control.int = BEHAVIOR.intensity (strcmp ('empty', CONDITIONS));
+%         
+%         modulators.odor.conc.int = vertcat(modulators.odor.reward.int, modulators.odor.neutral.int);
+%        
+%         %mean_centering mod
+%         cent_int  = mean(modulators.odor.conc.int);
+%      
+%         for j = 1:length(modulators.odor.conc.int)
+%             modulators.odor.conc.int(j)  = modulators.odor.conc.int(j) - cent_int;
+%         end
+%               
+%               
+%         modulators.odor.conc.int = modulators.odor.conc.int(Idx,:);
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,7 +136,8 @@ mkdir (fullfile (mdldir, char(task), ana_name));
 
             if strcmp (nameX, 'odor')  % for structure that contains substuctures
                 substr = {'conc'};% specify the substructures names 
-                subsubstr = {'lik'; 'int'}; % specify the subsubstructures names 
+                %subsubstr = {'lik'; 'int'}; % specify the subsubstructures names 
+                subsubstr = {'lik'}; % specify the subsubstructures names 
                 for iii = 1:length(substr)
                     substrX = char(substr(iii));
                     for iiii =  1:length(subsubstr)

@@ -53,9 +53,9 @@ for i = 1:length(subj)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%  get onsets
 
-    ONSETS.trialstart  = data.tTrialStart; 
-    ONSETS.trialEnd  = data.tTrialEnd; 
-    ONSETS.sniffSignalOnset  = data.sniffSignalOnset; 
+    ONSETS.start             = data.tTrialStart; 
+    ONSETS.end               = data.tTrialEnd; 
+    ONSETS.smell             = data.sniffSignalOnset; %receive smell 
     ONSETS.ValveOpen      = data.tValveOpen;
     ONSETS.ValveClose      = data.tValveClose;
     %ONSETS.break       = data.Onsets.Startjitter;
@@ -67,7 +67,8 @@ for i = 1:length(subj)
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%  get durations
-    DURATIONS.trialstart  = data.duration.asterix1 + data.duration.asterix2; % what is asterix 3 and 4?
+    DURATIONS.start       = data.duration.count1 + data.duration.count2 + data.duration.count3 + data.duration.oCommitOdor;
+    DURATIONS.smell       = data.duration.asterix1 + data.duration.asterix2 + data.duration.oCommitISI;% 
     DURATIONS.break       = data.duration.jitter;
     DURATIONS.liking      = data.duration.Liking;
     DURATIONS.intensity   = data.duration.Intensity;
@@ -82,7 +83,7 @@ for i = 1:length(subj)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%  get condition name and the trial and drift
     % fix the cell bug for odorLabel
-    A =strcmp(data.odorLabel,'empty');
+    A = strcmp(data.odorLabel,'empty');
     B = strcmp(data.odorLabel,'chocolate');
     data.odorLabel2 = categorical(zeros(1,data.Trial(end))'+ 2*A + B);
     data.odorLabel2 = mergecats(data.odorLabel2,'2','empty');
@@ -138,11 +139,12 @@ for i = 1:length(subj)
     %cd (behavior_dir)
     save(matfile_name, 'ONSETS', 'DURATIONS',  'BEHAVIOR', 'CONDITIONS', 'ODOR', 'TRIAL', 'DRIFT' )
     
-    
+    func_dir = fullfile (homedir, ['sub-' num2str(subjX)], 'ses-first', 'beh');
+    cd (func_dir)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% save tvs file according to BIDS format
-    phase = {'trialstart';'liking'; 'intensity'; 'ITI'};
+    phase = {'start'; 'smell'; 'liking';'intensity'; 'ITI'};
     nevents = ntrials*length(phase);
     
     % put everything in the event structure
@@ -167,7 +169,7 @@ for i = 1:length(subj)
             events.onsets(cmpt)     = ONSETS.(phaseX) (ii);
             events.durations(cmpt)  = DURATIONS.(phaseX) (ii);
             events.phase(cmpt)      = phase (iii);
-            events.condition(cmpt) = CONDITIONS(ii);
+            events.condition(cmpt)  = CONDITIONS(ii);
             events.liking(cmpt)     = BEHAVIOR.liking(ii);
             events.intensity(cmpt)  = BEHAVIOR.intensity(ii);
             events.trial(cmpt)      = TRIAL(ii);
@@ -180,7 +182,7 @@ for i = 1:length(subj)
     events.durations    = num2cell(events.durations);
     events.liking       = num2cell(events.liking);
     events.intensity    = num2cell(events.intensity);
-    events.trial    = num2cell(events.trial);
+    events.trial        = num2cell(events.trial);
     
     
     

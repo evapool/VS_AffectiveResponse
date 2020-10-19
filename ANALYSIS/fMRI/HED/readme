@@ -51,3 +51,26 @@ GLM-17: Model for odor (neutral + reward) modulated by EMG, intensity and liking
 
 GLM-18: Model with 2nd level covariates for EMG & durations = 1 & mean centered by condition
 -> 1 contrast reward-neutral X EMG (EMG is reversed*-1 to show a positive correlation)
+
+
+GLM-19: Model for odor (neutral + reward) modulated by liking only as 1st level modulators &  durations = 1 & mean centered & orth =0
+->  1 contrast odor*lik
+
+GLM-20: Model for odor (neutral + reward) modulated by intensity only as 1st level modulators &  durations = 1 & mean centered & orth =0
+->  1 contrast odor*int
+
+
+GLM-21: Model for odor (all) modulated by RPE only as 1st level modulators &  durations = 1 & mean centered & orth =0
+->  1 contrast odor*int
+
+GLM-22: Model for odor (all) modulated by RPE liking and intensity as 1st level modulators &  durations = 1 & mean centered & orth =0
+->  1 contrast odor*int
+
+
+GLM-23: Model for odor (all) modulated by expected value durations = 1
+
+GLM-24: Model for odor (all) modulated by expected value durations = 0
+
+GLM-25: like 22 but durations = 0
+
+
