@@ -22,4 +22,8 @@ GLM-05: same as GLM-04 but without any mask
 
 GLM-06: CONN file for connectivity analysis (ROI-to-ROI and Seed-to-Voxel)
 
+GLM-08: like GLM-04 but with change regressor added to CS as control of non interest
+
+GLM-09: like GLM-03 but with change regressor added to CS as control of non interest
+
 

@@ -16,7 +16,7 @@ homedir = [home '/REWOD'];
 mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
-ana_name      = 'GLM-15b';
+ana_name      = 'GLM-15a';
 %session       = {'second'};
 task          = {'hedonic'};
 subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
@@ -51,23 +51,23 @@ mkdir (fullfile (mdldir, char(task), ana_name));
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and durations for start
-        onsets.trialstart       = ONSETS.trialstart;
-        durations.trialstart    = DURATIONS.trialstart;
-        modulators.trialstart   = ones (length(onsets.trialstart),1); 
+        onsets.start       = ONSETS.start;
+        durations.start    = DURATIONS.start;
+        modulators.start   = ones (length(onsets.start),1); 
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets and durations for odor valveopen
-        onsets.odor.reward      = ONSETS.sniffSignalOnset(strcmp ('chocolate', CONDITIONS));
-        onsets.odor.neutral     = ONSETS.sniffSignalOnset(strcmp ('neutral', CONDITIONS));
-        onsets.odor.control     = ONSETS.sniffSignalOnset(strcmp ('empty', CONDITIONS));
+        onsets.odor.reward      = ONSETS.smell(strcmp ('chocolate', CONDITIONS));
+        onsets.odor.neutral     = ONSETS.smell(strcmp ('neutral', CONDITIONS));
+        onsets.odor.control     = ONSETS.smell(strcmp ('empty', CONDITIONS));
         onsets.odor.conc        = vertcat(onsets.odor.reward, onsets.odor.neutral);
         
         [onsets.odor.conc, Idx] = sort(onsets.odor.conc);
         
         %get durations
-        durations.odor.reward   = DURATIONS.trialstart(strcmp ('chocolate', CONDITIONS));
-        durations.odor.neutral   = DURATIONS.trialstart(strcmp ('neutral', CONDITIONS));
-        durations.odor.control   = DURATIONS.trialstart(strcmp ('empty', CONDITIONS));
+        durations.odor.reward   = DURATIONS.smell(strcmp ('chocolate', CONDITIONS));
+        durations.odor.neutral   = DURATIONS.smell(strcmp ('neutral', CONDITIONS));
+        durations.odor.control   = DURATIONS.smell(strcmp ('empty', CONDITIONS));
         durations.odor.conc       = vertcat(durations.odor.reward, durations.odor.neutral);
         
         durations.odor.conc = durations.odor.conc(Idx,:);
@@ -128,7 +128,7 @@ mkdir (fullfile (mdldir, char(task), ana_name));
         % create text file with 3 colons: onsets, durations and 2
         % parametric modulators for each parameter
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        name = {'trialstart'; 'odor'; 'liking'; 'intensity'}; 
+        name = {'start'; 'odor'; 'liking'; 'intensity'}; 
 
         for ii = 1:length(name)
 

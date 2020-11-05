@@ -11,16 +11,15 @@ function GLM_04_ndLevel
 
 do_covariate = 1;
 remove = 0;
-removesub = {'sub-10'};
-removedsub = '10';
+
 
 %% define path
 
 cd ~
-home = pwd;
+home = pwd; 
 homedir = [home '/REWOD/'];
 
-%%
+
 mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
 name_ana = 'GLM-04'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
@@ -42,21 +41,26 @@ spm_jobman('initcfg');
 if do_covariate
 
     % covariate of interest name become folder
-    covariateNames = {'CSp-CSm_eff_zscore' %1
-        'CSp-Baseline_eff_zscore' %2
-        'CSm-Baseline_eff_zscore' %3
-        'CSp-CSm&Baseline_eff_zscore'}; %4
+%     covariateNames = {'CSp-CSm_eff_zscore' %1
+%         'CSp-Baseline_eff_zscore' %2
+%         'CSm-Baseline_eff_zscore' %3
+%         'CSp-CSm&Baseline_eff_zscore'}; %4
+%    
+    
+    covariateNames = {'CSp-CSm_eff_z' %1
+        'CSp-CSm_eff_rank' %2
+        'CSp-CSm_eff_ranknorm'}; %4
+
 
     % These contrast names become sub-folders
-    contrastNames = {'CSp-CSm' %1
-        'CSp-Baseline' %2
-        'CSp-CSm&Baseline' %3
-        'CSm-Baseline'}; %4
+%     contrastNames = {'CSp-CSm' %1
+%         'CSp-Baseline' %2
+%         'CSp-CSm&Baseline' %3
+%         'CSm-Baseline'}; %4
+    
+        contrastNames = {'CSp-CSm'}; %4
 
-    conImages = {'con_0001'
-        'con_0002'
-        'con_0003'
-        'con_0004'};
+    conImages = {'con_0001'};
 
     %% prepare batch for each contrasts
 
@@ -69,7 +73,8 @@ if do_covariate
         headerlinesIn = 1;
         C = importdata(filename,delimiterIn,headerlinesIn); %importdata
 
-        cov.ID   = C.data(:,1);
+
+        cov.ID = C.data(:,1);
         cov.data = C.data(:,2);
 
 

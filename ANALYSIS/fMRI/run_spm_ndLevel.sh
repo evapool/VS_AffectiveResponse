@@ -2,8 +2,8 @@
 
 #home=$(eval echo ~$user);
 
-task="HED"
-GLM="GLM_26"
+task="PIT"
+GLM="GLM_08"
 
 #codeDir="${home}/REWOD/CODE/ANALYSIS/fMRI/${task}"
 codeDir="/home/REWOD/CODE/ANALYSIS/fMRI/${task}"

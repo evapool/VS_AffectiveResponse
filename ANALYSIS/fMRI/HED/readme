@@ -73,4 +73,11 @@ GLM-24: Model for odor (all) modulated by expected value durations = 0
 
 GLM-25: like 22 but durations = 0
 
+GLM-26 Model for odor (all) with control regressor changing for the better
+->  3 contrasts odor*int odor*lik odor*ch
 
+GLM-27 Model for odor (all) with control regressor changing for the better and absolute change
+->  4 contrasts odor*int odor*lik odor*ch odor*chAbs
+
+GLM-28 Model only for odor with molecule (empty air entered as separate onsets) with control regressor changing for the better and absolute change (on the odorant only)
+->  4 contrasts odor*int odor*lik odor*ch odor*chAbs

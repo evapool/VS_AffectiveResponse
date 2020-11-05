@@ -12,8 +12,8 @@ function GLM_15_ndLevel()
 %does t-test and full_factorial
 do_ttest = 1;
 remove = 0;
-removesub = {'sub-10'} ;
-removedsub = '10';
+%removesub = {'sub-10'} ;
+%removedsub = '10';
 
 %% define task variable
 %sessionX = 'second';
@@ -31,8 +31,7 @@ name_ana = 'GLM-15'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 
-%% specify spm param
-%addpath /usr/local/MATLAB/R2018a/spm12 ; 
+%% specify spm param 
 addpath /usr/local/external_toolboxes/spm12/ ;
 
 addpath ([homedir 'CODE/ANALYSIS/fMRI/dependencies']);
@@ -106,6 +105,7 @@ if do_ttest
         % estimate design matrix
         matlabbatch{2}.spm.stats.fmri_est.spmmat = {[contrastFolder  '/SPM.mat']};
         matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
+        matlabbatch{2}.spm.stats.fmri_est.write_residuals = 1;
         
         % specify one sample tcontrast
         matlabbatch{3}.spm.stats.con.spmmat(1)               = {[contrastFolder  '/SPM.mat']};

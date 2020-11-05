@@ -11,8 +11,8 @@ dbstop if error
 
 %% What to do
 firstLevel    = 1;
-contrasts    = 1;
-copycontrasts = 1;
+contrasts    = 0;
+copycontrasts = 0;
 
 %% define task variable
 %sessionX = 'second';
@@ -61,7 +61,7 @@ for i = 1:length(param.task)
         'intensity'};%6
 
         
-     param.onset{i} = {'ONS.onsets.trialstart',... %1
+     param.onset{i} = {'ONS.onsets.start',... %1
         'ONS.onsets.odor.reward',...%2
         'ONS.onsets.odor.control',...%3
         'ONS.onsets.odor.neutral',...%4
@@ -71,7 +71,7 @@ for i = 1:length(param.task)
     
     % duration of the blocks (if events, put '0'). Specify it for each condition of each session
     % the values must be included in your onsets in seconds
-    param.duration{i} = {'ONS.durations.trialstart',...
+    param.duration{i} = {'ONS.durations.start',...
         'ONS.durations.odor.reward',...
         'ONS.durations.odor.control',...
         'ONS.durations.odor.neutral',... 

@@ -3,7 +3,9 @@
 %clear
 %clc
 dbstop if error
-task = 'PIT'; % 'hedonic';
+task = 'hedonic'; % 'PIT';
+img = 'MS_SMM_map.nii';
+
 
 %define paths
 cd ~
@@ -12,11 +14,8 @@ homedir = [home '/REWOD/'];
 
 BMSdir   = fullfile(homedir, 'DERIVATIVES/BMS', task, 'MS_SMM_BMS_10');
 
-if strcmp(task,'PIT')
-    img = 'MS_SMM_map_pos_1_mod_1_GLM-07.nii';
-else 
-    img = 'MS_SMM_map_pos_1_mod_1_GLM-04a.nii';
-end
+
+
 
 
 addpath /usr/local/external_toolboxes/spm12/ ;
@@ -31,7 +30,7 @@ spm_jobman('initcfg');
 cd(BMSdir)
 
 
-devia = std(Data(:),'omitnan');
+
 %%%
 P = spm_vol(img);
 Data = spm_read_vols(P);

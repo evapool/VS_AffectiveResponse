@@ -70,7 +70,7 @@ def covariate (cond):
     df03[0] = dfsubj
     df04[0] = dfsubj
     
-    # mean center BY CONDITION
+    # mean center BY contrast
     df01[1] = stats.zscore(df1)
     df02[1] = stats.zscore(df2)
     df03[1] = stats.zscore(df3)

@@ -96,7 +96,7 @@ for j = 1:length(task)
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets grips %%?
-        onsets.grips.PIT           = PIT.ONSETS.grips;
+        onsets.grips.PIT          = PIT.ONSETS.grips;
         durations.grips.PIT       = zeros (length(onsets.grips.PIT),1);
         modulators.grips.PIT      = ones  (length(onsets.grips.PIT),1);
 
