@@ -9,12 +9,18 @@ dbstop if error
 cd ~
 home = pwd;
 homedir = [home '/REWOD'];
+homedir = [home '/mountpoint2'];
 
 %% def var
 task = 'PIT'; %
-glm = 'GLM-04';
+%glm = 'GLM-04';
+glm= 'GLM-13';
 
-list_roi = {'shell-core', 'cmOFC'};
+%list_roi = {'shell-core', 'cmOFC'};
+
+list_roi = {'HED_NACcoreshell';'HED_mOFC';'HED_NACshell'};
+
+list_roi = {'HED_NACcoreshell'};
 
 for k = 1:length(list_roi)
     ROI_name = list_roi{k};
@@ -23,9 +29,10 @@ for k = 1:length(list_roi)
 
 
     %% create database
-    in_dir        = fullfile (homedir, '/DERIVATIVES/GLM/', task, 'ROI', ROI_name, 'betas');
-    out_dir   = fullfile(homedir, '/DERIVATIVES/GLM/', task, 'ROI');
-
+    %in_dir        = fullfile (homedir, '/DERIVATIVES/GLM/', task, 'ROI', ROI_name, 'betas');
+    in_dir        = fullfile (homedir, '/DERIVATIVES/GLM/', task, 'ROI', glm, 'betas_PIT');
+    %out_dir   = fullfile(homedir, '/DERIVATIVES/GLM/', task, 'ROI');
+    out_dir   = in_dir;
 
     ID     = {'ID';'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
 
@@ -47,7 +54,7 @@ for k = 1:length(list_roi)
     T = cell2table(database(2:end,:),'VariableNames',database(1,:));
 
     % Write the table to a CSV file
-    writetable(T, ['extracted_betas_' ROI_name '.txt'],'Delimiter','\t');
+    writetable(T, ['extracted_betas_' ROI_name '_hedonic.txt'],'Delimiter','\t');
 end
 
 clear all

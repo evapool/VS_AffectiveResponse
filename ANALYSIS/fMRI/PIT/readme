@@ -1,5 +1,6 @@
 ReadMe PIT:
 
+The model with the asterix* are to ones to be compared
 
 GLM-01: Control model, no modulators & durations = 0 (stick functions)
 --> 1 cotrol contrast (Grips)
@@ -7,12 +8,12 @@ GLM-01: Control model, no modulators & durations = 0 (stick functions)
 GLM-02: Main model, no modulators & durations = 1
 --> 4 basic contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base, CSm-Base)
 
-GLM-03: Model with 1st level modulators & durations = 1 & mean centered & orth = 0
+*GLM-03: Model with 1st level modulators & durations = 1 & mean centered & orth = 0
 -->  8 contrasts (4 basic + 4 modulated contrasts)
 
 GLM-03a: same as GLM-03 but for striatum only
 
-GLM-04: Model with 2nd level covariates & durations = 1 & rank norm by condition
+*GLM-04: Model with 2nd level covariates & durations = 1 & rank norm by condition
 -->  8 contrasts (4 basic + 4 modulated contrasts)
 
 GLM-04a: same as GLM-04 but for striatum only
@@ -24,6 +25,16 @@ GLM-06: CONN file for connectivity analysis (ROI-to-ROI and Seed-to-Voxel)
 
 GLM-08: like GLM-04 but with change regressor added to CS as control of non interest
 
-GLM-09: like GLM-03 but with change regressor added to CS as control of non interest
+*GLM-09: like GLM-03 but with absolute change regressor added to CS as control of non interest
 
+GLM-10: separating CS onset and Baseline onset and modulating by "VALUE" and "PE" (this model is just for fun)
+ --> FOR FUN
 
+FAIL: GLM-11: separating CS onset and Baseline onset and modulating by "VALUExEFFORT" as first level modulator and absolute change as control modulator
+ --> FAIL: VALUE*EFFORT is too correlated with VALUE
+
+FAIL: GLM-12: separating CS onset and Baseline onset and modulating by "VALUExEFFORT"
+ --> FAIL: VALUE*EFFORT is too correlated with VALUE
+
+*GLM-13: same as GLM 08 but coded in a similar was to GLM-10 which also kind of correspond to GLM-28 with control absolute change
+ --> FOR FUN

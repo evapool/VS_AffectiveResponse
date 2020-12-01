@@ -5,27 +5,46 @@
 %clc
 dbstop if error
 
-glm= 'GLM-04';
-task='PIT';
+% glm= 'GLM-04';
+ glm= 'GLM-28';
+ task='hedonic';
 
-list_roi = {'shell-core', 'cmOFC'};
+%glm= 'GLM-13';
+%task='PIT';
+
+
+%list_roi = {'shell-core', 'cmOFC'};
+
+list_roi = {'PIT_NACcore'};
+
+%list_roi = {'HED_NACcoreshell';'HED_mOFC';'HED_NACshell'};
+
+%list_roi = {'PIT_CS_NACschell_right';'PIT_CS_NACschell_left';'HED_NACshell'};
 
 for k = 1:length(list_roi)
     ROI_name = list_roi{k};
 
     % which contrast
-    con_name = {'CSp-CSm'};
+    %con_name = {'CSp-CSm'};
+    %con_list = {'con_0001.nii'}; %
+    
+    con_name = {'odor_lik'};
     con_list = {'con_0001.nii'}; %
 
     % path
     cd ~
     home = pwd;
     homedir = [home '/REWOD'];
+    homedir = '/Users/evapool/mountpoint2';
     %addpath /usr/local/external_toolboxes/spm12/ ;
 
     dir_data   =  fullfile (homedir, '/DERIVATIVES/GLM', task, glm, 'group');
+    dir_data   =  fullfile (homedir, '/DERIVATIVES/GLM', task, glm, 'group');
     roi_dir = fullfile(homedir, '/DERIVATIVES/GLM',task, 'ROI', ROI_name);
-
+    %roi_dir = fullfile(homedir, '/DERIVATIVES/GLM','hedonic', 'ROI', 'GLM-28','betas_hedonic');
+    roi_dir = fullfile(homedir, '/DERIVATIVES/GLM','PIT', 'ROI', 'GLM-13','betas_hedonic');
+    
+    
     % intialize spm 
     spm('defaults','fmri');
     spm_jobman('initcfg');

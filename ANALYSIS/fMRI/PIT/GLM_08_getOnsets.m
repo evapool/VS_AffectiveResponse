@@ -189,9 +189,9 @@ for j = 1:length(task)
         durations.PIT.Baseline  = PIT.DURATIONS.trialstart(strcmp ('Baseline', PIT.CONDITIONS));
         
         %-------------mob_effort (for nd level analysis)
-        modulators.ndl.CSp.eff      = BEHAVIOR.mobilized_effort(strcmp ('CSplus', PIT.CONDITIONS));
-        modulators.ndl.CSm.eff      = BEHAVIOR.mobilized_effort(strcmp ('CSminus', PIT.CONDITIONS));
-        modulators.ndl.Baseline.eff = BEHAVIOR.mobilized_effort(strcmp ('Baseline', PIT.CONDITIONS));
+        modulators.ndl.CSp.eff      = PIT.gripsFrequence(strcmp ('CSplus', PIT.CONDITIONS));
+        modulators.ndl.CSm.eff      = PIT.gripsFrequence(strcmp ('CSminus', PIT.CONDITIONS));
+        modulators.ndl.Baseline.eff = PIT.gripsFrequence(strcmp ('Baseline', PIT.CONDITIONS));
         
         % mean center
 %         modulators.PIT.CSp.eff = meanCenter(modulators.PIT.CSp.eff);

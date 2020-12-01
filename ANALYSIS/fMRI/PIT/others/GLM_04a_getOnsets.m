@@ -1,4 +1,4 @@
-function GLM_09_getOnsets()
+function GLM_04a_getOnsets()
 
 % intended for REWOD PIT
 % get onsets for model with 2st level covariates
@@ -12,7 +12,7 @@ function GLM_09_getOnsets()
 
 cd ~
 home = pwd;
-homedir = [home '/mountpoint2'];
+homedir = [home '/REWOD'];
 
 mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
@@ -20,7 +20,7 @@ mytools       = fullfile(homedir, '/CODE/ANALYSIS/fMRI/PIT/myfunctions');
 
 addpath(mytools);
 
-ana_name      = 'GLM-09';
+ana_name      = 'GLM-04a';
 %session       = {'second'};
 task          = {'PIT'};
 subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
@@ -79,55 +79,6 @@ for j = 1:length(task)
         % Get onsets and durations for CS FOR PIT
         
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % absolute change
-        
-        PP = nan(length(PIT.CONDITIONS),1); %odor value vector
-        
-        VCSplus   = 1;
-        VCSminus  = 2;
-        VBaseline = 3;
-        
-        % recode smell in values
-        for t = 1:length(PIT.CONDITIONS)
-            
-            condition       = PIT.CONDITIONS{t};
-            if strcmp ('CSplus',  condition)
-                PP(t) = VCSplus;
-                
-            elseif strcmp ('CSminus',  condition)
-                PP(t) = VCSminus;
-                
-            elseif strcmp ('Baseline',  condition)
-                PP(t) = VBaseline;
-                
-            end
-            
-        end
-        
-        
-        ChAbs      = nan(length(PIT.CONDITIONS),1);
-        P0 = 0.5;
-        for t = 1:length(ChAbs)
-            
-            if t == 1
-                ChAbs (t) = P0;
-                PP(t) = P0;
-            else
-                
-                if PP(t-1) < PP(t)
-                    ChAbs (t) = 1;
-                elseif PP(t-1) > PP(t)
-                    ChAbs (t) = 1;
-                elseif PP(t-1) == PP(t)
-                    ChAbs (t) = -0.5;
-                end
-                
-            end
-            
-        end
-        
-        
         
         onsets.PIT.CSp          = PIT.ONSETS.trialstart(strcmp ('CSplus', PIT.CONDITIONS));
         onsets.PIT.CSm          = PIT.ONSETS.trialstart(strcmp ('CSminus', PIT.CONDITIONS));
@@ -147,15 +98,7 @@ for j = 1:length(task)
         modulators.PIT.CSm.eff = meanCenter(modulators.PIT.CSm.eff);
         modulators.PIT.Baseline.eff = meanCenter(modulators.PIT.Baseline.eff);
         
-        %--------------absolute change
-        modulators.PIT.CSp.chAbs      = ChAbs(strcmp ('CSplus', PIT.CONDITIONS));
-        modulators.PIT.CSm.chAbs      =  ChAbs(strcmp ('CSminus', PIT.CONDITIONS));
-        modulators.PIT.Baseline.chAbs =  ChAbs(strcmp ('Baseline', PIT.CONDITIONS));
-        
-        % mean center
-        modulators.PIT.CSp.chAbs = meanCenter(modulators.PIT.CSp.chAbs);
-        modulators.PIT.CSm.chAbs  = meanCenter(modulators.PIT.CSm.chAbs);
-        modulators.PIT.Baseline.chAbs = meanCenter(modulators.PIT.Baseline.chAbs);
+   
         
         
        
@@ -169,10 +112,10 @@ for j = 1:length(task)
         cd (subjdir) %save all info in the participant directory
         
         
-        % FOR FSL and covariates!
-        % create text file with 3 colons: onsets, durations, parametric
-        % modulators (!!!! this is not what it does)
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %FOR FSL and covariates!
+        %create text file with 3 colons: onsets, durations, parametric
+        %modulators (!!!! this is not what it does)
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         name = {'REM'; 'PE'; 'PIT'};
         
         for ii = 1:length(name)
@@ -181,7 +124,7 @@ for j = 1:length(task)
             
             if strcmp (nameX, 'PIT')  % for structure that contains substuctures
                 substr = {'CSp'; 'CSm'; 'Baseline'};% specify the substructures names
-                subsubstr = {'chAbs'; 'eff'}; % specify the subsubstructures names
+                subsubstr = {'eff'}; % specify the subsubstructures names
                 
                 
                 for iii = 1:length(substr)

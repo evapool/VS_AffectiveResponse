@@ -1,5 +1,7 @@
 ReadMe HEDONIC
 
+The model with the asterix* are to ones to be compared
+
 GLM-01: Control model, no modulators & durations = 0 (stick functions)
 --> 1 control contrast (odor presence)
 
@@ -9,7 +11,7 @@ GLM-02: Main model, no modulators & durations = 1
 GLM-03: Control model for odor.all modulated by intenisty and liking as 1st level modulators &  durations = 1 & mean centered & orth =0
 ->  2 contrast odor*lik + odor*int
 
-GLM-04: Model with 2nd level covariates & durations = 1 & mean centered by condition
+* GLM-04: Model with 2nd level covariates & durations = 1 & mean centered by condition
 -> 10 contrasts (5 basics + 5 modulated contrasts)
 
 GLM-05: Conjunction analysis PIT_CS+>CS- GLM_04 _eff > HED_lik GLM_03
@@ -40,7 +42,7 @@ GLM-13: variations of GLM-11 but cut in 3
 
 GLM-14: same than GLM-02 but with mini-block regressor
 
-GLM-15: Model for odor (neutral + reward) modulated by intensity and liking as 1st level modulators &  durations = 1 & mean centered & orth =0
+*GLM-15: Model for odor (neutral + reward) modulated by intensity and liking as 1st level modulators &  durations = 1 & mean centered & orth =0
 ->  2 contrast odor*lik + odor*int
 
 GLM-16: Model for neutral, reward, control modulated by EMG activity in the corrugator as 1st level modulators &  durations = 1 & mean centered & orth =0
@@ -51,7 +53,6 @@ GLM-17: Model for odor (neutral + reward) modulated by EMG, intensity and liking
 
 GLM-18: Model with 2nd level covariates for EMG & durations = 1 & mean centered by condition
 -> 1 contrast reward-neutral X EMG (EMG is reversed*-1 to show a positive correlation)
-
 
 GLM-19: Model for odor (neutral + reward) modulated by liking only as 1st level modulators &  durations = 1 & mean centered & orth =0
 ->  1 contrast odor*lik
@@ -79,5 +80,8 @@ GLM-26 Model for odor (all) with control regressor changing for the better
 GLM-27 Model for odor (all) with control regressor changing for the better and absolute change
 ->  4 contrasts odor*int odor*lik odor*ch odor*chAbs
 
-GLM-28 Model only for odor with molecule (empty air entered as separate onsets) with control regressor changing for the better and absolute change (on the odorant only)
+* GLM-28 (GLM-15 plus controls) Model only for odor with molecule (empty air entered as separate onsets) with control regressor changing for the better and absolute change (on the odorant only)
 ->  4 contrasts odor*int odor*lik odor*ch odor*chAbs
+
+GLM-29 (GLM-03 plus controls): Control model for odor.all modulated by intenisty and liking as 1st level modulators plus changing for the better and absolute change as control regressors durations = 1
+->  2 contrast odor*lik + odor*int

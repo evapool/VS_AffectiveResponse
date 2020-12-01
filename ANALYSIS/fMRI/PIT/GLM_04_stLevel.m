@@ -1,19 +1,18 @@
-function GLM_03a_stLevel(subID)
+function GLM_04_stLevel(subID)
 
 % intended for REWOD PIT
-% get onsets for model with 1st level modulators
+% get onsets for model with 2nd level modulators
 % Durations =1 (except grips)
-% Model on ONSETs 3*CS with modulator
+% Model on ONSETs 3*CS without modulator
 % 4 simple contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base,  CSm-Base)
-% + 4 modulated contrast (*eff)
 % Ortho = 0 & modulator is mean centered
 % last modified on JULY 2019 by David Munoz
 %dbstop if error
 
 %% What to do
 firstLevel    = 1;
-constrasts    = 0;
-copycontrasts = 0;
+constrasts    = 1;
+copycontrasts = 1;
 
 %% define task variable
 task = 'PIT';
@@ -26,7 +25,7 @@ homedir = [home '/REWOD/'];
 
 mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, 'DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-03a'; % output folder for this analysis
+name_ana = 'GLM-04'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
@@ -77,24 +76,24 @@ for i = 1:length(param.task)
     
     % parametric modulation of your events or blocks (ex: linear time, or emotional value, or pupillary size, ...)
     % If you have a parametric modulation
-    param.modulName{i} = {'effort',...%1
-        'effort',...%2
-        'effort',...%3
-        'effort',...%4
-        'effort'};%5
+    param.modulName{i} = {'none',...%1
+        'none',...%2
+        'none',...%3
+        'none',...%4
+        'none'};%5
     
-    param.modul{i} = {'ONS.modulators.CS.REM',...%1
-        'ONS.modulators.CS.PE',...%2
-        'ONS.modulators.CS.CSp',...%3
-        'ONS.modulators.CS.CSm',... %4
-        'ONS.modulators.CS.Baseline'}; %5
+    param.modul{i} = {'none',...%1
+        'none',...%2
+        'none',...%3
+        'none',... %4
+        'none'}; %5
     
     % value of the modulators, If you have a parametric modulation
-    param.time{i} = {'1',... %1
-        '1',... %2
-        '1',... %3
-        '1',... %4
-        '1'};%5
+    param.time{i} = {'0',... %1
+        '0',... %2
+        '0',... %3
+        '0',... %4
+        '0'};%5
     
 end
 
@@ -168,8 +167,6 @@ end
         taskX = char(param.task(ses));
         targetscan         = dir (fullfile(subjfuncdir, [im_style '*' taskX '*' param.im_format]));
         tmp{ses}           = spm_select('List',subjfuncdir,targetscan.name);
-
-        Maskimage = fullfile(homedir, 'DERIVATIVES/EXTERNALDATA/LABELS/RL_Atlas/striatum.nii');
 
         % get the number of EPI for each session
         cd (subjfuncdir);
@@ -346,18 +343,11 @@ end
         
         % set threshold of mask!!
         %==========================================================================
-        %SPM.xM.gMT = -Inf;% !!set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.gMT = -Inf;% !!set -inf if we want to use explicit masking 0.8 is the spm default
         
         % Configure design matrix
         %==========================================================================
         SPM = spm_fmri_spm_ui(SPM);
-        
-        %explicit thresholding ! after UI
-        %SPM.xM.TH = -Inf;%!! set -inf if we want to use explicit masking 0.8 is the spm default
-        %SPM.xM.I           = 0;
-        SPM.xM.VM  =  spm_vol(Maskimage);
-        SPM.xM.xs.Masking  = 'Striatum mask, made with FSL';
-        
         
         % Estimate parameters
         %==========================================================================
@@ -391,7 +381,6 @@ end
         end
         
         conditionName{ncondition} = strcat(task,'constant'); %just for the last condition
-        conditionName(:,11) = [];
         Ct = []; Ctnames = []; ntask = size(param.task,1);
         
         % | CONSTRASTS FOR T-TESTS
@@ -420,33 +409,7 @@ end
         weightNeg  = ismember(conditionName, {'task-PIT.Baseline'}) * -1;
         Ct(4,:)    = weightPos+weightNeg;
         
-        
-        %% Contrast * mob effort
-        % con5
-        Ctnames{5} = 'CSp_eff_CSm_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeffort^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeffort^1'}) * -1;
-        Ct(5,:)    = weightPos+weightNeg;
-        
-        % con6
-        Ctnames{6} = 'CSp_eff_Baseline_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeffort^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeffort^1'}) * -1;
-        Ct(6,:)    = weightPos+weightNeg;
-        
-        % con7 
-        Ctnames{7} = 'CSp_eff_CSm_eff&Baseline_eff'; 
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeffort^1'}) * 2;
-        weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeffort^1', 'task-PIT.Baselinexeffort^1'}) * -1;
-        Ct(7,:)    = weightPos+weightNeg;
-                     
-        % con8
-        Ctnames{8} = 'CSm_eff_Baseline_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSminusxeffort^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeffort^1'}) * -1;
-        Ct(8,:)    = weightPos+weightNeg;
-        
-        
+      
         
 
         

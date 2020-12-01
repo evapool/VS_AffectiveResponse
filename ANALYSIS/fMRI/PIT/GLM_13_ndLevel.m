@@ -1,13 +1,12 @@
-function GLM_08_ndLevel
+function GLM_13_ndLevel
 
 % intended for REWOD PIT
-% get onsets for model with 2st level covariates mean centered by zscore by conditions
-% SO BY NOW YOU SHOULD HAVE RUN THE normalize_PIT.R script !
-% Durations =1 (except grips)
-% Model on ONSETs 3*CS with modulator
-% 4 contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base,  CSm-Base)
-% + 4 modulated contrast (*eff)
-% last modified on JULY 2019 by David Munoz
+% get onsets for model with 2st level covariates
+% Durations =1 
+% Model on ONSETs 2*CS with modulator
+% Model on ONSETs 2*CS with modulator
+% VV and absolute change
+% last modified on NOV by Eva R. Pool
 
 do_covariate = 1;
 remove = 0;
@@ -21,9 +20,9 @@ homedir = ['/home/REWOD/'];
 
 %%
 mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
-name_ana = 'GLM-08'; % output folder for this analysis
+name_ana = 'GLM-13'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
-covdir   = fullfile (homedir, 'DERIVATIVES/GLM/PIT/',name_ana,'/group_covariates'); % director with the extracted second level covariates
+covdir   = fullfile (homedir, 'DERIVATIVES/GLM/PIT/GLM-08/group_covariates'); % director with the extracted second level covariates
 
 
 %% specify spm param
@@ -46,9 +45,11 @@ if do_covariate
         'CSp-CSm_eff_ranknorm'}; %4
     
     % These contrast names become sub-folders
-    contrastNames = {'CSp-CSm'}; %4
+    contrastNames = {'CSxVV'
+        'CSxChAbs'}; %4
     
-    conImages = {'con_0001'};
+    conImages = {'con_0001'
+        'con_0002'};
     
     %% prepare batch for each contrasts
     

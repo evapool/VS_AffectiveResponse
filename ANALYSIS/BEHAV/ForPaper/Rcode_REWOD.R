@@ -18,8 +18,6 @@
 
 
 
-
-
 #--------------------------------------  PRELIMINARY STUFF ----------------------------------------
 #load libraries
 if(!require(pacman)) {
@@ -104,9 +102,6 @@ PAV$condition        <- factor(PAV$condition)
 
 # get times in milliseconds 
 PAV$RT               <- PAV$RT * 1000
-
-# remove sub 8 (bc we dont have scans)
-PAV <- subset (PAV,!id == '8') 
 
 #Preprocessing
 ##only first round
@@ -232,8 +227,6 @@ dev.off()
 
 # -------------------------------------- PREPROC  --------------------------------------------------
 
-## remove sub 8 (we dont have scans)
-INST <- subset (INST,!id == '8') 
 
 # define factors
 INST$id                       <- factor(INST$id)
@@ -359,8 +352,6 @@ dev.off()
 
 #--------------------------------------- PREPROC  -----------------------------------------------------
 
-## remove sub 8 (we dont have scans)
-PIT <- subset (PIT,!id == '8') 
 
 ## subsetting into 3 differents tasks
 PIT.all <- PIT
@@ -377,7 +368,24 @@ PIT <- subset (PIT.all,task == 'PIT')
 PIT$trialxcondition        <- as.numeric(PIT$trialxcondition)
 PIT  <- ddply(PIT, "id", transform, bin = as.numeric(cut2(trialxcondition, g = 5)))
 
+# define linear contrast
+PIT$c1[PIT$trialxcondition== '1']   <- '-7'
+PIT$c1[PIT$trialxcondition== '2']   <- '-6'
+PIT$c1[PIT$trialxcondition== '3']   <- '-5'
+PIT$c1[PIT$trialxcondition== '4']   <- '-4'
+PIT$c1[PIT$trialxcondition== '5']   <- '-3'
+PIT$c1[PIT$trialxcondition== '6']   <- '-2'
+PIT$c1[PIT$trialxcondition== '7']   <- '-1'
+PIT$c1[PIT$trialxcondition== '8']   <- '0'
+PIT$c1[PIT$trialxcondition== '9']   <- '1'
+PIT$c1[PIT$trialxcondition== '10']   <- '2'
+PIT$c1[PIT$trialxcondition== '11']   <-'3'
+PIT$c1[PIT$trialxcondition== '12']   <- '4'
+PIT$c1[PIT$trialxcondition== '13']   <- '5'
+PIT$c1[PIT$trialxcondition== '14']   <- '6'
+PIT$c1[PIT$trialxcondition== '15']   <- '7'
 
+PIT$c1 <- factor(PIT$c1)
 
 
 # -------------------------------------- STATS -----------------------------------------------
@@ -390,8 +398,12 @@ PIT.trial <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$trialxcondition)
 colnames(PIT.trial) <- c('id','trialxcondition','n_grips')
 
 
+
 # stat
 PIT.stat <- aov_car(n_grips ~ condition*trialxcondition + Error (id/condition*trialxcondition), data = PIT.s, anova_table = list(correction = "GG", es = "pes"))
+
+# let's try with a linear constrast that decreases over time
+PIT.stat.c <- aov_car(n_grips ~ condition*c1 + Error (id/condition*c1), data = PIT.s, anova_table = list(correction = "GG", es = "pes"))
 
 
 # effect sizes (90%CI)
@@ -418,7 +430,6 @@ PIT.BF.int <- anovaBF(n_grips ~ condition*trialxcondition + id, data = PIT.s,
                       whichRandom = "id", iterations = 50000)
 PIT.BF.int  <- recompute(PIT.BF.int, iterations = 50000)
 PIT.BF.int[4]/ PIT.BF.int[3]
-
 # -------------------------------------- PLOTS -----------------------------------------------
 # rename factor levels for plot
 PIT.means$condition  <- dplyr::recode(PIT.means$condition, "CSplus" = "CS+", "CSminus" = "CS-" )
@@ -554,8 +565,6 @@ dev.off()
 # -------------------------------------------------------------------------------------------------
 
 #--------------------------------------- PREPROC 
-## remove sub 8 (we dont have scans)
-HED <- subset (HED,!id == '8') 
 HED$condition <- factor(HED$condition)
 HED$trialxcondition <- factor(HED$trialxcondition)
 HED$id<- factor(HED$id)
@@ -572,11 +581,12 @@ for (i in 4:length(Trial)) {
 HED$rep <- factor(HED$rep)
 
 # code change vector
-HED$value         <- dplyr::recode(HED$condition, "chocolate" = "1", "neutral" = "-1", "empty" = "0")
+HED$value         <- dplyr::recode(HED$condition, "chocolate" = "1", "neutral" = "-0.5", "empty" = "0.5")
 HED$value         <- as.numeric(as.character(HED$value))
 HED$changeValue   <- NA
+
 for (i in 1:length(HED$value)) {
-  if(i == 1) {HED$changeValue[i] = HED$value[i]}
+  if(i == 1) {HED$changeValue[i] = 0}
   else if (i > 1) {
     if (HED$value[i-1] > HED$value[i]) {HED$changeValue[i] = -1}
     else if (HED$value[i-1] < HED$value[i]) {HED$changeValue[i] = 1}
@@ -594,14 +604,11 @@ for (i in 1:length(HED$value)) {
   }
 }
 
+HED$changeValue <- factor (HED$changeValue)
+HED$changeAbs   <- factor(HED$changeAbs)
 
 # -------------------------------------- STATS -----------------------------------------------
 
-HED.lik.changeValue     <- aov_car(perceived_liking ~ changeValue+ Error (id/changeValue), data = HED, anova_table = list(correction = "GG", es = "pes"))
-HED.lik.change          <- aov_car(perceived_liking ~ changeAbs+ Error (id/changeAbs), data = HED, anova_table = list(correction = "GG", es = "pes"))
-
-HED.int.change         <- aov_car(perceived_intensity ~ changeAbs+ Error (id/changeAbs), data = HED, anova_table = list(correction = "GG", es = "pes"))
-HED.int.changeValue    <- aov_car(perceived_intensity ~ changeValue+ Error (id/changeValue), data = HED, anova_table = list(correction = "GG", es = "pes"))
 
 
 #------------------------------ pleastness
@@ -639,6 +646,85 @@ HED.BF[4]/HED.BF[3]
 
 # Follow up analysis  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 
+HED.change.means <- aggregate(HED.s$perceived_liking, by = list(HED.s$id, HED.s$changeValue), FUN='mean') # extract means
+colnames(HED.change.means) <- c('id','changeValue','perceived_liking')
+
+
+HED.lik.changeValue     <- aov_car(perceived_liking ~ changeValue+ Error (id/changeValue), data = HED.s, anova_table = list(correction = "GG", es = "pes")) # this fits better than change alone
+HED.lik.change          <- aov_car(perceived_liking ~ changeAbs+ Error (id/changeAbs), data = HED.s, anova_table = list(correction = "GG", es = "pes"))
+
+
+# effect sizes (90%CI)
+F_to_eta2(f = c(97.43), df = c(1.35), df_error = c(31.08))
+
+
+
+# BF
+HED.BF.change <- anovaBF(perceived_liking ~ changeValue  + id, data = HED.change.means, 
+                        whichRandom = "id", iterations = 50000)
+HED.BF.change <- recompute(HED.BF.change, iterations = 50000)
+
+
+
+#------------------------------ intensity
+INT.s <- subset (HED, condition == 'neutral'| condition == 'chocolate')
+INT.means <- aggregate(HED.s$perceived_intensity, by = list(INT.s$id, INT.s$condition), FUN='mean') # extract means
+colnames(INT.means) <- c('id','condition','perceived_intensity')
+
+INT.trial <- aggregate(INT.s$perceived_intensity, by = list(INT.s$id, INT.s$trialxcondition), FUN='mean') # extract means
+colnames(INT.trial) <- c('id','trialxcondition','perceived_intensity')
+
+# stat
+INT.stat <- aov_car(perceived_intensity ~ condition*trialxcondition + Error (id/condition*trialxcondition), data = INT.s, anova_table = list(correction = "GG", es = "pes"))
+
+
+# effect sizes (90%CI)
+F_to_eta2(f = c(15.87,9.25,0.94), df = c(1,7.90,8.46), df_error = c(23,181.80,194.61))
+
+# Bayes factors
+
+#interaction
+INT.BF.i <- anovaBF(perceived_intensity ~ condition*trialxcondition  + id, data = INT.s, 
+                    whichRandom = "id", iterations = 50000)
+INT.BF.i <- recompute(INT.BF.i, iterations = 50000)
+
+INT.BF.i[4]/INT.BF.i[3]
+
+#condition
+INT.BF.c <- anovaBF(perceived_intensity ~ condition  + id, data = INT.means, 
+                    whichRandom = "id", iterations = 50000)
+INT.BF.c <- recompute(INT.BF.c, iterations = 50000)
+
+#trial
+INT.BF.trial <- anovaBF(perceived_liking ~ trialxcondition  + id, data = HED.trial, 
+                        whichRandom = "id", iterations = 50000)
+INT.BF.trial <- recompute(INT.BF.trial, iterations = 50000)
+
+
+
+
+# Follow up analysis  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+INT.change.means <- aggregate(INT.s$perceived_intensity, by = list(INT.s$id, INT.s$changeAbs), FUN='mean') # extract means
+colnames(INT.change.means) <- c('id','changeAbs','perceived_intensity')
+
+HED.int.change         <- aov_car(perceived_intensity ~ changeAbs+ Error (id/changeAbs), data = HED.s, anova_table = list(correction = "GG", es = "pes")) # this one fits betterß
+HED.int.changeValue    <- aov_car(perceived_intensity ~ changeValue+ Error (id/changeValue), data = HED.s, anova_table = list(correction = "GG", es = "pes"))
+
+# effect sizes (90%CI)
+F_to_eta2(f = c(57.74), df = c(1), df_error = c(23))
+
+
+
+# BF
+INT.BF.changeAbs <- anovaBF(perceived_intensity ~ changeAbs  + id, data = INT.change.means, 
+                         whichRandom = "id", iterations = 50000)
+INT.BF.changeAbs <- recompute(INT.BF.changeAbs, iterations = 50000)
+
+
+
+
+# Follow up analysis  not reported (to be deleted eventually ) ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+
 HED.chocolate <- subset (HED,  condition == 'chocolate')
 HED.neutral <- subset (HED,  condition == 'neutral')
 
@@ -669,24 +755,6 @@ HED.BF.neutral <- recompute(HED.BF.neutral, iterations = 50000)
 
 
 
-
-#------------------------------ intensity
-INT.s <- subset (HED, condition == 'neutral'| condition == 'chocolate')
-
-
-# stat
-INT.stat <- aov_car(perceived_intensity ~ condition*trialxcondition + Error (id/condition*trialxcondition), data = INT.s, anova_table = list(correction = "GG", es = "pes"))
-INT.stat.rep <- aov_car(perceived_intensity ~ condition*rep + Error (id/condition*rep), data = INT.s, anova_table = list(correction = "GG", es = "pes"))
-
-
-# effect sizes (90%CI)
-F_to_eta2(f = c(15.87,9.25), df = c(1,7.90), df_error = c(23,181.80))
-
-# Bayes factors
-INT.BF <- anovaBF(perceived_intensity ~ condition*trialxcondition  + id, data = INT.s, 
-                  whichRandom = "id", iterations = 50000)
-INT.BF <- recompute(INT.BF, iterations = 50000)
-INT.BF
 
 
 # -------------------------------------- PLOTS -----------------------------------------------

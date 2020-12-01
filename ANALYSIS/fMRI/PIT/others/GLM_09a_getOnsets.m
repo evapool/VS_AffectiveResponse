@@ -1,4 +1,4 @@
-function GLM_09_getOnsets()
+function GLM_09a_getOnsets()
 
 % intended for REWOD PIT
 % get onsets for model with 2st level covariates
@@ -12,7 +12,7 @@ function GLM_09_getOnsets()
 
 cd ~
 home = pwd;
-homedir = [home '/mountpoint2'];
+homedir = [home '/REWOD'];
 
 mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
@@ -20,7 +20,7 @@ mytools       = fullfile(homedir, '/CODE/ANALYSIS/fMRI/PIT/myfunctions');
 
 addpath(mytools);
 
-ana_name      = 'GLM-09';
+ana_name      = 'GLM-09a';
 %session       = {'second'};
 task          = {'PIT'};
 subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};

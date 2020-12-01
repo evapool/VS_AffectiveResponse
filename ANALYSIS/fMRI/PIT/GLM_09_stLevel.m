@@ -8,7 +8,7 @@ function GLM_09_stLevel(subID)
 % 4 simple contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base,  CSm-Base)
 % + 4 modulated contrast (*eff)
 % Ortho = 0 & modulator is mean centered
-% last modified on JULY 2019 by David Munoz
+% last modified on NOV 2020 by Eva
 %dbstop if error
 
 %% What to do
@@ -21,6 +21,7 @@ copycontrasts = 1;
 %% define path
 
 homedir = ['/home/REWOD/'];
+%homedir = '~/mountpoint2/'
 
 
 mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
@@ -382,7 +383,7 @@ end
         end
         
         conditionName{ncondition} = strcat(task,'constant'); %just for the last condition
-        conditionName(:,11) = [];
+        %conditionName(:,11) = [];
         Ct = []; Ctnames = []; ntask = size(param.task,1);
         
         % | CONSTRASTS FOR T-TESTS
@@ -415,26 +416,26 @@ end
         %% Contrast * mob effort
         % con5
         Ctnames{5} = 'CSp_eff_CSm_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeffort^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeffort^1'}) * -1;
+        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeff^1'}) * 1;
+        weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeff^1'}) * -1;
         Ct(5,:)    = weightPos+weightNeg;
         
         % con6
         Ctnames{6} = 'CSp_eff_Baseline_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeffort^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeffort^1'}) * -1;
+        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeff^1'}) * 1;
+        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeff^1'}) * -1;
         Ct(6,:)    = weightPos+weightNeg;
         
         % con7 
         Ctnames{7} = 'CSp_eff_CSm_eff&Baseline_eff'; 
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeffort^1'}) * 2;
-        weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeffort^1', 'task-PIT.Baselinexeffort^1'}) * -1;
+        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeff^1'}) * 2;
+        weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeff^1', 'task-PIT.Baselinexeff^1'}) * -1;
         Ct(7,:)    = weightPos+weightNeg;
                      
         % con8
         Ctnames{8} = 'CSm_eff_Baseline_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSminusxeffort^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeffort^1'}) * -1;
+        weightPos  = ismember(conditionName, {'task-PIT.CSminusxeff^1'}) * 1;
+        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeff^1'}) * -1;
         Ct(8,:)    = weightPos+weightNeg;
         
         

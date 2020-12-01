@@ -1,15 +1,14 @@
 function GLM_08_stLevel(subID)
 
 % intended for REWOD PIT
-% get onsets for model with 2st level covariates while adding first level
-% covariates of non interest
+% get onsets for model with 2st level covariates
 % Durations =1 (except grips)
 % Model on ONSETs 3*CS with modulator
-% 4 contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base,  CSm-Base)
-% last modified on NOV by Eva
-% with grips as regressor
+% adding a modulator of non interst for the improvement (?) and the
+% absolute change
+% last modified on NOV by Eva R. Pool
 
-% dbstop if error
+
 
 %% What to do
 firstLevel    = 1;

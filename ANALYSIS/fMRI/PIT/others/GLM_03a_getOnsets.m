@@ -1,25 +1,29 @@
-function GLM_04_getOnsets()
+function GLM_03a_getOnsets()
 
 % intended for REWOD PIT
-% get onsets for model with 2st level covariates
+% get onsets for model with 1st level modulators
 % Durations =1 (except grips)
 % Model on ONSETs 3*CS with modulator
+% Mean center modulator
 % last modified on JULY 2019 by David Munoz
+% needs to be corrected
 
 %% define paths
 
+%homedir = '/home/REWOD/';
 cd ~
 home = pwd;
 homedir = [home '/REWOD/'];
 
+%homedir = [home '/mountpoint2/'];
+
 mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
-ana_name      = 'GLM-04';
+ana_name      = 'GLM-03a';
 %session       = {'second'};
 task          = {'PIT'};
 subj          = {'01';'02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26'};
-
 
 %% create folder  
 mkdir (fullfile (mdldir, char(task), ana_name)); % this is only because we have one run per task
@@ -52,13 +56,12 @@ for j = 1:length(task)
         % Get onsets and durations for CS FOR RIM 
         onsets.CS.REM         = RIM.ONSETS.trialstart;
         durations.CS.REM      = RIM.DURATIONS.trialstart;
-
-        % mob_effort
-        modulators.CS.REM     = RIM.BEHAVIOR.mobilized_effort;
+        modulators.CS.REM     = ones(length(RIM.DURATIONS.trialstart),1);
+  
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets grips %%
-        onsets.grips.REM          = RIM.ONSETS.grips;
+        onsets.grips.REM         = RIM.ONSETS.grips;
         durations.grips.REM      = zeros (length(onsets.grips.REM),1);
         modulators.grips.REM     = ones  (length(onsets.grips.REM),1);
         
@@ -67,14 +70,12 @@ for j = 1:length(task)
         % Get onsets and durations for CS FOR PE
         onsets.CS.PE          = PE.ONSETS.trialstart;
         durations.CS.PE       = PE.DURATIONS.trialstart;
-
-        %mob_effort
-        modulators.CS.PE      = PE.BEHAVIOR.mobilized_effort;
-
+        modulators.CS.PE      = ones(length(PE.DURATIONS.trialstart),1);
+  
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets grips %%
-        onsets.grips.PE           = PE.ONSETS.grips;
+        onsets.grips.PE          = PE.ONSETS.grips;
         durations.grips.PE       = zeros (length(onsets.grips.PE),1);
         modulators.grips.PE      = ones  (length(onsets.grips.PE),1);
 
@@ -89,10 +90,36 @@ for j = 1:length(task)
         durations.CS.CSm       = PIT.DURATIONS.trialstart(strcmp ('CSminus', PIT.CONDITIONS));
         durations.CS.Baseline  = PIT.DURATIONS.trialstart(strcmp ('Baseline', PIT.CONDITIONS));
         
-        %mob_effort
-        modulators.CS.CSp      = BEHAVIOR.mobilized_effort(strcmp ('CSplus', PIT.CONDITIONS));
-        modulators.CS.CSm      = BEHAVIOR.mobilized_effort(strcmp ('CSminus', PIT.CONDITIONS));
-        modulators.CS.Baseline = BEHAVIOR.mobilized_effort(strcmp ('Baseline', PIT.CONDITIONS));
+        PIT.gripsFrequence     = PIT.gripsFrequence';
+        
+        % mob_effort
+        modulators.CS.CSp      = PIT.gripsFrequence(strcmp ('CSplus', PIT.CONDITIONS));
+        modulators.CS.CSm      = PIT.gripsFrequence(strcmp ('CSminus', PIT.CONDITIONS));
+        modulators.CS.Baseline = PIT.gripsFrequence(strcmp ('Baseline', PIT.CONDITIONS));
+        modulators.CS.REM      = RIM.BEHAVIOR.mobilized_effort;
+        modulators.CS.PE       = PE.BEHAVIOR.mobilized_effort;
+        
+        %mean_centering mod
+        cent_CSp    = mean(modulators.CS.CSp);
+        cent_CSm    = mean(modulators.CS.CSm);
+        cent_base   = mean(modulators.CS.Baseline);
+        cent_REM    = mean(modulators.CS.REM);
+        cent_PE     = mean(modulators.CS.PE);
+        
+        
+        for j = 1:length(modulators.CS.CSp)
+             modulators.CS.CSp(j)      = modulators.CS.CSp(j) - cent_CSp;
+             modulators.CS.CSm(j)      = modulators.CS.CSm(j) - cent_CSm;
+             modulators.CS.Baseline(j) = modulators.CS.Baseline(j) - cent_base;
+        end
+        
+        for j = 1:length(modulators.CS.REM)
+             modulators.CS.REM(j)      = modulators.CS.REM(j) - cent_REM;
+        end
+        
+        for j = 1:length(modulators.CS.PE)
+             modulators.CS.PE(j)       = modulators.CS.PE(j) - cent_PE;
+        end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get onsets grips %%?
@@ -100,16 +127,14 @@ for j = 1:length(task)
         durations.grips.PIT       = zeros (length(onsets.grips.PIT),1);
         modulators.grips.PIT      = ones  (length(onsets.grips.PIT),1);
 
-       
-        %% FOR FSL
 
         
         % go in the directory where data will be saved
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%1
         cd (subjdir) %save all info in the participant directory
+   
         
-        
-        % FOR FSL and covariates!
+        % FOR FSL #uncoment if you want to use FSL#
         % create text file with 3 colons: onsets, durations, parametric modulators
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         name = {'CS'; 'grips'};
@@ -168,7 +193,7 @@ for j = 1:length(task)
             end
             
         end
-
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % save data
         mat_name = [ana_name '_task-' taskX '_onsets'];
@@ -176,8 +201,8 @@ for j = 1:length(task)
   
     end
                
-%create folder for group covariate       
-mkdir (fullfile (mdldir, char(task), ana_name, 'group_covariates'));
+        
+
         
 end
     

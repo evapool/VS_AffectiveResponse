@@ -12,8 +12,8 @@ dbstop if error
 
 %% What to do
 firstLevel    = 1;
-constrasts    = 1;
-copycontrasts = 1;
+constrasts    = 0;
+copycontrasts = 0;
 
 %% define task variable
 %sessionX = 'second';

@@ -16,11 +16,11 @@ s = c("01", "02", "03", "04", "05", "06", "07", "09", "10", "11", "12", "13","14
 
 taskDIR = "PIT"
 
-analysis_path <- paste(home_path,'/DERIVATIVES/GLM/PIT/',GLM, '/group_covariates/', sep = '')
+analysis_path <- paste(home,'/DERIVATIVES/GLM/PIT/',GLM, '/group_covariates/', sep = '')
 
 setwd(analysis_path)
 
-data_path <- file.path(home_path,'DERIVATIVES/BEHAV') 
+data_path <- file.path(home,'DERIVATIVES/BEHAV') 
 
 
 
@@ -30,8 +30,8 @@ for(i in s) {
   l = l + 1
   subj = paste('sub-', i, sep = '')
   covpath = paste(home, '/DERIVATIVES/GLM/',taskDIR, '/' , GLM , '/', subj , '/timing/', sep = '')
-  cov_minus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_CS_CSm.txt', sep = '')), header = F, sep ='\t') # read in dataset
-  cov_plus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_CS_CSp.txt', sep = '')), header = F, sep ='\t') # read in dataset
+  cov_minus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_PIT_CS_CSm.txt', sep = '')), header = F, sep ='\t') # read in dataset
+  cov_plus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_PIT_CS_CSp.txt', sep = '')), header = F, sep ='\t') # read in dataset
   
   CSp_CSm = cov_plus - cov_minus
   df[l,2] = mean(CSp_CSm[,3])
