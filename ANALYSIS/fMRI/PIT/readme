@@ -11,12 +11,8 @@ GLM-02: Main model, no modulators & durations = 1
 *GLM-03: Model with 1st level modulators & durations = 1 & mean centered & orth = 0
 -->  8 contrasts (4 basic + 4 modulated contrasts)
 
-GLM-03a: same as GLM-03 but for striatum only
-
 *GLM-04: Model with 2nd level covariates & durations = 1 & rank norm by condition
 -->  8 contrasts (4 basic + 4 modulated contrasts)
-
-GLM-04a: same as GLM-04 but for striatum only
 
 GLM-05: same as GLM-04 but without any mask
 -->  8 contrasts (4 basic + 4 modulated contrasts)

@@ -1,0 +1,8 @@
+#OUR MAIN RESULTS (NN1 TWO-SIDED)
+# task - correction   - ROI - extend
+# PIT - SVC 0.05 0.005 - VS - 15.8 #
+# PIT - SVC 0.05 0.005 -  AMY - 9.4 #
+# PIT - ALL 0.05 0.005 - ALL - 81.7 #
+# HED - SVC 0.05 0.005 - VS - 15.0 #
+# HED - SVC 0.05 0.005 - mOFC - 10.0 #
+# HED - ALL 0.05 0.005 - ALL -  87.6
