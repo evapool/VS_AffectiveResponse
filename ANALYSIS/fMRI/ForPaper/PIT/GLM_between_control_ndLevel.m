@@ -17,10 +17,10 @@ homedir = ['/home/REWOD/'];
 %homedir = '/Users/evapool/mountpoint2/';
 
 %%
-mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/ForPaper/PIT');% mdl directory (timing and outputs of the analysis)
 name_ana = 'GLM-between-control'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
-covdir   = fullfile (homedir, 'DERIVATIVES/GLM/PIT/GLM-control-between/group_covariates'); % director with the extracted second level covariates
+covdir   = fullfile (homedir, 'DERIVATIVES/GLM/ForPaper/PIT/GLM-between/group_covariates'); % director with the extracted second level covariates
 
 
 %% specify spm param
@@ -38,9 +38,7 @@ spm_jobman('initcfg');
 if do_covariate
     
     % covariate of interest name become folder
-    covariateNames = {'CSp-CSm_eff_z' %1
-        'CSp-CSm_eff_rank' %2
-        'CSp-CSm_eff_ranknorm'}; %4
+    covariateNames = {'CSp-CSm_eff_rank'}; 
     
     % These contrast names become sub-folders
     contrastNames = {'CSxVV'
@@ -62,9 +60,7 @@ if do_covariate
         
         cov.ID   = C.data(:,1);
         cov.data = C.data(:,2);
-        
-        
-        
+
         if remove
             for i = 1:length(removesub)
                 idx            = str2double(removesub{i}(5:end));

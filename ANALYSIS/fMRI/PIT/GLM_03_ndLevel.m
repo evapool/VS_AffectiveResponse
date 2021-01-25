@@ -11,8 +11,8 @@ function GLM_03_ndLevel()
 
 do_ttest = 1;
 remove = 0;
-removesub = {'sub-10'} ; %
-removedsub = '10';
+%removesub = {'sub-10'} ; %
+%removedsub = '10';
 
 %% define path
 

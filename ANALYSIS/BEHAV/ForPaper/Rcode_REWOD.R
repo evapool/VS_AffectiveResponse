@@ -1,7 +1,8 @@
 ####################################################################################################
 #                                                                                                  #
 #                                                                                                  #                                                 #                                                                                                  #
-#                                    TITLE OF THE PAPER                                            #
+#     Differential contributions of ventral striatum subregions in the motivational                #
+#           and hedonic components of the affective response to reward                             #
 #                                                                                                  #
 #                                                                                                  #
 #                   Eva R Pool                                                                     #
@@ -12,7 +13,7 @@
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
-# modified by E.R.P on AUGUST 2020                                                                 #
+# modified by E.R.P on JANUARY 2021                                                                #
 ####################################################################################################
 
 
@@ -56,6 +57,7 @@ data_path <- file.path(home_path,'DERIVATIVES/BEHAV')
 
 # open datasets
 PAV  <- read.delim(file.path(data_path,'PAV/REWOD_PAVCOND_ses_first.txt'), header = T, sep ='') # read in dataset
+
 INST <- read.delim(file.path(data_path,'INSTRU/REWOD_INSTRU_ses_first.txt'), header = T, sep ='') # read in dataset
 PIT  <- read.delim(file.path(data_path,'PIT/REWOD_PIT_ses_second.txt'), header = T, sep ='') # read in dataset
 HED  <- read.delim(file.path(data_path,'HED/REWOD_HEDONIC_ses_second.txt'), header = T, sep ='') # read in dataset
@@ -73,6 +75,8 @@ averaged_theme <- theme_bw(base_size = 32, base_family = "Helvetica")+
         axis.title.y = element_text(size =  32),
         axis.line = element_line(size = 0.5),
         panel.border = element_blank())
+
+
 
 timeline_theme <- theme_bw(base_size = 32, base_family = "Helvetica")+
   theme(strip.text.x = element_text(size = 32, face = "bold"),
@@ -393,6 +397,7 @@ PIT.s <- subset (PIT, condition == 'CSplus'| condition == 'CSminus')
 PIT.s$trialxcondition <- factor(PIT.s$trialxcondition)
 PIT.means <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$condition), FUN='mean') # extract means
 colnames(PIT.means) <- c('id','condition','n_grips')
+
 
 PIT.trial <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$trialxcondition), FUN='mean') # extract means
 colnames(PIT.trial) <- c('id','trialxcondition','n_grips')
@@ -754,12 +759,9 @@ HED.BF.neutral <- recompute(HED.BF.neutral, iterations = 50000)
 
 
 
-
-
-
 # -------------------------------------- PLOTS -----------------------------------------------
-HED.means$condition  <- dplyr::recode(HED.means$condition, "chocolate" = "pleasant")
-HED.s$condition      <- dplyr::recode(HED.s$condition, "chocolate" = "pleasant")
+HED.means$condition  <- dplyr::recode(HED.means$condition, "chocolate" = "Rewarding")
+HED.s$condition      <- dplyr::recode(HED.s$condition, "chocolate" = "Rewarding")
 
 # AVERAGED EFFECT
 dfG <- summarySEwithin(HED.means,
@@ -767,8 +769,8 @@ dfG <- summarySEwithin(HED.means,
                        withinvars = "condition", 
                        idvar = "id")
 
-dfG$cond <- ifelse(dfG$condition == "pleasant", -0.25, 0.25)
-HED.means$cond <- ifelse(HED.means$condition == "pleasant", -0.25, 0.25)
+dfG$cond <- ifelse(dfG$condition == "Rewarding", -0.25, 0.25)
+HED.means$cond <- ifelse(HED.means$condition == "Rewarding", -0.25, 0.25)
 set.seed(666)
 HED.means <- HED.means %>% mutate(condjit = jitter(as.numeric(cond), 0.3),
                                   grouping = interaction(id, cond))
@@ -783,12 +785,12 @@ pp <- ggplot(HED.means, aes(x = cond, y = perceived_liking,
   geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, aes(fill = condition, color = NA))+
   geom_point(aes(x = condjit), alpha = .3,) +
   geom_crossbar(data = dfG, aes(y = perceived_liking, ymin=perceived_liking-se, ymax=perceived_liking+se), width = 0.2 , alpha = 0.1)+
-  ylab('Perceived liking') +
+  ylab('Perceived pleasantness') +
   xlab('Odorant') +
   scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,100, by = 20)), limits = c(-0.5,100.5)) +
-  scale_x_continuous(labels=c("Pleasant", "Neutral"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
-  scale_fill_manual(values=c("pleasant"= pal[3], "neutral"=pal[1]), guide = 'none') +
-  scale_color_manual(values=c("pleasant"=pal[3], "neutral"=pal[1]), guide = 'none') +
+  scale_x_continuous(labels=c("Rewarding", "Neutral"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
+  scale_fill_manual(values=c("Rewarding"= pal[3], "neutral"=pal[1]), guide = 'none') +
+  scale_color_manual(values=c("Rewarding"=pal[3], "neutral"=pal[1]), guide = 'none') +
   theme_bw()
 
 
@@ -816,7 +818,7 @@ pp <- ggplot(df, aes(x = as.numeric(trialxcondition), y = perceived_liking,
   geom_line(alpha = .7, size = 1, show.legend = F) +
   geom_ribbon(aes(ymax = perceived_liking + se, ymin = perceived_liking - se, fill = condition, color =NA),  alpha=0.4) + 
   geom_point() +
-  ylab('Perceived liking')+
+  ylab('Perceived pleasantness')+
   xlab('Trial') +
   scale_color_manual(labels = c('pleasant', 'neutral'), 
                      values = c( "pleasant"=pal[3], 'neutral'=pal[1])) +

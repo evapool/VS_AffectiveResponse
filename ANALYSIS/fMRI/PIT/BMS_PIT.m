@@ -19,10 +19,10 @@ spm_jobman('initcfg');
 %define variables
 task = 'PIT';
 subj       =  {'01'; '02';'03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
-model       =  {'04'; '03'; '09'; '13'}; %h0 first and they complexify
+model       =  {'between'; 'between-control'; 'within'; 'within-control'};
 
 
-jobs{1}.spm.tools.MACS.MA_model_space.dir = {fullfile(homedir, 'DERIVATIVES/GLM', task, 'BMS')};
+jobs{1}.spm.tools.MACS.MA_model_space.dir = {fullfile(homedir, 'DERIVATIVES/GLM/ForPaper', task, 'BMS')};
 
 
 %loop trhough subjects
@@ -54,6 +54,8 @@ jobs{3}.spm.tools.MACS.MS_BMS_group_auto.MS_mat(1) = cfg_dep('MA: define model s
 jobs{3}.spm.tools.MACS.MS_BMS_group_auto.LME_map = 'cvLME';
 jobs{3}.spm.tools.MACS.MS_BMS_group_auto.inf_meth = 'RFX-VB';
 jobs{3}.spm.tools.MACS.MS_BMS_group_auto.EPs = 1;
+%jobs{4}.spm.tools.MACS.MS_SMM_BMS.BMS_mat(1) = cfg_dep('MS: perform BMS (automatic): BMS results (BMS.mat file)', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','BMS_mat'));
+%jobs{4}.spm.tools.MACS.MS_SMM_BMS.extent = 10;
 
 
 spm_jobman('run', jobs)

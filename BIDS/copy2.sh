@@ -4,11 +4,13 @@ home=$(eval echo ~$user)
 #small function to move and copy files
 subjID=$1
 
-#for subjID in 01 02 03 04 05 06 07 09 10 11 12 13 14 15 16 17 18 20 21 22 23 24 25 26
-  #do
+for subjID in 01 #02 03 04 05 06 07 09 10 11 12 13 14 15 16 17 18 20 21 22 23 24 25 26
+  do
   #for taskID in hedonic PIT
     #do
-  #mkdir ${home}/REWOD/SOURCEDATA/behav/${subj}
+    mkdir -p ${home}/REWOD/BIDS/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func
+    rsync -av --progress ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/* /home/davidM/REWOD/BIDS/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func --exclude derivatives
+  done
   #mv ${home}/REWOD/SOURCEDATA/physio/s${subj}* ${home}/REWOD/SOURCEDATA/physio/${subj}/
   
   #gzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task* 
@@ -22,7 +24,7 @@ subjID=$1
   #mkdir ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/derivatives
   #gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-hedonic_run-01_smoothBold.nii.gz
   #gunzip ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-PIT_run-01_smoothBold.nii.gz
-  rm ${home}/REWOD/sub-${subjID}/ses-second/func/*.nii.gz
+  #rm ${home}/REWOD/sub-${subjID}/ses-second/func/*.nii.gz
   #${home}/REWOD/SOURCEDATA/brain/bids/sub-${subjID}/ses-second/func/*.nii.gz
   #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-hedonic_run-01_UnsmoothedBold.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-hedonic_run-01_Bold.nii.gz
   #mv ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_task-PIT_run-01_UnsmoothedBold.nii.gz ${home}/REWOD/DERIVATIVES/PREPROC/sub-${subjID}/ses-second/func/sub-${subjID}_ses-second_task-PIT_run-01_Bold.nii.gz

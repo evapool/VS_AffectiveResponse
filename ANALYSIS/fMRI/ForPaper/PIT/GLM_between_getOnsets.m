@@ -16,9 +16,8 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD/'];
 
-%homedir = [home '/mountpoint2/'];
 
-mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
+mdldir        = fullfile (homedir, '/DERIVATIVES/GLM/ForPaper');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
 ana_name      = 'GLM-between';
@@ -32,8 +31,7 @@ mkdir (fullfile (mdldir, char(task), ana_name)); % this is only because we have 
 %% extract and save data
 for j = 1:length(task)
     
-    taskX      = char(task(1));
-    %sessionX  = char(session(j));
+    taskX      = char(task(1)); 
     
     for  i=1:length(subj)
 
@@ -135,64 +133,6 @@ for j = 1:length(task)
         cd (subjdir) %save all info in the participant directory
    
         
-        % write variables to compute second level co-variate 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        name = {'CS'; 'grips'};
-        
-        for ii = 1:length(name)
-            
-            nameX = char(name(ii));
-            
-            if strcmp (nameX, 'CS')  % for structure that contains substuctures
-                substr = {'CSp'; 'CSm'; 'Baseline'; 'REM'; 'PE'};% specify the substructures names
-                
-                for iii = 1:length(substr)
-                    substrX = char(substr(iii));
-                    nameXX  = [nameX '_' substrX]; % name that combines the structure and the substructures
-                    % database with three rows of interest
-                    database.(nameXX) = [num2cell(onsets.(nameX).(substrX)), num2cell(durations.(nameX).(substrX)), num2cell(modulators.(nameX).(substrX))];
-                    % save the database in a txt file
-                    fid = fopen ([ana_name '_task-' taskX '_' nameX '_' substrX '.txt'],'wt');
-                    formatSpec = '%f\t%f\t%f\n';
-                    [nrows,~] = size(database.(nameXX));
-                    for row = 1:nrows
-                        fprintf(fid,formatSpec,database.(nameXX){row,:});
-                    end
-                    fclose(fid);
-                end
-                
-            elseif strcmp (nameX, 'grips')  % for structure that contains substuctures
-                     substr = {'PIT'; 'PE'; 'REM'};% specify the substructures names
-
-                for iii = 1:length(substr)
-                    substrX = char(substr(iii));
-                    nameXX  = [nameX '_' substrX]; % name that combines the structure and the substructures
-                    % database with three rows of interest
-                    database.(nameXX) = [num2cell(onsets.(nameX).(substrX)), num2cell(durations.(nameX).(substrX)), num2cell(modulators.(nameX).(substrX))];
-                    % save the database in a txt file
-                    fid = fopen ([ana_name '_task-' taskX '_'  nameX '_' substrX '.txt'],'wt');
-                    formatSpec = '%f\t%f\t%f\n';
-                    [nrows,~] = size(database.(nameXX));
-                    for row = 1:nrows
-                        fprintf(fid,formatSpec,database.(nameXX){row,:});
-                    end
-                    fclose(fid);
-                end
-                
-          else
-                % database with three rows of interest 
-                database.(nameX) = [num2cell(onsets.(nameX)), num2cell(durations.(nameX)), num2cell(modulators.(nameX))];
-                % save the database in a txt file
-                fid = fopen ([ana_name '_task-' taskX '_' nameX '.txt'],'wt');
-                formatSpec = '%f\t%f\t%f\n';
-                [nrows,~] = size(database.(nameX));
-                for row = 1:nrows
-                    fprintf(fid,formatSpec,database.(nameX){row,:});
-                end
-                fclose(fid);
-            end
-            
-        end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % save data

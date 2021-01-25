@@ -16,17 +16,32 @@ gunzip Res_4D.nii.gz
 
 
 # you want the 3 first number of the second row (updated estimate of the smoothness): eg.  0.260939 6.36019 16.6387 in this case
-#4) run simulations with roi mask
+#4) run simulations with roi mask e.g. for whole brain
 3dClustSim -acf 0.530377  3.46858  8.92606 -mask mask.nii -athr 0.05 -pthr 0.005
 #HED #3dClustSim -acf 0.623897  3.22178  9.51635 -mask ~/REWOD/DERIVATIVES/EXTERNALDATA/ROI/VS.nii -athr 0.05 -pthr 0.005
 
-#OUR MAIN RESULTS (NN1 TWO-SIDED)
-# task - correction   - ROI - extend
-# PIT - SVC 0.05 0.005 - VS - 15.8 #
-# PIT - SVC 0.05 0.005 -  AMY - 9.4 #
-# PIT - ALL 0.05 0.005 - ALL - 81.7 #
-# HED - SVC 0.05 0.005 - VS - 15.0 #
-# HED - SVC 0.05 0.005 - mOFC - 10.0 #
-# HED - ALL 0.05 0.005 - ALL -  87.6
+#OUR MAIN RESULTS (NN1 TWO-SIDED) at alpha = Prob(Cluster >= given size) :  .05 .005
+# task - correction    - ROI    - extend
+
+# PIT  - SVC   .05 .005 - VS    - 15.8 #
+# PIT  - SVC   .05 .005 - AMY   - 9.4 #
+# PIT  - WHOLE .05 .005 - none  - 81.7 #
+
+# HED  - SVC   .05 .005 - VS    - 15.0 #
+# HED  - SVC   .05 .005 - mOFC  - 10.0 #
+# HED  - WHOLE .05 .005 - none  -  87.6 #
+
+
+#OUR CONTROL RESULTS (NN1 TWO-SIDED)
+# task     - correction     - ROI       - extend
+
+#PIT_valid - SVC   .05 .005 - cerbellum - 43.5
+#PIT_valid - SVC   .05 .005 - thalamus  - 36.9
+#PIT_valid - WHOLE .05 .005 - none      - 91.8
+
+#HED_valid - SVC   .05 .005 - Olfa Cort - 18.0
+#HED_valid - WHOLE .05 .005 - none      - 85.6 
+
+
 
 

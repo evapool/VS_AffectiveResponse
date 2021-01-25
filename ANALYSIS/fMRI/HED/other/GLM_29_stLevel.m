@@ -153,7 +153,7 @@ end
 
 %
 %% function section
-    function [SPM] = doFirstLevel(subjoutdir,subjfuncdir, name_ana, param, ~)
+    function [SPM] = doFirstLevel(subjoutdir,subjfuncdir, name_ana, param, subjX)
         
         % variable initialization
         ntask = size(param.task,1);

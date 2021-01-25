@@ -18,12 +18,10 @@ copycontrasts = 1;
 
 %% define path
 
-%cd ~
-%home = pwd;
 homedir = ['/home/REWOD/'];
 
 
-mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/ForPaper/PIT');% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, 'DERIVATIVES/PREPROC');% directory with  post processed functional scans
 name_ana = 'GLM-between-control'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
@@ -160,7 +158,8 @@ end
         targetscan         = dir (fullfile(smoothfolder, [im_style '*' taskX '*' param.im_format]));
         tmp{ses}           = spm_select('List',smoothfolder,targetscan.name);
         
-        
+        Maskimage = [subjfuncdir '/anat/sub-' subjX '_ses-second_run-01_T1w_reoriented_brain_mask.nii'];
+
         % get the number of EPI for each session
         cd (smoothfolder);
         V         = dir(fullfile(smoothfolder, targetscan.name));
@@ -339,9 +338,9 @@ end
         
         % set threshold of mask!!
         %==========================================================================
-        SPM.xM.gMT = 0.1;%!! NOPE set -inf if we want to use explicit masking 0.8 is the spm default
-        SPM.xM.VM  = spm_vol(Maskimage);
-        SPM.xM.I   = 0.1;
+        SPM.xM.gMT =  0.1;
+        SPM.xM.VM  =  spm_vol(Maskimage);
+        SPM.xM.I   =  0.1;
         
         % Configure design matrix
         %==========================================================================
@@ -372,7 +371,6 @@ end
         
         for j = 1:ncondition
             
-            %taskN = SPM.xX.name{j} (4);
             task  = 'task-PIT.';
             conditionName{j} = strcat(task,SPM.xX.name{j} (7:end-6)); %this cuts off the useless parts of the names
             

@@ -2,11 +2,11 @@ function GLM_between_ndLevel
 
 % intended for REWOD PIT
 % get onsets for model with 2st level covariates mean centered by rank by conditions
-% SO BY NOW YOU SHOULD HAVE RUN THE normalize_PIT.R script !
+% The behavioral script exctracts the group level covariate
 % Durations =1 (except grips)
-% Model on ONSETs 3*CS with modulator
-% 4 contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base,  CSm-Base)
-% + 4 modulated contrast (*eff)
+% Model on ONSETs 3*CS 
+% 1 contrasts (CSp-CSm)
+
 % last modified on JULY 2019 by David Munoz
 
 do_covariate = 1;
@@ -15,15 +15,13 @@ remove = 0;
 
 %% define path
 
-cd ~
-home = pwd;
-homedir = [home '/REWOD/'];
+homedir = ['/home/REWOD/'];
 
 %%
-mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/ForPaper/PIT');% mdl directory (timing and outputs of the analysis)
 name_ana = 'GLM-between'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
-covdir   = fullfile (homedir, 'DERIVATIVES/GLM/PIT/GLM-between/group_covariates'); % director with the extracted second level covariates
+covdir   = fullfile (homedir, 'DERIVATIVES/GLM/ForPaper/PIT/GLM-between/group_covariates'); % director with the extracted second level covariates
 
 
 %% specify spm param
@@ -41,13 +39,10 @@ spm_jobman('initcfg');
 if do_covariate
 
     % covariate of interest name become folder
-    covariateNames = {'CSp-CSm_eff_c' %1
-        'CSp-CSm_eff_rank' %2
-        'CSp-CSm_eff_ranknorm' %3
-        'CSp-CSm_eff_z'}; %4
+    covariateNames = { 'CSp-CSm_eff_rank' }; 
 
     % These contrast names become sub-folders
-    contrastNames = {'CSp-CSm'}; %4
+    contrastNames = {'CSp-CSm'}; 
 
     conImages = {'con_0001'};
 
@@ -64,8 +59,6 @@ if do_covariate
 
         cov.ID   = C.data(:,1);
         cov.data = C.data(:,2);
-
-
 
         if remove
             for i = 1:length(removesub)
@@ -134,6 +127,8 @@ if do_covariate
             % extimate design matrix
             matlabbatch{2}.spm.stats.fmri_est.spmmat = {[contrastFolder  '/SPM.mat']};
             matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
+            matlabbatch{2}.spm.stats.fmri_est.write_residuals = 1;
+        
 
             % specify one sample tconstrast
             matlabbatch{3}.spm.stats.con.spmmat(1)                = {[contrastFolder  '/SPM.mat']};

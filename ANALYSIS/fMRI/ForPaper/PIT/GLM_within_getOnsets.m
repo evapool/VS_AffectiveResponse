@@ -18,7 +18,7 @@ home = pwd;
 homedir = [home '/REWOD/'];
 
 
-mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
+mdldir        = fullfile (homedir, '/DERIVATIVES/GLM/ForPaper');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 
 ana_name      = 'GLM-within';
@@ -98,6 +98,23 @@ for j = 1:length(task)
         modulators.CS.Baseline = PIT.gripsFrequence(strcmp ('Baseline', PIT.CONDITIONS));
         modulators.CS.REM      = RIM.BEHAVIOR.mobilized_effort;
         modulators.CS.PE       = PE.BEHAVIOR.mobilized_effort;
+        
+        
+        % if for one of the conditions the modulators is = 0 add small
+        % random noise so that the contrasts of inteterest can be computeds       
+        list = {'CSp';'CSm';'Baseline'};
+        
+        for ii = 1:length(list)
+            
+            nameX = char(list(ii));
+            
+            if all(modulators.CS.(nameX) == 0)
+                
+                modulators.CS.(nameX) = rand(length(modulators.CS.(nameX)),1);
+                
+            end
+        
+        end
         
         %mean_centering mod
         cent_CSp    = mean(modulators.CS.CSp);

@@ -17,7 +17,7 @@ copycontrasts = 1;
 
 homedir = ['/home/REWOD/'];
 
-mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/ForPaper/PIT');% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, 'DERIVATIVES/PREPROC');% directory with  post processed functional scans
 name_ana = 'GLM-within-control'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
@@ -383,51 +383,15 @@ end
         weightNeg  = ismember(conditionName, {'task-PIT.CSminus'}) * -1;
         Ct(1,:)    = weightPos+weightNeg;
 
-        % con2
-        Ctnames{2} = 'CSp-Baseline';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplus'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baseline'}) * -1;
-        Ct(2,:)    = weightPos+weightNeg;
-
-        % con3
-        Ctnames{3} = 'CSp-CSm&Baseline';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplus'}) * 2;
-        weightNeg  = ismember(conditionName, {'task-PIT.CSminus', 'task-PIT.Baseline'}) * -1;
-        Ct(3,:)    = weightPos+weightNeg;
-               
-        %con4
-        Ctnames{4} = 'CSm-Baseline';
-        weightPos  = ismember(conditionName, {'task-PIT.CSminus'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baseline'}) * -1;
-        Ct(4,:)    = weightPos+weightNeg;
-        
-        
+         
         %% Contrast * mob effort
         % con5
-        Ctnames{5} = 'CSp_eff_CSm_eff';
+        Ctnames{2} = 'CSp_eff_CSm_eff';
         weightPos  = ismember(conditionName, {'task-PIT.CSplusxeff^1'}) * 1;
         weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeff^1'}) * -1;
-        Ct(5,:)    = weightPos+weightNeg;
+        Ct(2,:)    = weightPos+weightNeg;
         
-        % con6
-        Ctnames{6} = 'CSp_eff_Baseline_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeff^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeff^1'}) * -1;
-        Ct(6,:)    = weightPos+weightNeg;
-        
-        % con7 
-        Ctnames{7} = 'CSp_eff_CSm_eff&Baseline_eff'; 
-        weightPos  = ismember(conditionName, {'task-PIT.CSplusxeff^1'}) * 2;
-        weightNeg  = ismember(conditionName, {'task-PIT.CSminusxeff^1', 'task-PIT.Baselinexeff^1'}) * -1;
-        Ct(7,:)    = weightPos+weightNeg;
-                     
-        % con8
-        Ctnames{8} = 'CSm_eff_Baseline_eff';
-        weightPos  = ismember(conditionName, {'task-PIT.CSminusxeff^1'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baselinexeff^1'}) * -1;
-        Ct(8,:)    = weightPos+weightNeg;
-        
-        
+       
         %------------------------------------------------------------------
         
         % t contrasts

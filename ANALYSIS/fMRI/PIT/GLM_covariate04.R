@@ -7,7 +7,7 @@ if(!require(pacman)) {
 pacman::p_load(RNOmni, tidyverse, dplyr, plyr)
 
 home   <- '~/REWOD'
-#home       <- '/Users/evapool/mountpoint2'
+home       <- '/Users/evapool/mountpoint2'
 
 #declare variables
 GLM = "GLM-04"
@@ -29,9 +29,9 @@ l = 0
 for(i in s) {
   l = l + 1
   subj = paste('sub-', i, sep = '')
-  covpath = paste(home, '/DERIVATIVES/GLM/',taskDIR, '/' , GLM , '/', subj , '/timing/', sep = '')
-  cov_minus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_PIT_CS_CSm.txt', sep = '')), header = F, sep ='\t') # read in dataset
-  cov_plus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_PIT_CS_CSp.txt', sep = '')), header = F, sep ='\t') # read in dataset
+  covpath = paste(home, '/DERIVATIVES/GLM/',taskDIR, '/' , GLM , '/', subj , '/timing', sep = '')
+  cov_minus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_CS_CSm.txt', sep = '')), header = F, sep ='\t') # read in dataset
+  cov_plus <- read.delim(file.path(covpath, paste(GLM, '_task-PIT_CS_CSp.txt', sep = '')), header = F, sep ='\t') # read in dataset
   
   CSp_CSm = cov_plus - cov_minus
   df[l,2] = mean(CSp_CSm[,3])

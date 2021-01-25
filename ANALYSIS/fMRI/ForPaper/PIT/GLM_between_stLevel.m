@@ -1,11 +1,11 @@
-function GLM_between_stLevel()
+function GLM_between_stLevel(subID)
 
 % intended for REWOD PIT
 % get onsets for model with 1st level modulators
 % Durations =1 (except grips)
-% Model on ONSETs 3*CS with modulator
-% 4 simple contrasts (CSp-CSm, CSp-Base,  CSp-CSm&Base,  CSm-Base)
-% + 4 modulated contrast (*eff)
+% Model on ONSETs 3*CS no modulator
+% 1 simple contrasts (CSp-CSm)
+
 % Ortho = 0 & modulator is mean centered
 
 % created by David Munoz, verified by Eva R. Pool
@@ -18,17 +18,13 @@ constrasts    = 1;
 copycontrasts = 1;
 
 %% define task variable
-%task = 'PIT';
-%% define path
 
-cd ~
-home = pwd;
-homedir = [home '/REWOD/'];
+homedir = ['/home/REWOD/'];
 
 
-mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/PIT');% mdl directory (timing and outputs of the analysis)
+mdldir   = fullfile(homedir, 'DERIVATIVES/GLM/ForPaper/PIT');% mdl directory (timing and outputs of the analysis)
 funcdir  = fullfile(homedir, 'DERIVATIVES/PREPROC');% directory with  post processed functional scans
-name_ana = 'GLM-bewteen'; % output folder for this analysis
+name_ana = 'GLM-between'; % output folder for this analysis
 groupdir = fullfile (mdldir,name_ana, 'group/');
 
 addpath('/usr/local/external_toolboxes/spm12/');
@@ -42,7 +38,7 @@ spm('Defaults','fMRI');
 spm_jobman('initcfg');
 
 %% define experiment setting parameters '01';'02';
-subj       =  {'01'; '02'; '03';'04';'05';'06';'07';'09';'10';'11';'12';'13';'14';'15';'16';'17';'18';'20';'21';'22';'23';'24';'25';'26';}; %subID;
+subj       =  subID;
 param.task = {'PIT'};
 
 %% define experimental design parameters
@@ -251,8 +247,6 @@ end
                                 SPM.Sess(ses).U(c).P(1).P     = eval(param.modul{ses}{cc});
                                 SPM.Sess(ses).U(c).P(1).h     = 1;
 
-
-                               
                             end
                         end
                     end
@@ -272,7 +266,7 @@ end
         
            %rnam = {'X','Y','Z','x','y','z'};
            rnam = {'effort'};
-           physio        = fullfile('~/REWOD','SOURCEDATA','physio', subjX);
+           physio        = fullfile('/home/REWOD','SOURCEDATA','physio', subjX);
         
            cd (physio)
         
@@ -393,25 +387,7 @@ end
         weightNeg  = ismember(conditionName, {'task-PIT.CSminus'}) * -1;
         Ct(1,:)    = weightPos+weightNeg;
 
-        % con2
-        Ctnames{2} = 'CSp-Baseline';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplus'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baseline'}) * -1;
-        Ct(2,:)    = weightPos+weightNeg;
-
-        % con3
-        Ctnames{3} = 'CSp-CSm&Baseline';
-        weightPos  = ismember(conditionName, {'task-PIT.CSplus'}) * 2;
-        weightNeg  = ismember(conditionName, {'task-PIT.CSminus', 'task-PIT.Baseline'}) * -1;
-        Ct(3,:)    = weightPos+weightNeg;
-               
-        %con4
-        Ctnames{4} = 'CSm-Baseline';
-        weightPos  = ismember(conditionName, {'task-PIT.CSminus'}) * 1;
-        weightNeg  = ismember(conditionName, {'task-PIT.Baseline'}) * -1;
-        Ct(4,:)    = weightPos+weightNeg;
         
-      
         
         % define F constrasts
         %------------------------------------------------------------------
@@ -434,11 +410,11 @@ end
             jobs{1}.stats{1}.con.consess{icon}.tcon.convec = Ct(icon,:);
         end
         
-        % F constrats
-        for iconf = 1:1 % until the number of F constrast computed
-            jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};
-            jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.convec = Cf(iconf);
-        end
+%         % F constrats
+%         for iconf = 1:1 % until the number of F constrast computed
+%             jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};
+%             jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.convec = Cf(iconf);
+%         end
         
         
         % run the job

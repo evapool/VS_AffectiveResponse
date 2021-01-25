@@ -11,9 +11,9 @@ function GLM_within_control_getOnsets()
 
 cd ~
 home = pwd;
-homedir = [home '/REWOD'];
+homedir = [home '/mountpoint2'];
 
-mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
+mdldir        = fullfile (homedir, '/DERIVATIVES/GLM/ForPaper');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
 mytools       = fullfile(homedir, '/CODE/ANALYSIS/fMRI/PIT/myfunctions');
 
@@ -133,13 +133,27 @@ for j = 1:length(task)
         modulators.PIT.CSm.eff      = PIT.gripsFrequence(strcmp ('CSminus', PIT.CONDITIONS));
         modulators.PIT.Baseline.eff = PIT.gripsFrequence(strcmp ('Baseline', PIT.CONDITIONS));
         
+                % if for one of the conditions the modulators is = 0 add small
+        % random noise so that the contrasts of inteterest can be computeds       
+        list = {'CSp';'CSm';'Baseline'};
+        
+        for ii = 1:length(list)
+            
+            nameX = char(list(ii));
+            
+            if all(modulators.PIT.(nameX).eff == 0)  
+                modulators.PIT.(nameX).eff = rand(length(modulators.PIT.(nameX).eff),1); 
+            end
+        
+        end
+        
         % mean center
-        modulators.PIT.CSp.eff = meanCenter(modulators.PIT.CSp.eff);
-        modulators.PIT.CSm.eff = meanCenter(modulators.PIT.CSm.eff);
-        modulators.PIT.Baseline.eff = meanCenter(modulators.PIT.Baseline.eff);
+        modulators.PIT.CSp.eff       = meanCenter(modulators.PIT.CSp.eff);
+        modulators.PIT.CSm.eff       = meanCenter(modulators.PIT.CSm.eff);
+        modulators.PIT.Baseline.eff  = meanCenter(modulators.PIT.Baseline.eff);
         
         %--------------absolute change
-        modulators.PIT.CSp.chAbs      = ChAbs(strcmp ('CSplus', PIT.CONDITIONS));
+        modulators.PIT.CSp.chAbs      =  ChAbs(strcmp ('CSplus', PIT.CONDITIONS));
         modulators.PIT.CSm.chAbs      =  ChAbs(strcmp ('CSminus', PIT.CONDITIONS));
         modulators.PIT.Baseline.chAbs =  ChAbs(strcmp ('Baseline', PIT.CONDITIONS));
         
@@ -148,6 +162,11 @@ for j = 1:length(task)
         modulators.PIT.CSm.chAbs  = meanCenter(modulators.PIT.CSm.chAbs);
         modulators.PIT.Baseline.chAbs = meanCenter(modulators.PIT.Baseline.chAbs);
         
+        
+        % go in the directory where data will be saved
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%1
+        cd (subjdir) %save all info in the participant directory
+  
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % save data

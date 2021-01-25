@@ -43,18 +43,23 @@ for i = 1:length(models)
 
 end
 
+models       =  {'between'; 'within'; 'within-control'; 'between-control'};
+
 cHeader = {'mean'; 'sd'};
 commaHeader = [cHeader';repmat({','},1,numel(cHeader))]; %insert commas
-commaHeader = commaHeader(:)'; df=flip(df); %flip arrays
+commaHeader = commaHeader(:)'; df=flip(df); %flip array
+df = [df,models];
 textHeader = cell2mat(commaHeader); %cHeader in text with commas
 
-%write header to file
-fid = fopen([task '_BMS.csv'],'w'); 
-fprintf(fid,'%s\n',textHeader);
-fclose(fid);
+writecell(vertcat({'mean' 'sd' 'GLM' }, df),[task '_BMS.csv'])
 
-%write data to end of file
-dlmwrite([task '_BMS.csv'],df,'-append');
+% %write header to file
+% fid = fopen([task '_BMS.csv'],'w'); 
+% fprintf(fid,'%s\n',textHeader);
+% fclose(fid);
+% 
+% %write data to end of file
+% dlmwrite([task '_BMS.csv'],df,'-append');
 
 display('done');
 

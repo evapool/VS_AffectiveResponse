@@ -15,9 +15,11 @@ cd ~
 home = pwd;
 homedir = [home '/REWOD'];
 
-mdldir        = fullfile (homedir, '/DERIVATIVES/GLM');
+homedir = [home '/mountpoint2/'];
+
+mdldir        = fullfile (homedir, '/DERIVATIVES/GLM/ForPaper');
 sourcefiles   = fullfile(homedir, '/DERIVATIVES/PREPROC');
-mytools       = fullfile(homedir, '/CODE/ANALYSIS/fMRI/PIT/myfunctions');
+mytools       = fullfile(homedir, '/CODE/ANALYSIS/fMRI/ForPaper/PIT/myfunctions');
 
 addpath(mytools);
 
@@ -67,8 +69,7 @@ for j = 1:length(task)
         modulators.PE      = meanCenter(modulators.PE);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-       % compute preceptual propertis
+        % compute preceptual propertis
         
         PP = nan(length(PIT.CONDITIONS),1); %odor value vector
         
@@ -81,14 +82,11 @@ for j = 1:length(task)
             
             condition       = PIT.CONDITIONS{t};
             if strcmp ('CSplus',  condition)
-                PP(t) = VCSplus;
-                
+                PP(t) = VCSplus;           
             elseif strcmp ('CSminus',  condition)
-                PP(t) = VCSminus;
-                
+                PP(t) = VCSminus;    
             elseif strcmp ('Baseline',  condition)
                 PP(t) = VBaseline;
-                
             end
             
         end
@@ -102,7 +100,6 @@ for j = 1:length(task)
                 ChAbs (t) = P0;
                 PP(t) = P0;
             else
-                
                 if PP(t-1) < PP(t)
                     ChAbs (t) = 1;
                 elseif PP(t-1) > PP(t)
@@ -110,7 +107,30 @@ for j = 1:length(task)
                 elseif PP(t-1) == PP(t)
                     ChAbs (t) = -0.5;
                 end
-                
+            end
+            
+        end
+        
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % compute changes in values in time series
+        
+        VV = nan(length(PIT.CONDITIONS),1); %odor value vector
+        
+        VCSplus   =  1;
+        VCSminus  =  -1;
+        VBaseline =  0;
+        
+        % recode CS in values
+        for t = 1:length(PIT.CONDITIONS)
+            
+            condition         = PIT.CONDITIONS{t};
+            if strcmp ('CSplus',  condition)
+                VV(t) = VCSplus;
+            elseif strcmp ('CSminus',  condition)
+                VV(t) = VCSminus;
+            elseif strcmp ('Baseline',  condition)
+                VV(t) = VBaseline;
             end
             
         end
@@ -149,10 +169,11 @@ for j = 1:length(task)
         
         modulators.PIT.conc.ChAbs  = modulators.PIT.conc.ChAbs(Idx,:);        
         modulators.PIT.conc.ChAbs  = meanCenter(modulators.PIT.conc.ChAbs);
-        
-
+ 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % save data
+        
+        cd (subjdir) 
         mat_name = [ana_name '_task-' taskX '_onsets'];
         save (mat_name, 'onsets', 'durations', 'modulators')
         

@@ -1,4 +1,4 @@
-function GLM_15_getOnsets()
+ function GLM_15_getOnsets()
 
 % intended for REWOD HED
 % get onsets for model with 1st level modulators
