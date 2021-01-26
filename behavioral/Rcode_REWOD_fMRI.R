@@ -13,7 +13,7 @@
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
-# modified by E.R.P on  JANUARY  2021                                            #
+# modified by E.R.P on  JANUARY  2021                                                              #
 ####################################################################################################
 
 
@@ -43,21 +43,18 @@ devtools::source_gist("2a1bb0133ff568cbe28d",
 #SETUP
 
 # Set path
-home_path       <- '/Users/evapool/mountpoint/REWOD'
-#home_path       <- '~/REWOD'
+home_path       <- '/Users/evapool/Documents/my_github/VS_AffectiveResponse/'
+
 
 # Set working directory
-analysis_path <- file.path(home_path, 'CODE/ANALYSIS/BEHAV/ForPaper')
-covariatePIT_path <- file.path(home_path, '/DERIVATIVES/GLM/ForPaper/PIT/GLM-between/group_covariates')
-covariateHED_path <- file.path(home_path, '/DERIVATIVES/GLM/ForPaper/hedonic/GLM-between/group_covariates')
+analysis_path <- file.path(home_path, 'behavioral')
+covariatePIT_path <- file.path(home_path, 'univariate/PIT/GLM-between/group_covariates')
+covariateHED_path <- file.path(home_path, 'univariate/hedonic/GLM-between/group_covariates')
 figures_path <- file.path(analysis_path, 'figures')
 setwd(analysis_path)
 
 # add function directory
 source(paste(analysis_path, "/functions/cohen_d_ci.R", sep = ""))
-
-#datasets directory
-data_path <- file.path(home_path,'DERIVATIVES/BEHAV') 
 
 # open datasets
 PAV  <- read.delim(file.path(analysis_path, 'databases/REWOD_PAVCOND_ses_first.txt'), header = T, sep ='') # read in dataset
@@ -67,7 +64,6 @@ HED  <- read.delim(file.path(analysis_path, 'databases/REWOD_HEDONIC_ses_second.
 
 
 ROI_HED.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_TASK_Hed.txt'), header = T, sep ='') 
-
 ROI_HED.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_task_PIT.txt'), header = T, sep ='') 
 ROI_PIT.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_hedonic.txt'), header = T, sep ='') 
 ROI_PIT.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_PIT.txt'), header = T, sep ='') 
@@ -312,12 +308,6 @@ pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification =
 pdf(file.path(figures_path,'Figure_NAc_shell_core_PIT.pdf'))
 print(pppp)
 dev.off()
-
-
-
-
-
-
 
 
 

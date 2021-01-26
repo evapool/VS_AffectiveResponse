@@ -40,20 +40,16 @@ devtools::source_gist("2a1bb0133ff568cbe28d",
                       filename = "geom_flat_violin.R")
 
 
-
 #SETUP
 
 # Set path
-home_path       <- '/Users/evapool/mountpoint2'
-#home_path       <- '~/REWOD'
+home_path       <- '/Users/evapool/Documents/my_github/VS_AffectiveResponse/'
+
 
 # Set working directory
-analysis_path <- file.path(home_path, 'CODE/ANALYSIS/BEHAV/ForPaper')
+analysis_path <- file.path(home_path, 'behavioral')
 figures_path <- file.path(analysis_path, 'figures')
 setwd(analysis_path)
-
-#datasets dictory
-data_path <- file.path(home_path,'DERIVATIVES/BEHAV') 
 
 # open datasets
 PAV  <- read.delim(file.path(analysis_path, 'databases/REWOD_PAVCOND_ses_first.txt'), header = T, sep ='') # read in dataset
@@ -107,7 +103,6 @@ PAV$condition        <- factor(PAV$condition)
 PAV$RT               <- PAV$RT * 1000
 
 #Preprocessing
-##only first round
 PAV.clean <- filter(PAV, rounds == 1)
 PAV.clean$condition <- droplevels(PAV.clean$condition, exclude = "Baseline")
 full = length(PAV.clean$RT)
@@ -220,8 +215,6 @@ ppp <- pp + averaged_theme
 pdf(file.path(figures_path,'Figure_PavlovianRT.pdf'))
 print(ppp)
 dev.off()
-
-
 
 
 # -------------------------------------------------------------------------------------------------
@@ -346,9 +339,6 @@ print(ppp)
 dev.off()
 
 
-
-
-
 # -------------------------------------------------------------------------------------------------
 #                                             PIT
 # -------------------------------------------------------------------------------------------------
@@ -371,24 +361,6 @@ PIT <- subset (PIT.all,task == 'PIT')
 PIT$trialxcondition        <- as.numeric(PIT$trialxcondition)
 PIT  <- ddply(PIT, "id", transform, bin = as.numeric(cut2(trialxcondition, g = 5)))
 
-# define linear contrast
-PIT$c1[PIT$trialxcondition== '1']   <- '-7'
-PIT$c1[PIT$trialxcondition== '2']   <- '-6'
-PIT$c1[PIT$trialxcondition== '3']   <- '-5'
-PIT$c1[PIT$trialxcondition== '4']   <- '-4'
-PIT$c1[PIT$trialxcondition== '5']   <- '-3'
-PIT$c1[PIT$trialxcondition== '6']   <- '-2'
-PIT$c1[PIT$trialxcondition== '7']   <- '-1'
-PIT$c1[PIT$trialxcondition== '8']   <- '0'
-PIT$c1[PIT$trialxcondition== '9']   <- '1'
-PIT$c1[PIT$trialxcondition== '10']   <- '2'
-PIT$c1[PIT$trialxcondition== '11']   <-'3'
-PIT$c1[PIT$trialxcondition== '12']   <- '4'
-PIT$c1[PIT$trialxcondition== '13']   <- '5'
-PIT$c1[PIT$trialxcondition== '14']   <- '6'
-PIT$c1[PIT$trialxcondition== '15']   <- '7'
-
-PIT$c1 <- factor(PIT$c1)
 
 
 # -------------------------------------- STATS -----------------------------------------------
@@ -405,9 +377,6 @@ colnames(PIT.trial) <- c('id','trialxcondition','n_grips')
 
 # stat
 PIT.stat <- aov_car(n_grips ~ condition*trialxcondition + Error (id/condition*trialxcondition), data = PIT.s, anova_table = list(correction = "GG", es = "pes"))
-
-# let's try with a linear constrast that decreases over time
-PIT.stat.c <- aov_car(n_grips ~ condition*c1 + Error (id/condition*c1), data = PIT.s, anova_table = list(correction = "GG", es = "pes"))
 
 
 # effect sizes (90%CI)
@@ -522,7 +491,6 @@ pp <- ggplot(df, aes(x = as.numeric(trial), y = n_grips,
                      values = c("Reminder"=pal[4], "Partial Extinction"=pal[4], "CSplus" =pal[2], 'CSminus'=pal[1])) +
   scale_fill_manual(labels = c('PIT: CS-', 'PIT: CS+','Part. Ext.', 'Rem.'), 
                     values = c("Reminder"=pal[4], "Partial Extinction"=pal[4], "CSplus"= pal[2], 'CSminus'=pal[1])) +
-  #ylim(low=0, high=17)+
   labs(fill = 'Phase', color = 'Phase') +
   
   scale_y_continuous(expand = c(0, 0),  limits = c(-2,30),  breaks=c(seq.int(0,30, by = 5))) +
@@ -717,46 +685,10 @@ HED.int.changeValue    <- aov_car(perceived_intensity ~ changeValue+ Error (id/c
 # effect sizes (90%CI)
 F_to_eta2(f = c(57.74), df = c(1), df_error = c(23))
 
-
-
 # BF
 INT.BF.changeAbs <- anovaBF(perceived_intensity ~ changeAbs  + id, data = INT.change.means, 
                          whichRandom = "id", iterations = 50000)
 INT.BF.changeAbs <- recompute(INT.BF.changeAbs, iterations = 50000)
-
-
-
-
-# Follow up analysis  not reported (to be deleted eventually ) ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
-
-HED.chocolate <- subset (HED,  condition == 'chocolate')
-HED.neutral <- subset (HED,  condition == 'neutral')
-
-HED.means.choco <- aggregate(HED.chocolate$perceived_liking, by = list(HED.chocolate$id, HED.chocolate$rep), FUN='mean') # extract means
-colnames(HED.means.choco) <- c('id','rep','perceived_liking')
-
-HED.means.neutral <- aggregate(HED.neutral$perceived_liking, by = list(HED.neutral$id, HED.neutral$rep), FUN='mean') # extract means
-colnames(HED.means.neutral) <- c('id','rep','perceived_liking')
-
-
-HED.stat.choco.rep     <- aov_car(perceived_liking ~ rep + Error (id/rep), data = HED.means.choco, anova_table = list(correction = "GG", es = "pes"))
-# effect sizes (90%CI)
-F_to_eta2(f = c(17.95), df = c(1.70), df_error = c(39.04))
-# BF
-HED.BF.choco <- anovaBF(perceived_liking ~ rep  + id, data = HED.means.choco, 
-                        whichRandom = "id", iterations = 50000)
-HED.BF.choco <- recompute(HED.BF.choco, iterations = 50000)
-
-
-HED.stat.neutral.rep   <- aov_car(perceived_liking ~ rep + Error (id/rep), data = HED.means.neutral, anova_table = list(correction = "GG", es = "pes"))
-# effect sizes (90%CI)
-F_to_eta2(f = c(1.43), df = c(1.34), df_error = c(30.93))
-# BF
-HED.BF.neutral <- anovaBF(perceived_liking ~ rep  + id, data = HED.means.neutral, 
-                          whichRandom = "id", iterations = 50000)
-HED.BF.neutral <- recompute(HED.BF.neutral, iterations = 50000)
-
-
 
 # -------------------------------------- PLOTS -----------------------------------------------
 HED.means$condition  <- dplyr::recode(HED.means$condition, "chocolate" = "Rewarding")
