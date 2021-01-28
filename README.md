@@ -1,4 +1,5 @@
-These are the the codes used for preprocessing and analyzing behavioral and functional MRI data used for the following two studies:
+These are the the codes used for preprocessing and analyzing behavioral and functional MRI data used for the following study:
+Differential contributions of ventral striatum subregions in the motivational and hedonic components of the affective response to reward
 
 Flow chart of the preprocessing pipeline:
 
