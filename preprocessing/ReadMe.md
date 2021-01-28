@@ -38,3 +38,8 @@
 # 6) Smoothing
      6.1 smoothFunc: Smooths the functional scans, and unzips the compressed image files for use in SPM
      -> run_smoothFunctional
+     
+ Flow chart of the preprocessing pipeline:
+
+![preproc](https://github.com/evapool/REWOD/blob/master/PREPROC/Figure_preproc.png)
+
