@@ -1,6 +1,7 @@
 %-----------------------------------------------------------------------
 % BAYESIAN MODEL SELECTION intended for REWOD HEDONIC
 % IMPLEMENTED USING MACS by J. Soch
+% Created by David Munoz
 %-----------------------------------------------------------------------
 clear all
 dbstop if error
