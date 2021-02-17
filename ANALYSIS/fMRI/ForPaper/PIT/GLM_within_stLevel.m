@@ -342,7 +342,9 @@ end
         
         % set threshold of mask!!
         %==========================================================================
-        SPM.xM.gMT = -Inf;% !!set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.gMT =  0.1;% set -inf if we want to use explicit masking 0.8 is the spm default
+        SPM.xM.VM  =  spm_vol(Maskimage);
+        SPM.xM.I   =  0.1;
         
         % Configure design matrix
         %==========================================================================
