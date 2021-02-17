@@ -1,4 +1,5 @@
-These are the the codes used for preprocessing and analyzing behavioral and functional MRI data used for the following two studies:
+These are the the codes used for preprocessing and analyzing behavioral and functional MRI data used for the following study:
+Differential contributions of ventral striatum subregions in the motivational and hedonic components of the affective response to reward
 
 Flow chart of the preprocessing pipeline:
 
@@ -23,10 +24,11 @@ FSL 3.3.0 or a more resent version
 
 ANTs 2.1.0 or a more resent version
 
-Python 2.7 (and python 3.5 or above for the BIDS)
+Python 2.7 (and python 3.5 or higher for the BIDS)
 
-R 3.1.1 or a more resent version
+AFNI_20.3.00
 
+R 3.1.1 or higher
 
 Please get in touch with your experiences with using the codes and data, and any bug reports or issues to me at david.munoz@etu.unige.ch
 
