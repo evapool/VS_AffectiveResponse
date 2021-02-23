@@ -6,16 +6,19 @@
 dbstop if error
 
 % glm= 'GLM-04';
- glm= 'GLM-28';
- task='hedonic';
+%glm= 'GLM-HED-validation';
+%task='hedonic';
 
-%glm= 'GLM-13';
-%task='PIT';
+glm= 'GLM-PIT-validation';
+task='PIT';
 
+list_roi = {'PIT_thalamus'; 'PIT_cerebellum'};
+
+%list_roi = {'HED_piriform_right'; 'HED_piriform_left'};
 
 %list_roi = {'shell-core', 'cmOFC'};
 
-list_roi = {'PIT_NACcore'};
+%list_roi = {'PIT_NACcore'};
 
 %list_roi = {'HED_NACcoreshell';'HED_mOFC';'HED_NACshell'};
 
@@ -25,24 +28,26 @@ for k = 1:length(list_roi)
     ROI_name = list_roi{k};
 
     % which contrast
-    %con_name = {'CSp-CSm'};
-    %con_list = {'con_0001.nii'}; %
-    
-    con_name = {'odor_lik'};
+    con_name = {'CSp-CSm'};
     con_list = {'con_0001.nii'}; %
+    
+    %con_name = {'odor_lik'};
+    %con_name = {'Odor_NoOdor'};
+    %con_list = {'con_0001.nii'}; %
 
     % path
     cd ~
     home = pwd;
     homedir = [home '/REWOD'];
-    homedir = '/Users/evapool/mountpoint2';
+    %homedir = '/Users/evapool/mountpoint2';
     %addpath /usr/local/external_toolboxes/spm12/ ;
 
-    dir_data   =  fullfile (homedir, '/DERIVATIVES/GLM', task, glm, 'group');
-    dir_data   =  fullfile (homedir, '/DERIVATIVES/GLM', task, glm, 'group');
-    roi_dir = fullfile(homedir, '/DERIVATIVES/GLM',task, 'ROI', ROI_name);
+    %dir_data   =  fullfile (homedir, '/DERIVATIVES/GLM/', task, glm, 'group');
+    dir_data   =  fullfile (homedir, '/DERIVATIVES/GLM/ForPaper', task, glm, 'group');
+    %roi_dir = fullfile(homedir, '/DERIVATIVES/GLM',task, 'ROI', ROI_name);
     %roi_dir = fullfile(homedir, '/DERIVATIVES/GLM','hedonic', 'ROI', 'GLM-28','betas_hedonic');
-    roi_dir = fullfile(homedir, '/DERIVATIVES/GLM','PIT', 'ROI', 'GLM-13','betas_hedonic');
+    %roi_dir = fullfile(homedir, '/DERIVATIVES/GLM','PIT', 'ROI', 'GLM-13','betas_hedonic');
+    roi_dir = fullfile(homedir, '/DERIVATIVES/GLM/ForPaper', task,'ROI');
     
     
     % intialize spm 
@@ -56,7 +61,7 @@ for k = 1:length(list_roi)
 
     %list ROIs/clusters from which to extract betas
 
-    roi_list = char(spm_select('FPList', roi_dir, ['^'  '.*' 'nii']));
+    roi_list = char(spm_select('FPList', roi_dir,ROI_name, ['^'  '.*' 'nii']));
 
 
     %loop across ROIs first
@@ -119,8 +124,8 @@ for k = 1:length(list_roi)
 
                 result(2:length(v)+1,c) = num2cell(m); 
 
-                cd (roi_dir)
-                mkdir betas
+                %cd (roi_dir)
+                %mkdir betas
 
                 save(outputFile,'result');
 
@@ -133,7 +138,7 @@ for k = 1:length(list_roi)
 
         end
 
-        movefile *_betas.mat betas/
+        %movefile *_betas.mat betas/
 
     end
 end

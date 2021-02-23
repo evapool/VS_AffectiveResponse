@@ -13,7 +13,7 @@
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
-# modified by E.R.P on  JANUARY  2021 (short version)                                              #
+# modified by E.R.P on  JANUARY  2021 (short version) (February 2021 D.M.T.)                                             #
 ####################################################################################################
 
 
@@ -38,13 +38,19 @@ if(!require(devtools)) {
 devtools::source_gist("2a1bb0133ff568cbe28d", 
                       filename = "geom_flat_violin.R")
 
-
+#had to add this to make it work
+se <- function (x,na.rm=TRUE) {
+  if (!is.vector(x)) STOP("'x' must be a vector.")
+  if (!is.numeric(x)) STOP("'x' must be numeric.")
+  if (na.rm) x <- x[stats::complete.cases(x)]
+  sqrt(stats::var(x)/length(x))
+}
 
 #SETUP
 
 # Set path
-home_path       <- '/Users/evapool/mountpoint/REWOD'
-#home_path       <- '~/REWOD'
+#home_path       <- '/Users/evapool/mountpoint/REWOD'
+home_path       <- '~/REWOD'
 
 # Set working directory
 analysis_path <- file.path(home_path, 'CODE/ANALYSIS/BEHAV/ForPaper')
@@ -223,7 +229,7 @@ VS_CA_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PI
                               observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes"))
 F_to_eta2(f = c(41.89), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
-
+emmeans(VS_CA_eff.stat,  ~ ROI:deltaCS_R)
 
 # -------------------------------- PLOT
 PIT.ROI.TASK.PIT.means <- aggregate(PIT.ROI.TASK.PIT.long$beta, by = list(PIT.ROI.TASK.PIT.long$ID, PIT.ROI.TASK.PIT.long$deltaCS_R), FUN='mean') # extract means
@@ -263,7 +269,7 @@ mOFC_eff.stat             <- aov_car(mOFC ~ deltaCS_R + Error (ID), data = HED.R
                                      observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes")) # no
 F_to_eta2(f = c(0.06), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 intROIPIT.BF <- lmBF(mOFC ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT, 
-                                        whichRandom = "ID", iterations = 50000)
+                     whichRandom = "ID", iterations = 50000)
 intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 
 #NAC
@@ -335,13 +341,13 @@ HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_NACcoreshell_betas', 
 HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_mOFC_betas', 'mOFC')
 
 #------------------------------- STAT
-t.test(HED.ROI.HED.TASK$NAc_shell_core)
+t.test(HED.ROI.HED.TASK$NAc_shell_core); se(HED.ROI.HED.TASK$NAc_shell_core)
 # BF
 ttestBF(HED.ROI.HED.TASK$NAc_shell_core)
 # effect size
 cohen_d_ci(HED.ROI.HED.TASK$NAc_shell_core, conf.level = .95)
 
-t.test(HED.ROI.HED.TASK$mOFC)
+t.test(HED.ROI.HED.TASK$mOFC); se(HED.ROI.HED.TASK$mOFC)
 # BF
 ttestBF(HED.ROI.HED.TASK$mOFC)
 # effect size
@@ -525,7 +531,7 @@ F_to_eta2(f = c(4.79), df = c(1), df_error = c(23)) # effect sizes (90%CI)
 
 
 intROIHED.BF <- anovaBF(beta ~ ROI_type + ID, data = HED.ROI.COMPARE.means, 
-                              whichRandom = "ID", iterations = 50000)
+                        whichRandom = "ID", iterations = 50000)
 intROIHED.BF <- recompute(intROIHED.BF, iterations = 50000)
 intROIHED.BF
 

@@ -1,7 +1,7 @@
 ####################################################################################################
 #                                                                                                  #
 #                                                                                                  #                                                 #                                                                                                  #
-#                 Differential contributions of ventral striatum subregions in the motivational and hedonic components of the affective response to reward                                            #
+#                                    TITLE OF THE PAPER                                            #
 #                                                                                                  #
 #                                                                                                  #
 #                   Eva R Pool                                                                     #
@@ -12,7 +12,7 @@
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
-# modified by E.R.P on  NOVEMBER  2020 (February 2021 D.M.T.)                                                            #
+# modified by E.R.P on  NOVEMBER  2020                                                             #
 ####################################################################################################
 
 
@@ -38,13 +38,6 @@ devtools::source_gist("2a1bb0133ff568cbe28d",
                       filename = "geom_flat_violin.R")
 
 
-#had to add this to make it work
-se <- function (x,na.rm=TRUE) {
-  if (!is.vector(x)) STOP("'x' must be a vector.")
-  if (!is.numeric(x)) STOP("'x' must be numeric.")
-  if (na.rm) x <- x[stats::complete.cases(x)]
-  sqrt(stats::var(x)/length(x))
-}
 
 #SETUP
 
@@ -637,42 +630,3 @@ ppp
 pdf(file.path(figures_path,'Figure_BMS_HED.pdf'))
 print(ppp)
 dev.off()
-
-
-
-
-
-# ------------------------------------- ROI validation  -----------------------------------------
-
-ROI.val     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_VALIDATION.txt'), header = T, sep =',')
-
-# HED ----------------
-#------------------------------- STAT
-t.test(ROI.val$HED_piriform_right); se(ROI.val$HED_piriform_right)
-# BF
-ttestBF(ROI.val$HED_piriform_right)
-# effect size
-cohen_d_ci(ROI.val$HED_piriform_right, conf.level = .95)
-
-t.test(ROI.val$HED_piriform_left); se(ROI.val$HED_piriform_left)
-# BF
-ttestBF(ROI.val$HED_piriform_left)
-# effect size
-cohen_d_ci(ROI.val$HED_piriform_left, conf.level = .95)
-
-
-# PIT ----------------
-t.test(ROI.val$PIT_thalamus); se(ROI.val$PIT_thalamus)
-# BF
-ttestBF(ROI.val$PIT_thalamus)
-# effect size
-cohen_d_ci(ROI.val$PIT_thalamus, conf.level = .95)
-
-t.test(ROI.val$PIT_cerebellum); se(ROI.val$PIT_cerebellum)
-# BF
-ttestBF(ROI.val$PIT_cerebellum)
-# effect size
-cohen_d_ci(ROI.val$HED_piriform_left, conf.level = .95)
-
-
-

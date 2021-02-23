@@ -4,23 +4,26 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 dbstop if error
-
+clear 
 %% def path
 cd ~
 home = pwd;
 homedir = [home '/REWOD'];
-homedir = [home '/mountpoint2'];
+%homedir = [home '/mountpoint2'];
 
 %% def var
-task = 'PIT'; %
+task = 'hedonic'; %
 %glm = 'GLM-04';
-glm= 'GLM-13';
+%glm= 'GLM-13';
+%glm= 'GLM-PIT-validation';
+glm= 'GLM-HED-validation';
 
 %list_roi = {'shell-core', 'cmOFC'};
 
-list_roi = {'HED_NACcoreshell';'HED_mOFC';'HED_NACshell'};
+%list_roi = {'HED_NACcoreshell';'HED_mOFC';'HED_NACshell'};
+%list_roi = {'PIT_thalamus'; 'PIT_cerebellum'};
+list_roi = {'HED_piriform_right'; 'HED_piriform_left'};
 
-list_roi = {'HED_NACcoreshell'};
 
 for k = 1:length(list_roi)
     ROI_name = list_roi{k};
@@ -30,7 +33,7 @@ for k = 1:length(list_roi)
 
     %% create database
     %in_dir        = fullfile (homedir, '/DERIVATIVES/GLM/', task, 'ROI', ROI_name, 'betas');
-    in_dir        = fullfile (homedir, '/DERIVATIVES/GLM/', task, 'ROI', glm, 'betas_PIT');
+    in_dir        = fullfile (homedir, '/DERIVATIVES/GLM/ForPaper/', task, 'ROI', 'betas');
     %out_dir   = fullfile(homedir, '/DERIVATIVES/GLM/', task, 'ROI');
     out_dir   = in_dir;
 
@@ -39,13 +42,21 @@ for k = 1:length(list_roi)
     cd (in_dir)
 
     %% ROI NAMES
-    roi_list = dir('*.mat');
+%     roi_list = dir('*.mat');
+% 
+%     for i = 1:length(roi_list)
+%         load(roi_list(i).name);
+%         eval(['result{1,:} = roi_list(i).name(1:end-4);']);
+%         database(:,i) = result;
+%     end
+    
 
-    for i = 1:length(roi_list)
-        load(roi_list(i).name);
-        eval(['result{1,:} = roi_list(i).name(1:end-4);']);
-        database(:,i) = result;
-    end
+    
+    load([list_roi{k} '_betas.mat']);
+    eval(['result{1,:} = list_roi{k};']);
+    database = result;
+
+
 
     database = horzcat(ID, database);
 
@@ -54,7 +65,7 @@ for k = 1:length(list_roi)
     T = cell2table(database(2:end,:),'VariableNames',database(1,:));
 
     % Write the table to a CSV file
-    writetable(T, ['extracted_betas_' ROI_name '_hedonic.txt'],'Delimiter','\t');
+    writetable(T, ['extracted_betas_' ROI_name '_PIT.txt'],'Delimiter','\t');
 end
 
 clear all

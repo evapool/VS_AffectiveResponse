@@ -5,4 +5,14 @@
 # PIT - ALL 0.05 0.005 - ALL - 81.7 #
 # HED - SVC 0.05 0.005 - VS - 15.0 #
 # HED - SVC 0.05 0.005 - mOFC - 10.0 #
-# HED - ALL 0.05 0.005 - ALL -  87.6
+# HED - ALL 0.05 0.005 - ALL -  87.6 #
+
+#OUR CONTROL RESULTS (NN1 TWO-SIDED)
+# task     - correction     - ROI       - extend
+
+#PIT_valid - SVC   .05 .005 - cerbellum - 43.5
+#PIT_valid - SVC   .05 .005 - thalamus  - 36.9
+#PIT_valid - WHOLE .05 .005 - none      - 91.8
+
+#HED_valid - SVC   .05 .005 - Olfa Cort - 18.0
+#HED_valid - WHOLE .05 .005 - none      - 85.6 
