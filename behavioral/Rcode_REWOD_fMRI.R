@@ -194,6 +194,7 @@ write.table(diffL, (file.path(covariateHED_path, "Pleasant_Neutral.txt")), row.n
 
 
 
+
 # -------------------------------------------------------------------------------------------------
 #                                              PIT 
 # -------------------------------------------------------------------------------------------------
@@ -219,7 +220,7 @@ VS_CA_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PI
                               observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes"))
 F_to_eta2(f = c(41.89), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
-
+emmeans(VS_CA_eff.stat,  ~ ROI:deltaCS_R)
 
 # -------------------------------- PLOT
 PIT.ROI.TASK.PIT.means <- aggregate(PIT.ROI.TASK.PIT.long$beta, by = list(PIT.ROI.TASK.PIT.long$ID, PIT.ROI.TASK.PIT.long$deltaCS_R), FUN='mean') # extract means
@@ -308,6 +309,7 @@ pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification =
 pdf(file.path(figures_path,'Figure_NAc_shell_core_PIT.pdf'))
 print(pppp)
 dev.off()
+
 
 
 
@@ -451,6 +453,7 @@ dev.off()
 
 
 
+
 # ------------------------------------------------------------------------------------------------------
 #                                       DIRECT COMPARAISON DURING PIT IN VS
 # ------------------------------------------------------------------------------------------------------
@@ -522,6 +525,7 @@ intROIHED.BF
 
 
 
+
 # --------------------------------------------------------------------------------------------------
 #                                         HED - PIT behavioral LINK 
 # --------------------------------------------------------------------------------------------------
@@ -530,6 +534,43 @@ intROIHED.BF
 scatterplot(PIT.index$deltaCS_R, HED.index$US_lik)
 cor.test(PIT.index$deltaCS, HED.index$US_lik, method = 'kendall')
 cor.test(PIT.index$deltaCS_R, HED.index$US_lik, method = 'pearson')
+
+# --------------------------------------------------------------------------------------------------
+#                                       TASK VALIDATION MODELS
+# --------------------------------------------------------------------------------------------------
+
+ROI.val     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_VALIDATION.txt'), header = T, sep =',')
+
+# ------------------------------------- HED ---------------------------------------------------------
+
+t.test(ROI.val$HED_piriform_right); se(ROI.val$HED_piriform_right)
+# BF
+ttestBF(ROI.val$HED_piriform_right)
+# effect size
+cohen_d_ci(ROI.val$HED_piriform_right, conf.level = .95)
+
+t.test(ROI.val$HED_piriform_left); se(ROI.val$HED_piriform_left)
+# BF
+ttestBF(ROI.val$HED_piriform_left)
+# effect size
+cohen_d_ci(ROI.val$HED_piriform_left, conf.level = .95)
+
+
+# ------------------------------------- PIT --------------------------------------------------------
+t.test(ROI.val$PIT_thalamus); se(ROI.val$PIT_thalamus)
+# BF
+ttestBF(ROI.val$PIT_thalamus)
+# effect size
+cohen_d_ci(ROI.val$PIT_thalamus, conf.level = .95)
+
+t.test(ROI.val$PIT_cerebellum); se(ROI.val$PIT_cerebellum)
+# BF
+ttestBF(ROI.val$PIT_cerebellum)
+# effect size
+cohen_d_ci(ROI.val$HED_piriform_left, conf.level = .95)
+
+
+
 
 
 
