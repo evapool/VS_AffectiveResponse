@@ -1,8 +1,17 @@
-#OUR MAIN RESULTS (NN1 TWO-SIDED)
-# task - correction   - ROI - extend
+# cluster correction using AFNI
+#1) estimate spatial smoothness #with concatenated subjects redisuals (fslmerge -t Res_4D.nii Res*)
+3dFWHMx -acf smooth.txt -mask mask.nii Res_4D.nii
+
+#2) run simulations with roi mask e
+3dClustSim -acf X Y Z -mask mask.nii -athr 0.05 -pthr 0.005
+
+# OUR MAIN RESULTS (NN1 TWO-SIDED)
+# task - correction    - ROI - extend
+
 # PIT - SVC 0.05 0.005 - VS - 15.8 #
-# PIT - SVC 0.05 0.005 -  AMY - 9.4 #
+# PIT - SVC 0.05 0.005 - AMY - 9.4 #
 # PIT - ALL 0.05 0.005 - ALL - 81.7 #
+
 # HED - SVC 0.05 0.005 - VS - 15.0 #
 # HED - SVC 0.05 0.005 - mOFC - 10.0 #
 # HED - ALL 0.05 0.005 - ALL -  87.6
