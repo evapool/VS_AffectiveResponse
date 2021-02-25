@@ -222,6 +222,7 @@ F_to_eta2(f = c(41.89), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
 emmeans(VS_CA_eff.stat,  ~ ROI:deltaCS_R)
 
+
 # -------------------------------- PLOT
 PIT.ROI.TASK.PIT.means <- aggregate(PIT.ROI.TASK.PIT.long$beta, by = list(PIT.ROI.TASK.PIT.long$ID, PIT.ROI.TASK.PIT.long$deltaCS_R), FUN='mean') # extract means
 colnames(PIT.ROI.TASK.PIT.means) <- c('ID','beta', 'effort')
