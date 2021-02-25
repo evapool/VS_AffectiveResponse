@@ -1,6 +1,6 @@
 %-----------------------------------------------------------------------
 % MODEL VISUALIZATION intended for REWOD HEDONIC
-% IMPLEMENTED by David USING MACS by J. Soch
+% Created by David Munoz
 %-----------------------------------------------------------------------
 clear all
 
@@ -51,13 +51,6 @@ textHeader = cell2mat(commaHeader); %cHeader in text with commas
 
 writecell(vertcat({'mean' 'sd' 'GLM' }, df),[task '_BMS.csv'])
 
-%write header to file
-% fid = fopen([task '_BMS.csv'],'w'); 
-% fprintf(fid,'%s\n',textHeader);
-% fclose(fid);
-% 
-% %write data to end of file
-% dlmwrite([task '_BMS.csv'],df,'-append');
 
 display('done');
 

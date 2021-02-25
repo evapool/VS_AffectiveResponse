@@ -1,6 +1,7 @@
 %-----------------------------------------------------------------------
 % BAYESIAN MODEL SELECTION intended for REWOD HEDONIC
 % IMPLEMENTED USING MACS by J. Soch
+% Created by David Munoz
 %-----------------------------------------------------------------------
 clear all
 dbstop if error
@@ -52,8 +53,8 @@ jobs{3}.spm.tools.MACS.MS_BMS_group_auto.MS_mat(1) = cfg_dep('MA: define model s
 jobs{3}.spm.tools.MACS.MS_BMS_group_auto.LME_map = 'cvLME';
 jobs{3}.spm.tools.MACS.MS_BMS_group_auto.inf_meth = 'RFX-VB';
 jobs{3}.spm.tools.MACS.MS_BMS_group_auto.EPs = 1;
-% jobs{4}.spm.tools.MACS.MS_SMM_BMS.BMS_mat(1) = cfg_dep('MS: perform BMS (automatic): BMS results (BMS.mat file)', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','BMS_mat'));
-% jobs{4}.spm.tools.MACS.MS_SMM_BMS.extent = 10;
+jobs{4}.spm.tools.MACS.MS_SMM_BMS.BMS_mat(1) = cfg_dep('MS: perform BMS (automatic): BMS results (BMS.mat file)', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','BMS_mat'));
+jobs{4}.spm.tools.MACS.MS_SMM_BMS.extent = 10;
 
 
 
