@@ -309,9 +309,7 @@ end
         % set threshold of mask
         %==========================================================================
         SPM.xM.gMT =  0.1;
-        SPM.xM.VM  =  spm_vol(Maskimage);
-        SPM.xM.I   =  0.1;
-        
+       
         % Configure design matrix
         %==========================================================================
         SPM = spm_fmri_spm_ui(SPM);
