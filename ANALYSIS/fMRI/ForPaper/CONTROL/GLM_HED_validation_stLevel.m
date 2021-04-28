@@ -269,21 +269,12 @@ end
         end
         
         %-----------------------------
-        %multiple regressors for mvts parameters ( no movement regressor after ICA)
-        
-        %rnam = {'X','Y','Z','x','y','z'};
+
         for ses=1:ntask
             
             SPM.Sess(ses).C.C = [];
             SPM.Sess(ses).C.name = {};
             
-            %movement
-                        %targetfile         = dir (fullfile(smoothfolder, ['rp_*' taskX '*.txt']));
-
-                        %fn = spm_select('List',smoothfolder,targetfile.name);% path
-                        %[r1,r2,r3,r4,r5,r6] = textread([smoothfolder '/' fn(1,:)],'%f%f%f%f%f%f'); % path
-                        %SPM.Sess(ses).C.C = [r1 r2 r3 r4 r5 r6];
-                        %SPM.Sess(ses).C.name = rnam;
         end
         
         
@@ -306,19 +297,6 @@ end
         %--------------------------------------------------------------------------
         SPM.xBF.length     = 0;
         
-        % OPTIONS: microtime time resolution and microtime onsets (this paramter
-        % should not be change according to the spm 12 manual (unless very long TR)
-        %-------------------------------------------------------------------------
-        %         V  = spm_vol(SPM.xY.P(1,:));
-        %         if iscell(V)
-        %             nslices = V{1}{1}.dim(3);
-        %         else
-        %             nslices = V(1).dim(3);
-        %         end
-        %         ref_slice          = floor(nslices/2);  % middle slice in time
-        %         SPM.xBF.T          = nslices;           % do not change unless long TR (spm12 manual)
-        %         SPM.xBF.T0         = ref_slice;		    % middle slice/timebin          % useless? cf. defaults above
-        %
         % OPTIONS: 'scans'|'secs' for onsets
         %--------------------------------------------------------------------------
         SPM.xBF.UNITS      = param.ons_unit;
@@ -398,20 +376,6 @@ end
         Ct(1,:)    = weightPos+weightNeg;
                 
 
-%         % define F contrasts
-%         %------------------------------------------------------------------
-%         Cf = []; Cfnames = [];
-%         
-%         Cfnames{end+1} = 'F_HED';
-%         
-%         %create a identidy matrix (nconditionXncondition) 
-%         F_hedonic = eye(ncondition);
-%   
-%         
-%         Cf = repmat(F_hedonic,1,ntask);
-        
-        % put the contrast matrix
-        %------------------------------------------------------------------
         
         % t contrasts
         for icon = 1:size(Ct,1)
@@ -419,12 +383,7 @@ end
             jobs{1}.stats{1}.con.consess{icon}.tcon.convec = Ct(icon,:);
         end
         
-%          % F contrats
-%          for iconf = 1:1 % until the number of F contrast computed
-%              jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.name = Cfnames{iconf};
-%              jobs{1}.stats{1}.con.consess{iconf+icon}.fcon.convec = Cf(iconf);
-%          end
-%         
+  
         
         % run the job
         spm_jobman('run',jobs)

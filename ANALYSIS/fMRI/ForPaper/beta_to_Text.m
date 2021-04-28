@@ -12,23 +12,17 @@ homedir = [home '/REWOD'];
 %homedir = [home '/mountpoint2'];
 
 %% def var
-task = 'PIT'; %
-%glm = 'GLM-04';
-%glm= 'GLM-13';
-%glm= 'GLM-PIT-validation';
-%glm= 'GLM-HED-validation';
-%
-list_roi = {'core';  'shell' ; 'mOFC' };
+task = 'hedonic'; %
 
-%list_roi = {'HED_NACcoreshell';'HED_mOFC';'HED_NACshell'};
-%list_roi = {'PIT_thalamus'; 'PIT_cerebellum'};
-%list_roi = {'HED_piriform_right'; 'HED_piriform_left'};
+%
+list_roi = {'core';  'shell'  ; 'mOFC' };
+
+
 
 
 for k = 1:length(list_roi)
     ROI_name = list_roi{k};
 
-    con_name_orig  = 'CSp_CSm';
 
 
     %% create database

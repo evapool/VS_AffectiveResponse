@@ -247,7 +247,7 @@ ppp <- pp + averaged_theme_regression
 pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
                                legend.background = element_rect(color = "white")), 
                    type = "density", alpha = .1, color = NA, fill = pal[2]) 
-
+pppp
 pdf(file.path(figures_path,'Figure_NAc_CA_PIT.pdf'))
 print(pppp)
 dev.off()
@@ -296,7 +296,7 @@ ppp <- pp + averaged_theme_regression
 pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
                                legend.background = element_rect(color = "white")), 
                    type = "density", alpha = .1, color = NA, fill = pal[2]) 
-
+pppp
 pdf(file.path(figures_path,'Figure_mOFC_PIT.pdf'))
 print(pppp)
 dev.off()
@@ -314,7 +314,7 @@ ppp <- pp + averaged_theme_regression
 pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
                                legend.background = element_rect(color = "white")), 
                    type = "density", alpha = .1, color = NA, fill = pal[2]) 
-
+pppp
 pdf(file.path(figures_path,'Figure_NAc_shell_core_PIT.pdf'))
 print(pppp)
 dev.off()
@@ -376,6 +376,7 @@ pp <- ggplot(HED.ROI.HED.TASK, aes(x = 0.5, y = mOFC)) +
 
 ppp <- pp + averaged_theme_ttest 
 
+ppp
 pdf(file.path(figures_path,'Figure_mOFC_HED.pdf'))
 print(ppp)
 dev.off()
@@ -400,6 +401,7 @@ pp <- ggplot(HED.ROI.HED.TASK, aes(x = 0.5, y = NAc_shell_core)) +
 
 ppp <- pp + averaged_theme_ttest 
 
+ppp
 pdf(file.path(figures_path,'Figure_NAc_shell_HED.pdf'))
 print(ppp)
 dev.off()
@@ -452,6 +454,7 @@ pp <- ggplot(PIT.ROI.HED.TASK.means, aes(x = 0.5, y = betas)) +
 
 ppp <- pp + averaged_theme_ttest 
 
+ppp
 pdf(file.path(figures_path,'Figure_NAc_CA_HED.pdf'))
 print(ppp)
 dev.off()

@@ -9,33 +9,29 @@ dbstop if error
 %glm= 'GLM-HED-validation';
 %task='hedonic';
 
-glm= 'GLM-between-control';
-task='PIT';
+glm= 'GLM-within-control';
+task='hedonic';
 
-list_roi = {'mOFC' ; 'shell'; 'core'};
+%list_roi = {'PIT_EFF_core_R'; 'PIT_EFF_core_L'};
 
 %list_roi = {'PIT_thalamus'; 'PIT_cerebellum'};
 
 %list_roi = {'HED_piriform_right'; 'HED_piriform_left'};
+list_roi = {'shell'; 'mOFC'; 'core'};
 
-%list_roi = {'shell-core', 'cmOFC'};
 
-%list_roi = {'PIT_NACcore'};
 
-%list_roi = {'HED_NACcoreshell';'HED_mOFC';'HED_NACshell'};
-
-%list_roi = {'PIT_CS_NACschell_right';'PIT_CS_NACschell_left';'HED_NACshell'};
 
 for k = 1:length(list_roi)
     ROI_name = list_roi{k};
 
     % which contrast
-    con_name = {'CSp-CSm'};
-    con_list = {'con_0001.nii'}; %
-    
-    %con_name = {'odor_lik'};
-    %con_name = {'Odor_NoOdor'};
+    %con_name = {'CSp-CSm'};
     %con_list = {'con_0001.nii'}; %
+    
+    con_name = {'odor_lik'};
+    %con_name = {'Odor_NoOdor'};
+    con_list = {'con_0001.nii'}; %
 
     % path
     cd ~
