@@ -1,4 +1,4 @@
-# Differential contributions of ventral striatum subregions in the motivational and hedonic components of the affective response to reward
+# Differential contributions of ventral striatum subregions to the motivational and hedonic components of the affective processing of the reward
 
 The repository contains all scripts needed to reproduce the results reported in the above study.
 
