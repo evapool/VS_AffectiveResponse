@@ -2,13 +2,14 @@
 #                                                                                                  #
 #                                                                                                  #                                                 #                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
-#           and hedonic components of the affective response to reward                             #
+#           and hedonic components of the affective processing of the reward                              #
 #                                                                                                  #
 #                                                                                                  #
 #                   Eva R Pool                                                                     #
 #                   David Munoz Tord                                                               #
 #                   Sylvain Delplanque                                                             #
-#                   Yoann Stussi                                                                   #
+#                   Yoann Stussi 
+#                   Donato Cereghetti
 #                   Patrik Vuilleumier                                                             #
 #                   David Sander                                                                   #
 #                                                                                                  #
