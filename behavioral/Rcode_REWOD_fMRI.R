@@ -49,8 +49,8 @@ home_path       <- '/Users/evapool/Documents/my_github/VS_AffectiveResponse/'
 
 # Set working directory
 analysis_path <- file.path(home_path, 'behavioral')
-covariatePIT_path <- file.path(home_path, 'univariate/PIT/GLM-between/group_covariates')
-covariateHED_path <- file.path(home_path, 'univariate/hedonic/GLM-between/group_covariates')
+covariatePIT_path <- file.path(home_path, 'univariate/PIT/group_covariates')
+covariateHED_path <- file.path(home_path, 'univariate/HED/group_covariates')
 figures_path <- file.path(analysis_path, 'figures')
 setwd(analysis_path)
 
@@ -68,6 +68,10 @@ ROI_HED.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_
 ROI_HED.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_task_PIT.txt'), header = T, sep ='') 
 ROI_PIT.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_hedonic.txt'), header = T, sep ='') 
 ROI_PIT.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_PIT.txt'), header = T, sep ='') 
+
+# get betas from ROI defined by Cartmell et al., 2019
+HED.TASK     <- read.csv(file.path(analysis_path, 'databases/Betas_TASK_HED.csv')) 
+PIT.TASK   <- read.csv(file.path(analysis_path, 'databases/Betas_TASK_PIT.csv'),) 
 
 
 # themes for plots
@@ -193,9 +197,6 @@ diffL$ID <- as.numeric(as.character(diffL$ID))
 write.table(diffL, (file.path(covariateHED_path, "Pleasant_Neutral.txt")), row.names = F, sep="\t")
 
 
-
-
-
 # -------------------------------------------------------------------------------------------------
 #                                              PIT 
 # -------------------------------------------------------------------------------------------------
@@ -214,6 +215,7 @@ PIT.ROI.TASK.PIT = PIT.ROI.TASK.PIT %>% select(-one_of('PIT_CS_NACschell_right_b
 # long format for left and right
 PIT.ROI.TASK.PIT.long <- gather(PIT.ROI.TASK.PIT, ROI , beta, NAc_CA_right:NAc_CA_left, factor_key=TRUE)
 
+
 PIT.ROI.TASK.PIT.long$ROI_type = 'Pav_ROI'
 
 # -------------------------------- STAT
@@ -222,6 +224,8 @@ VS_CA_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PI
 F_to_eta2(f = c(41.89), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
 emmeans(VS_CA_eff.stat,  ~ ROI:deltaCS_R)
+
+
 
 
 # -------------------------------- PLOT
@@ -311,6 +315,7 @@ pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification =
 pdf(file.path(figures_path,'Figure_NAc_shell_core_PIT.pdf'))
 print(pppp)
 dev.off()
+
 
 
 
@@ -445,17 +450,6 @@ print(ppp)
 dev.off()
 
 
-
-
-
-
-
-
-
-
-
-
-
 # ------------------------------------------------------------------------------------------------------
 #                                       DIRECT COMPARAISON DURING PIT IN VS
 # ------------------------------------------------------------------------------------------------------
@@ -493,7 +487,6 @@ intROIPIT.BF[9]/intROIPIT.BF[8]
 
 
 
-
 # ----------------------------------------------HED TASK -----------------------------------------------
 
 CM.HED.ROI.HED = HED.ROI.HED.TASK
@@ -523,6 +516,101 @@ intROIHED.BF <- anovaBF(beta ~ ROI_type + ID, data = HED.ROI.COMPARE.means,
                               whichRandom = "ID", iterations = 50000)
 intROIHED.BF <- recompute(intROIHED.BF, iterations = 50000)
 intROIHED.BF
+
+
+
+# ------------------------------------------------------------------------------------------------
+#  Pavlovian-triggered motivation and sensory pleasure within the core-like and shell-like divisions
+# --------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------- CORE during PIT -----------------------------------------
+
+# Compile database
+PIT.ROI <- merge(PIT.index, PIT.TASK, by = 'ID')
+
+
+# -------------------------------- STAT
+aov_car(core ~ deltaCS_R  + Error (ID ), data = PIT.ROI,
+        observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "none"))
+
+F_to_eta2(f = c(10.63), df = c(1), df_error = c(22)) # effect sizes (90%CI)
+
+BF <- lmBF(core ~ deltaCS_R + ID, data = PIT.ROI, 
+           whichRandom = "ID", iterations = 50000) ; BF
+
+# -------------------------------- PLOT
+pp <- ggplot(PIT.ROI, aes(y = core, x = deltaCS_R)) +
+  geom_point(color = pal[2]) +
+  geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
+  labs(y = 'Core Beta estimate (a.u.)', x ='Cue-triggered effort (rank)') + #Beta estimates (a.u) # Cue-triggered effort
+  scale_fill_manual(values=pal[2], guide = 'none') +
+  theme_bw()
+
+ppp <- pp + averaged_theme_regression
+
+pppp  <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
+                                  legend.background = element_rect(color = "white")), 
+                      type = "density", alpha = .1, color = NA, fill = pal[2]) 
+pdf(file.path(figures_path,'Figure_CORE_PIT.pdf'))
+print(pppp)
+dev.off()
+
+# ------------------------------------- CORE during HED -----------------------------------------
+
+# -------------------------------- STAT
+t.test(HED.TASK$core)
+# BF
+ttestBF(HED.TASK$core)
+# effect size
+cohen_d_ci(HED.TASK$core, conf.level = .95)
+
+
+# ------------------------------------- SHELL during HED -----------------------------------------
+
+# -------------------------------- STAT
+#ttest
+t.test(HED.TASK$shell)
+# BF
+ttestBF(HED.TASK$shell)
+# effect size
+cohen_d_ci(HED.TASK$shell, conf.level = .95)
+
+# -------------------------------- PLOT
+dfG = summarySE(data = HED.TASK, measurevar = "shell"); dfG
+pp <- ggplot(HED.TASK, aes(x = 0.5, y = shell)) +
+  geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, fill = pal[3], width = 0.5) +
+  geom_jitter(alpha = .6, color = pal[3], width = 0.02) +
+  geom_crossbar(data = dfG, aes(ymin= shell-se, ymax= shell+se), 
+                width = 0.2 , alpha = 0.1, color = pal[3])+
+  ylab('Beta estimates (a.u.)') + #
+  xlab('') + 
+  scale_y_continuous(expand = c(-0, 0), breaks = c(seq.int(-0.04,0.04, by = 0.02)), limits = c(-0.045,0.045))  +
+  scale_x_continuous(expand = c(0, 0), breaks = c(seq.int(0.1,0.8, by = 0.25)), limits = c(0.2,0.8))  +
+  theme_bw()
+
+ppp <- pp + averaged_theme_ttest 
+
+ppp
+pdf(file.path(figures_path,'Figure_shell_HED.pdf'))
+print(ppp)
+dev.off()
+
+
+# ------------------------------------- SHELL during PIT -----------------------------------------
+
+# -------------------------------- STAT
+shell_eff.stat     <- aov_car(shell ~ deltaCS_R + Error (ID), data = PIT.ROI,
+                              observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "none")) # no
+
+F_to_eta2(f = c(2.04), df = c(1), df_error = c(22)) # effect sizes (90%CI)
+
+
+BF <- lmBF(shell ~ deltaCS_R + ID, data = PIT.ROI, 
+           whichRandom = "ID", iterations = 50000); BF
+
+
 
 
 
