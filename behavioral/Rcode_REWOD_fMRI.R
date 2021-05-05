@@ -35,11 +35,16 @@ if(!require(devtools)) {
   library(devtools)
 }
 
+se <- function (x,na.rm=TRUE) {
+  if (!is.vector(x)) STOP("'x' must be a vector.")
+  if (!is.numeric(x)) STOP("'x' must be numeric.")
+  if (na.rm) x <- x[stats::complete.cases(x)]
+  sqrt(stats::var(x)/length(x))
+}
+
 # get tool
 devtools::source_gist("2a1bb0133ff568cbe28d", 
                       filename = "geom_flat_violin.R")
-
-
 
 #SETUP
 
@@ -106,9 +111,6 @@ averaged_theme_ttest <- theme_bw(base_size = 28, base_family = "Helvetica")+
 pal = viridis::inferno(n=5)
 
 
-
-
-
 # -------------------------------------------------------------------------------------------------
 #                                             PREPROC
 # -------------------------------------------------------------------------------------------------
@@ -171,6 +173,7 @@ HED.s <- subset (HED, condition == 'neutral'| condition == 'chocolate')
 
 # mean and index
 HED.means <- aggregate(HED.s$perceived_liking, by = list(HED.s$id, HED.s$condition), FUN='mean') # extract means
+
 colnames(HED.means) <- c('id','condition','perceived_liking')
 #index US liking
 HED.means <- ddply(HED.means, .(id), transform, deltaUS_lik = perceived_liking[condition=="chocolate"] - perceived_liking[condition=="neutral"])
@@ -197,6 +200,7 @@ diffL$ID <- as.numeric(as.character(diffL$ID))
 write.table(diffL, (file.path(covariateHED_path, "Pleasant_Neutral.txt")), row.names = F, sep="\t")
 
 
+
 # -------------------------------------------------------------------------------------------------
 #                                              PIT 
 # -------------------------------------------------------------------------------------------------
@@ -206,24 +210,24 @@ write.table(diffL, (file.path(covariateHED_path, "Pleasant_Neutral.txt")), row.n
 # Compile database
 PIT.ROI.TASK.PIT <- merge(PIT.index, ROI_PIT.CSpCSm, by = 'ID')
 # rename variables for this database
-PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_EFF_VSCA_right_betas', 'NAc_CA_right')
-PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_Eff_VSCA_left_betas', 'NAc_CA_left')
+PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_EFF_VSDL_right_betas', 'VS_DL_right')
+PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_Eff_VSDL_left_betas', 'VS_DL_left')
 
 # remove ROI from CS+ vs CS- independent from effort
-PIT.ROI.TASK.PIT = PIT.ROI.TASK.PIT %>% select(-one_of('PIT_CS_NACschell_right_betas','PIT_CS_NACshell_left_betas'))
+PIT.ROI.TASK.PIT = PIT.ROI.TASK.PIT %>% select(-one_of('PIT_CS_VS_right_betas','PIT_VS_left_betas'))
 
 # long format for left and right
-PIT.ROI.TASK.PIT.long <- gather(PIT.ROI.TASK.PIT, ROI , beta, NAc_CA_right:NAc_CA_left, factor_key=TRUE)
+PIT.ROI.TASK.PIT.long <- gather(PIT.ROI.TASK.PIT, ROI , beta, VS_DL_right:VS_DL_left, factor_key=TRUE)
 
 
 PIT.ROI.TASK.PIT.long$ROI_type = 'Pav_ROI'
 
 # -------------------------------- STAT
-VS_CA_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PIT.ROI.TASK.PIT.long,
+VS_DL_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PIT.ROI.TASK.PIT.long,
                               observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes"))
 F_to_eta2(f = c(41.89), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
-emmeans(VS_CA_eff.stat,  ~ ROI:deltaCS_R)
+emmeans(VS_DL_eff.stat,  ~ ROI:deltaCS_R)
 
 
 
@@ -245,7 +249,7 @@ pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification =
                                legend.background = element_rect(color = "white")), 
                    type = "density", alpha = .1, color = NA, fill = pal[2]) 
 
-pdf(file.path(figures_path,'Figure_NAc_CA_PIT.pdf'))
+pdf(file.path(figures_path,'Figure_VS_DorsoLateral_PIT.pdf'))
 print(pppp)
 dev.off()
 
@@ -256,7 +260,7 @@ dev.off()
 HED.ROI.TASK.PIT <- merge(PIT.index, ROI_HED.CSpCSm, by = 'ID')
 
 # rename variables for this database
-HED.ROI.TASK.PIT <- rename.variable(HED.ROI.TASK.PIT, 'HED_NACcoreshell_betas', 'NAc_shell_core')
+HED.ROI.TASK.PIT <- rename.variable(HED.ROI.TASK.PIT, 'HED_VS_VM_betas', 'VS_VM')
 HED.ROI.TASK.PIT <- rename.variable(HED.ROI.TASK.PIT, 'HED_mOFC_betas', 'mOFC')
 HED.ROI.TASK.PIT$ROI_type = 'hed_ROI'
 
@@ -269,11 +273,11 @@ intROIPIT.BF <- lmBF(mOFC ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT,
                                         whichRandom = "ID", iterations = 50000)
 intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 
-#NAC
-NAcShellCore_eff.stat     <- aov_car(NAc_shell_core ~ deltaCS_R + Error (ID), data = HED.ROI.TASK.PIT,
+#VS VENTRO MEDIAL
+VS_VM_eff.stat     <- aov_car(VS_VM ~ deltaCS_R + Error (ID), data = HED.ROI.TASK.PIT,
                                      observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes")) # no
 F_to_eta2(f = c(0.69), df = c(1), df_error = c(22)) # effect sizes (90%CI)
-intROIPIT.BF <- lmBF(NAc_shell_core ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT, 
+intROIPIT.BF <- lmBF(VS_VM ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT, 
                      whichRandom = "ID", iterations = 50000)
 intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 
@@ -299,7 +303,7 @@ print(pppp)
 dev.off()
 
 # pannel 2
-pp <- ggplot(HED.ROI.TASK.PIT, aes(y = NAc_shell_core, x = deltaCS_R)) +
+pp <- ggplot(HED.ROI.TASK.PIT, aes(y = VS_VM, x = deltaCS_R)) +
   geom_point(color = pal[2]) +
   geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
   labs(y = 'Beta estimates (a.u)', x ='Cue-triggered effort (rank)') +
@@ -312,11 +316,9 @@ pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification =
                                legend.background = element_rect(color = "white")), 
                    type = "density", alpha = .1, color = NA, fill = pal[2]) 
 
-pdf(file.path(figures_path,'Figure_NAc_shell_core_PIT.pdf'))
+pdf(file.path(figures_path,'Figure_VS_VentroMedial_PIT.pdf'))
 print(pppp)
 dev.off()
-
-
 
 
 
@@ -330,19 +332,20 @@ dev.off()
 HED.ROI.HED.TASK <- ROI_HED.lik
 
 # rename variables for this database
-HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_NACcoreshell_betas', 'NAc_shell_core')
+HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_VS_VM_betas', 'VS_VM')
 HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_mOFC_betas', 'mOFC')
 
 #------------------------------- STAT
-t.test(HED.ROI.HED.TASK$NAc_shell_core)
+t.test(HED.ROI.HED.TASK$VS_VM)
 # BF
-ttestBF(HED.ROI.HED.TASK$NAc_shell_core)
+ttestBF(HED.ROI.HED.TASK$VS_VM)
 # effect size
-cohen_d_ci(HED.ROI.HED.TASK$NAc_shell_core, conf.level = .95)
+cohen_d_ci(HED.ROI.HED.TASK$VS_VM, conf.level = .95)
 
 t.test(HED.ROI.HED.TASK$mOFC)
 # BF
 ttestBF(HED.ROI.HED.TASK$mOFC)
+
 # effect size
 cohen_d_ci(HED.ROI.HED.TASK$mOFC, conf.level = .95)
 
@@ -375,15 +378,15 @@ dev.off()
 
 
 # pannel 2
-dfG = summaryBy(NAc_shell_core ~ 1, data = HED.ROI.HED.TASK,
+dfG = summaryBy(VS_VM ~ 1, data = HED.ROI.HED.TASK,
                 FUN = function(x) { c(m = mean(x, na.rm = T),
                                       s = se(x, na.rm = T)) } )
 
-pp <- ggplot(HED.ROI.HED.TASK, aes(x = 0.5, y = NAc_shell_core)) +
+pp <- ggplot(HED.ROI.HED.TASK, aes(x = 0.5, y = VS_VM)) +
   geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
   geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, fill = pal[3], width = 0.5) +
   geom_jitter(alpha = .6, color = pal[3], width = 0.02) +
-  geom_crossbar(data = dfG, aes(y =  NAc_shell_core.m, ymin= NAc_shell_core.m-NAc_shell_core.s, ymax= NAc_shell_core.m+NAc_shell_core.s), 
+  geom_crossbar(data = dfG, aes(y =  VS_VM.m, ymin= VS_VM.m-VS_VM.s, ymax= VS_VM.m+VS_VM.s), 
                 width = 0.2 , alpha = 0.1, color = pal[3])+
   ylab('Beta estimates (a.u.)') +
   xlab('') +
@@ -393,7 +396,7 @@ pp <- ggplot(HED.ROI.HED.TASK, aes(x = 0.5, y = NAc_shell_core)) +
 
 ppp <- pp + averaged_theme_ttest 
 
-pdf(file.path(figures_path,'Figure_NAc_shell_HED.pdf'))
+pdf(file.path(figures_path,'Figure_VS_VentroMedial_HED.pdf'))
 print(ppp)
 dev.off()
 
@@ -403,19 +406,19 @@ dev.off()
 PIT.ROI.HED.TASK <- merge(PIT.index, ROI_PIT.lik, by = 'ID')
 
 # rename variables for this database
-PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_EFF_VSCA_right_betas', 'NAc_CA_right')
-PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_Eff_VSCA_left_betas', 'NAc_CA_left')
+PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_EFF_VSDL_right_betas', 'VS_DL_right')
+PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_Eff_VSDL_left_betas', 'VS_DL_left')
 
 # remove ROI from CS+ vs CS- independent from effort
-PIT.ROI.HED.TASK %>% select(-one_of('PIT_CS_NACschell_right_betas','PIT_CS_NACshell_left_betas'))
+PIT.ROI.HED.TASK %>% select(-one_of('PIT_CS_VS_right_betas','PIT_CS_VS_left_betas'))
 
 
 # long format for left and right
-PIT.ROI.HED.TASK.long <- gather(PIT.ROI.HED.TASK, ROI , beta, NAc_CA_right:NAc_CA_left, factor_key=TRUE)
+PIT.ROI.HED.TASK.long <- gather(PIT.ROI.HED.TASK, ROI , beta, VS_DL_right:VS_DL_left, factor_key=TRUE)
 
 
 # -------------------------------- STAT
-VS_CA_lik.stat     <- aov_car(beta ~ ROI + Error (ID/ROI), data = PIT.ROI.HED.TASK.long, factorize = F, anova_table = list(es = "pes")) 
+VS_DL_lik.stat     <- aov_car(beta ~ ROI + Error (ID/ROI), data = PIT.ROI.HED.TASK.long, factorize = F, anova_table = list(es = "pes")) 
 
 # since there is no ROI effect let's compute the main effect on the average
 PIT.ROI.HED.TASK.means <- aggregate(PIT.ROI.HED.TASK.long$beta, by = list(PIT.ROI.HED.TASK.long$ID), FUN='mean') # extract means
@@ -445,7 +448,7 @@ pp <- ggplot(PIT.ROI.HED.TASK.means, aes(x = 0.5, y = betas)) +
 
 ppp <- pp + averaged_theme_ttest 
 
-pdf(file.path(figures_path,'Figure_NAc_CA_HED.pdf'))
+pdf(file.path(figures_path,'Figure_VS_DorsoLateral_HED.pdf'))
 print(ppp)
 dev.off()
 
@@ -457,8 +460,8 @@ dev.off()
 # ----------------------------------------------PIT TASK -----------------------------------------------
 
 CM.HED.ROI.PIT = HED.ROI.TASK.PIT
-CM.HED.ROI.PIT = CM.HED.ROI.PIT %>% select(-one_of('mOFC','HED_NACshell_betas'))
-CM.HED.ROI.PIT <- rename.variable(CM.HED.ROI.PIT, 'NAc_shell_core', 'beta')
+CM.HED.ROI.PIT = CM.HED.ROI.PIT %>% select(-one_of('mOFC','HED_VS_small_betas'))
+CM.HED.ROI.PIT <- rename.variable(CM.HED.ROI.PIT, 'VS_VM', 'beta')
 
 # select only the variable of interest
 CM.HED.ROI.PIT = select(CM.HED.ROI.PIT, 'ID','deltaCS_R','ROI_type','beta')
@@ -490,8 +493,8 @@ intROIPIT.BF[9]/intROIPIT.BF[8]
 # ----------------------------------------------HED TASK -----------------------------------------------
 
 CM.HED.ROI.HED = HED.ROI.HED.TASK
-CM.HED.ROI.HED = CM.HED.ROI.HED %>% select(-one_of('mOFC','HED_NACshell_betas'))
-CM.HED.ROI.HED <- rename.variable(CM.HED.ROI.HED, 'NAc_shell_core', 'beta')
+CM.HED.ROI.HED = CM.HED.ROI.HED %>% select(-one_of('mOFC','HED_VS_small_betas'))
+CM.HED.ROI.HED <- rename.variable(CM.HED.ROI.HED, 'VS_VM', 'beta')
 CM.HED.ROI.HED$ROI_type = 'hed_ROI'
 
 # select only the variable of interest
@@ -516,7 +519,6 @@ intROIHED.BF <- anovaBF(beta ~ ROI_type + ID, data = HED.ROI.COMPARE.means,
                               whichRandom = "ID", iterations = 50000)
 intROIHED.BF <- recompute(intROIHED.BF, iterations = 50000)
 intROIHED.BF
-
 
 
 # ------------------------------------------------------------------------------------------------
