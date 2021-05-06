@@ -44,8 +44,9 @@ devtools::source_gist("2a1bb0133ff568cbe28d",
 #SETUP
 
 # Set path
-home_path       <- '/Users/evapool/Documents/my_github/VS_AffectiveResponse/'
-
+home_path       <- dirname(rstudioapi::getActiveDocumentContext()$path)
+pos             <- regexpr("VS_AffectiveResponse", home_path) # we want the path to the root folder
+home_path       <- substr(home_path, 1, pos+19)
 
 # Set working directory
 analysis_path <- file.path(home_path, 'behavioral')
