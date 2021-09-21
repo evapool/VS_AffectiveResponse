@@ -1,3 +1,4 @@
+####################################################################################################
 #                                                                                                  #
 #                                                                                                  #                                                 #                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
@@ -12,8 +13,8 @@
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
-# modified by E.R.P on  JANUARY  2021 (short version) (April 2021 D.M.T.)                                             #
-
+# modified by E.R.P on  JANUARY  2021 (short version)                                              #
+####################################################################################################
 
 
 #--------------------------------------  PRELIMINARY STUFF ----------------------------------------
@@ -26,7 +27,7 @@ if(!require(pacman)) {
 pacman::p_load(apaTables, MBESS, afex, car, ggplot2, dplyr, plyr, tidyr, 
                reshape, Hmisc, Rmisc,  ggpubr, ez, gridExtra, plotrix, 
                lsmeans, BayesFactor, effectsize, devtools,misty,questionr,ggplot, ggExtra,
-               doBy,BayesFactor,BayesianFirstAid, boot, lmPerm)
+               doBy,BayesFactor,BayesianFirstAid)
 
 if(!require(devtools)) {
   install.packages("devtools")
@@ -37,15 +38,13 @@ if(!require(devtools)) {
 devtools::source_gist("2a1bb0133ff568cbe28d", 
                       filename = "geom_flat_violin.R")
 
-devtools::source_gist("383aa93ffa161665c0dca1103ef73d9d", 
-                      filename = "effect_CI.R")
 
 
 #SETUP
 
 # Set path
-#home_path       <- '/Users/evapool/mountpoint/REWOD'
-home_path       <- '~/REWOD'
+home_path       <- '/Users/evapool/mountpoint/REWOD'
+#home_path       <- '~/REWOD'
 
 # Set working directory
 analysis_path <- file.path(home_path, 'CODE/ANALYSIS/BEHAV/ForPaper')
@@ -67,10 +66,11 @@ PIT  <- read.delim(file.path(data_path,'PIT/REWOD_PIT_ses_second.txt'), header =
 HED  <- read.delim(file.path(data_path,'HED/REWOD_HEDONIC_ses_second.txt'), header = T, sep ='') # read in dataset
 
 
+ROI_HED.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_TASK_Hed.txt'), header = T, sep ='') 
 
-HED.TASK     <- read.csv(file.path(analysis_path, 'databases/Betas_TASK_HED.csv')) 
-PIT.TASK   <- read.csv(file.path(analysis_path, 'databases/Betas_TASK_PIT.csv'),) 
-
+ROI_HED.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_task_PIT.txt'), header = T, sep ='') 
+ROI_PIT.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_hedonic.txt'), header = T, sep ='') 
+ROI_PIT.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_PIT.txt'), header = T, sep ='') 
 
 
 # themes for plots
@@ -108,10 +108,13 @@ pal = viridis::inferno(n=5)
 
 
 
-# ----------------------------------------    PREPROC ---------------------------------------
+# -------------------------------------------------------------------------------------------------
+#                                             PREPROC
+# -------------------------------------------------------------------------------------------------
 
-# -------------------------------------  PIT   ----------------------------------------------
+#-------------------------------------  PIT   -----------------------------------------------------
 
+# PIT
 PIT.all <- PIT
 fac <- c("id", "session", "condition",  "trialxcondition")
 PIT.all[fac] <- lapply(PIT.all[fac], factor)
@@ -159,7 +162,7 @@ PAV.index <- subset(PAV.means, condition == 'CSplus')
 
 
 
-#-------------------------------------- HED -------------------------------------------------------
+#-------------------------------------- HED -----------------------------------------------------------
 fac <- c("id", "condition",  "trialxcondition")
 HED[fac] <- lapply(HED[fac], factor)
 
@@ -195,250 +198,245 @@ write.table(diffL, (file.path(covariateHED_path, "Pleasant_Neutral.txt")), row.n
 
 
 
+# -------------------------------------------------------------------------------------------------
+#                                              PIT 
+# -------------------------------------------------------------------------------------------------
 
-# ------------------------------------- CORE during PIT -----------------------------------------
+# ------------------------------------- PIT ROI during PIT -----------------------------------------
 
 # Compile database
-PIT.ROI <- merge(PIT.index, PIT.TASK, by = 'ID')
+PIT.ROI.TASK.PIT <- merge(PIT.index, ROI_PIT.CSpCSm, by = 'ID')
+# rename variables for this database
+PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_EFF_VSCA_right_betas', 'NAc_CA_right')
+PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_Eff_VSCA_left_betas', 'NAc_CA_left')
+
+# remove ROI from CS+ vs CS- independent from effort
+PIT.ROI.TASK.PIT = PIT.ROI.TASK.PIT %>% select(-one_of('PIT_CS_NACschell_right_betas','PIT_CS_NACshell_left_betas'))
+
+# long format for left and right
+PIT.ROI.TASK.PIT.long <- gather(PIT.ROI.TASK.PIT, ROI , beta, NAc_CA_right:NAc_CA_left, factor_key=TRUE)
+
+PIT.ROI.TASK.PIT.long$ROI_type = 'Pav_ROI'
 
 # -------------------------------- STAT
+VS_CA_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PIT.ROI.TASK.PIT.long,
+                              observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes"))
+F_to_eta2(f = c(41.89), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
-# permut
-mod = lmp(core ~ deltaCS_R, PIT.ROI) 
-summary(mod)
-#cor.test(PIT.ROI$deltaCS, PIT.ROI$core, method = 'kendall') # rank
-
-#eff size CI bootstrap
-CI_R <- boot(PIT.ROI,function(data,indices) 
-              summary(lmp(core~deltaCS,data[indices,]))$r.squared,R=10000)
-quantile(CI_R$t,c(0.025,0.975))
-
-
-
-aov_car(core ~ deltaCS_R  + Error (ID ), data = PIT.ROI, observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "none"))
-pes_ci(core ~ deltaCS_R  + Error (ID ), data = PIT.ROI, observed = c("deltaCS_R"), factorize = F)
-
-BF <- lmBF(core ~ deltaCS_R + ID, data = PIT.ROI, 
-           whichRandom = "ID", iterations = 50000) ; BF
-
-
-# PLOT PIT CORE -----------------------------------------------------------
-
-
-pp <- ggplot(PIT.ROI, aes(y = core, x = deltaCS)) +
-  geom_point(color = pal[2]) +
-  geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
-  labs(y = 'CS+ > CS- (a.u.)', x ='PIT index') + #Beta estimates (a.u) # Cue-triggered effort
-  scale_fill_manual(values=pal[2], guide = 'none') +
-  theme_bw()
-
-ppp <- pp + averaged_theme_regression
-
-ppp
-
-
-
-pp <- ggplot(PIT.ROI, aes(y = core, x = deltaCS_R)) +
-  geom_point(color = pal[2]) +
-  geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
-  labs(y = 'Beta estimates (a.u)', x =' Cue-triggered effort') + # #
-  scale_fill_manual(values=pal[2], guide = 'none') +
-  theme_bw()
-
-ppp <- pp + averaged_theme_regression
-
-ppp
-
-figure1 <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
-                                  legend.background = element_rect(color = "white")), 
-                      type = "density", alpha = .1, color = NA, fill = pal[2]) 
-figure1
-pdf(file.path(figures_path,'Figure_CORE_PIT.pdf'))
-print(figure1)
-dev.off()
-
-
-
-# compile
-
-PIT.long <- gather(PIT.ROI, ROI , beta, shell:core, factor_key=TRUE)
-PIT.long$ROI <- relevel(PIT.long$ROI, "core") # Make core first
-
-core_eff.stat     <- aov_car(beta ~ deltaCS_Z + ROI + Error (ID/ROI), data = PIT.long ,
-                             observed = c("deltaCS_Z"), factorize = F, anova_table = list(es = "none"))
-
-
-pes_ci(beta ~ deltaCS_Z  + ROI + Error (ID/ROI), data = PIT.long,
-       observed = c("deltaCS_Z"), factorize = F)
-
-emtrends(core_eff.stat, pairwise ~ ROI, var = "deltaCS_Z") #shel trends within 0 whereas core not
-
-#emmip(core_eff.stat, ROI ~ deltaCS_Z, cov.reduce = range) # vizualize
-
-test = extractBF(generalTestBF(beta ~ deltaCS_Z*ROI + ID, data= PIT.long, whichRandom = 'ID', neverExclude =  'ID', whichModels ="top")); BF = 1/test[1] #switch to BF10
-
-
-
-
-# ------------------------------------- SHELL during HED -----------------------------------------
-
-#permut
-set.seed(123); DAAG::onet.permutation(HED.TASK$shell, nsim = 10000, plotit = F)
-dfG = summarySE(data = HED.TASK, measurevar = "shell"); dfG
-
-
-#ttest
-t.test(HED.TASK$shell)
-
-# BF
-ttestBF(HED.TASK$shell)
-
-# effect size
-cohen_d_ci(HED.TASK$shell, conf.level = .95)
-
-
-
-# -------------------------------- PLOT HED SHELL-----------------
-
-
-# pannel 1
-
-
-pp <- ggplot(HED.TASK, aes(x = 0.5, y = shell)) +
-  geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
-  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, fill = pal[3], width = 0.5) +
-  geom_jitter(alpha = .6, color = pal[3], width = 0.02) +
-  geom_crossbar(data = dfG, aes(ymin= shell-se, ymax= shell+se), 
-                width = 0.2 , alpha = 0.1, color = pal[3])+
-  ylab('Liking Modulation (a.u.)') + #Beta estimates (a.u.)
-  xlab('') + 
-  #scale_y_continuous(expand = c(-0, 0), breaks = c(seq.int(-0.03,0.05, by = 0.02)), limits = c(-0.031,0.051))  +
-  scale_x_continuous(expand = c(0, 0), breaks = c(seq.int(0.1,0.8, by = 0.25)), limits = c(0.2,0.8))  +
-  theme_bw()
-
-ppp <- pp + averaged_theme_ttest 
-
-ppp
-
-
-
-pp <- ggplot(HED.TASK, aes(x = 0.5, y = shell)) +
-  geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
-  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, fill = pal[3], width = 0.5) +
-  geom_jitter(alpha = .6, color = pal[3], width = 0.02) +
-  geom_crossbar(data = dfG, aes(ymin= shell-se, ymax= shell+se), 
-                width = 0.2 , alpha = 0.1, color = pal[3])+
-  ylab('Beta estimates (a.u.)') + #
-  xlab('') + 
-  scale_y_continuous(expand = c(-0, 0), breaks = c(seq.int(-0.04,0.04, by = 0.02)), limits = c(-0.045,0.045))  +
-  scale_x_continuous(expand = c(0, 0), breaks = c(seq.int(0.1,0.8, by = 0.25)), limits = c(0.2,0.8))  +
-  theme_bw()
-
-ppp <- pp + averaged_theme_ttest 
-
-ppp
-pdf(file.path(figures_path,'Figure_shell_HED.pdf'))
-print(ppp)
-dev.off()
-
-
-
-# OTHER STUFF -------------------------------------------------------------------
-
-
-pp <- ggplot(PIT.ROI, aes(y = shell, x = deltaCS_R)) +
-  geom_point(color = pal[2]) +
-  geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
-  labs(y = 'CS+ > CS- (a.u.)', x ='PIT index') + #Beta estimates (a.u) # Cue-triggered effort
-  scale_fill_manual(values=pal[2], guide = 'none') +
-  theme_bw()
-
-pp + averaged_theme_regression
-
-#plot inter 
-  
-pp <- ggplot(PIT.long, aes(y = beta, x = deltaCS, color = ROI, fill = ROI)) +
-  geom_point() +
-  geom_smooth(method='lm', alpha = 0.2, fullrange=TRUE) +
-  labs(y = 'CS+ > CS- (a.u.)', x ='PIT index') + #Beta estimates (a.u) # Cue-triggered effort
-  scale_fill_manual(values=c("core"="royalblue", "shell"=pal[3]), guide = 'none') +
-  scale_color_manual(values=c("core"="royalblue", "shell"=pal[3]), guide = 'none') +
-  theme_bw()
-
-ppp <- pp + averaged_theme_regression
-
-ppp
-
-# Compile database
-HED.ROI <- merge(HED.index, HED.TASK, by = 'ID')
-
-
-HED.long <- gather(HED.ROI, ROI , beta, shell:core, factor_key=TRUE)
-
-shell.stat     <- aov_car(beta ~  ROI + Error (ID/ROI), data = HED.long, factorize = F, anova_table = list(es = "none"))
-
-
-
-# ------------------------------------- SHELL during PIT -----------------------------------------
-
-
-#shell
-shell_eff.stat     <- aov_car(shell ~ deltaCS_R + Error (ID), data = PIT.ROI,
-                              observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "none")) # no
-
-pes_ci(shell ~ deltaCS_R  + Error (ID), data = PIT.ROI,
-       observed = c("deltaCS_R"), factorize = F)
-
-BF <- lmBF(shell ~ deltaCS_R + ID, data = PIT.ROI, 
-           whichRandom = "ID", iterations = 50000); BF
 
 
 # -------------------------------- PLOT
+PIT.ROI.TASK.PIT.means <- aggregate(PIT.ROI.TASK.PIT.long$beta, by = list(PIT.ROI.TASK.PIT.long$ID, PIT.ROI.TASK.PIT.long$deltaCS_R), FUN='mean') # extract means
+colnames(PIT.ROI.TASK.PIT.means) <- c('ID','beta', 'effort')
 
-
-
-# pannel 2
-pp <- ggplot(PIT.ROI, aes(y = shell, x = deltaCS)) +
+pp <- ggplot(PIT.ROI.TASK.PIT.means, aes(y = effort, x = beta)) +
   geom_point(color = pal[2]) +
   geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
-  labs(y = 'Beta estimates (a.u)', x ='PIT index ') +
+  labs(y = 'Beta estimates (a.u)', x ='Cue-triggered effort (rank)') +
   scale_fill_manual(values=pal[2], guide = 'none') +
   theme_bw()
 
-ppp <- pp + averaged_theme_regression 
+ppp <- pp + averaged_theme_regression
 
-figure3 <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
-                                  legend.background = element_rect(color = "white")), 
-                      type = "density", alpha = .1, color = NA, fill = pal[2]) 
-figure3
-pdf(file.path(figures_path,'Figure_SHELL_PIT.pdf'))
+pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
+                               legend.background = element_rect(color = "white")), 
+                   type = "density", alpha = .1, color = NA, fill = pal[2]) 
+
+pdf(file.path(figures_path,'Figure_NAc_CA_PIT.pdf'))
 print(pppp)
 dev.off()
 
 
 
-# ------------------------------------- CORE during HED -----------------------------------------
+
+# ------------------------------------- HED ROI during PIT -----------------------------------------
+HED.ROI.TASK.PIT <- merge(PIT.index, ROI_HED.CSpCSm, by = 'ID')
+
+# rename variables for this database
+HED.ROI.TASK.PIT <- rename.variable(HED.ROI.TASK.PIT, 'HED_NACcoreshell_betas', 'NAc_shell_core')
+HED.ROI.TASK.PIT <- rename.variable(HED.ROI.TASK.PIT, 'HED_mOFC_betas', 'mOFC')
+HED.ROI.TASK.PIT$ROI_type = 'hed_ROI'
 
 
-# -------------------------------- STAT
-set.seed(123); DAAG::onet.permutation(HED.TASK$core, nsim = 10000, plotit = F)
-dfG = summarySE(data = HED.TASK, measurevar = "core"); dfG
+#mOFC
+mOFC_eff.stat             <- aov_car(mOFC ~ deltaCS_R + Error (ID), data = HED.ROI.TASK.PIT,
+                                     observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes")) # no
+F_to_eta2(f = c(0.06), df = c(1), df_error = c(22)) # effect sizes (90%CI)
+intROIPIT.BF <- lmBF(mOFC ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT, 
+                                        whichRandom = "ID", iterations = 50000)
+intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 
-t.test(HED.TASK$core)
+#NAC
+NAcShellCore_eff.stat     <- aov_car(NAc_shell_core ~ deltaCS_R + Error (ID), data = HED.ROI.TASK.PIT,
+                                     observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes")) # no
+F_to_eta2(f = c(0.69), df = c(1), df_error = c(22)) # effect sizes (90%CI)
+intROIPIT.BF <- lmBF(NAc_shell_core ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT, 
+                     whichRandom = "ID", iterations = 50000)
+intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
+
+
+# -------------------------------- PLOT
+
+# pannel 1
+pp <- ggplot(HED.ROI.TASK.PIT, aes(y = mOFC, x = deltaCS_R)) +
+  geom_point(color = pal[2]) +
+  geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
+  labs(y = 'Beta estimates (a.u)', x ='Cue-triggered effort (rank)') +
+  scale_fill_manual(values=pal[2], guide = 'none') +
+  theme_bw()
+
+ppp <- pp + averaged_theme_regression 
+
+pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
+                               legend.background = element_rect(color = "white")), 
+                   type = "density", alpha = .1, color = NA, fill = pal[2]) 
+
+pdf(file.path(figures_path,'Figure_mOFC_PIT.pdf'))
+print(pppp)
+dev.off()
+
+# pannel 2
+pp <- ggplot(HED.ROI.TASK.PIT, aes(y = NAc_shell_core, x = deltaCS_R)) +
+  geom_point(color = pal[2]) +
+  geom_smooth(method='lm', color = pal[2], fill = pal[2], alpha = 0.2,fullrange=TRUE) +
+  labs(y = 'Beta estimates (a.u)', x ='Cue-triggered effort (rank)') +
+  scale_fill_manual(values=pal[2], guide = 'none') +
+  theme_bw()
+
+ppp <- pp + averaged_theme_regression 
+
+pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
+                               legend.background = element_rect(color = "white")), 
+                   type = "density", alpha = .1, color = NA, fill = pal[2]) 
+
+pdf(file.path(figures_path,'Figure_NAc_shell_core_PIT.pdf'))
+print(pppp)
+dev.off()
+
+
+
+
+
+
+
+
+
+
+# -------------------------------------------------------------------------------------------------
+#                                             HED
+# -------------------------------------------------------------------------------------------------
+
+# ------------------------------------- HED ROI during HED -----------------------------------------
+
+HED.ROI.HED.TASK <- ROI_HED.lik
+
+# rename variables for this database
+HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_NACcoreshell_betas', 'NAc_shell_core')
+HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_mOFC_betas', 'mOFC')
+
+#------------------------------- STAT
+t.test(HED.ROI.HED.TASK$NAc_shell_core)
 # BF
-ttestBF(HED.TASK$core)
+ttestBF(HED.ROI.HED.TASK$NAc_shell_core)
 # effect size
-cohen_d_ci(HED.TASK$core, conf.level = .95)
+cohen_d_ci(HED.ROI.HED.TASK$NAc_shell_core, conf.level = .95)
 
-# ----------------------------- PLOT
-dfG = summarySE(data = HED.TASK, measurevar = "core")
+t.test(HED.ROI.HED.TASK$mOFC)
+# BF
+ttestBF(HED.ROI.HED.TASK$mOFC)
+# effect size
+cohen_d_ci(HED.ROI.HED.TASK$mOFC, conf.level = .95)
 
+# -------------------------------- PLOT
 
-pp <- ggplot(HED.TASK, aes(x = 0.5, y = core)) +
+# SET SAME Y scale
+
+# pannel 1
+dfG = summaryBy(mOFC ~ 1, data = HED.ROI.HED.TASK,
+                FUN = function(x) { c(m = mean(x, na.rm = T),
+                                      s = se(x, na.rm = T)) } )
+
+pp <- ggplot(HED.ROI.HED.TASK, aes(x = 0.5, y = mOFC)) +
   geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
   geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, fill = pal[3], width = 0.5) +
   geom_jitter(alpha = .6, color = pal[3], width = 0.02) +
-  geom_crossbar(data = dfG, aes(ymin= core-sd, ymax= core+sd), 
+  geom_crossbar(data = dfG, aes(y =  mOFC.m, ymin= mOFC.m-mOFC.s, ymax= mOFC.m+mOFC.s), 
+                width = 0.2 , alpha = 0.1, color = pal[3])+
+  ylab('Beta estimates (a.u.)') +
+  xlab('') + 
+  scale_y_continuous(expand = c(-0, 0), breaks = c(seq.int(-0.035,0.06, by = 0.015)), limits = c(-0.035,0.06))  +
+  scale_x_continuous(expand = c(0, 0), breaks = c(seq.int(0.2,0.8, by = 0.25)), limits = c(0.2,0.8))  +
+  theme_bw()
+
+ppp <- pp + averaged_theme_ttest 
+
+pdf(file.path(figures_path,'Figure_mOFC_HED.pdf'))
+print(ppp)
+dev.off()
+
+
+# pannel 2
+dfG = summaryBy(NAc_shell_core ~ 1, data = HED.ROI.HED.TASK,
+                FUN = function(x) { c(m = mean(x, na.rm = T),
+                                      s = se(x, na.rm = T)) } )
+
+pp <- ggplot(HED.ROI.HED.TASK, aes(x = 0.5, y = NAc_shell_core)) +
+  geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, fill = pal[3], width = 0.5) +
+  geom_jitter(alpha = .6, color = pal[3], width = 0.02) +
+  geom_crossbar(data = dfG, aes(y =  NAc_shell_core.m, ymin= NAc_shell_core.m-NAc_shell_core.s, ymax= NAc_shell_core.m+NAc_shell_core.s), 
+                width = 0.2 , alpha = 0.1, color = pal[3])+
+  ylab('Beta estimates (a.u.)') +
+  xlab('') +
+  scale_y_continuous(expand = c(-0, 0), breaks = c(seq.int(-0.035,0.06, by = 0.015)), limits = c(-0.035,0.06))  +
+  scale_x_continuous(expand = c(0, 0), breaks = c(seq.int(0.2,0.8, by = 0.25)), limits = c(0.2,0.8))  +
+  theme_bw()
+
+ppp <- pp + averaged_theme_ttest 
+
+pdf(file.path(figures_path,'Figure_NAc_shell_HED.pdf'))
+print(ppp)
+dev.off()
+
+
+# ------------------------------------- PIT ROI during HED -----------------------------------------
+
+PIT.ROI.HED.TASK <- merge(PIT.index, ROI_PIT.lik, by = 'ID')
+
+# rename variables for this database
+PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_EFF_VSCA_right_betas', 'NAc_CA_right')
+PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_Eff_VSCA_left_betas', 'NAc_CA_left')
+
+# remove ROI from CS+ vs CS- independent from effort
+PIT.ROI.HED.TASK %>% select(-one_of('PIT_CS_NACschell_right_betas','PIT_CS_NACshell_left_betas'))
+
+
+# long format for left and right
+PIT.ROI.HED.TASK.long <- gather(PIT.ROI.HED.TASK, ROI , beta, NAc_CA_right:NAc_CA_left, factor_key=TRUE)
+
+
+# -------------------------------- STAT
+VS_CA_lik.stat     <- aov_car(beta ~ ROI + Error (ID/ROI), data = PIT.ROI.HED.TASK.long, factorize = F, anova_table = list(es = "pes")) 
+
+# since there is no ROI effect let's compute the main effect on the average
+PIT.ROI.HED.TASK.means <- aggregate(PIT.ROI.HED.TASK.long$beta, by = list(PIT.ROI.HED.TASK.long$ID), FUN='mean') # extract means
+colnames(PIT.ROI.HED.TASK.means) <- c('ID','betas')
+t.test(PIT.ROI.HED.TASK.means$betas)
+# BF
+ttestBF(PIT.ROI.HED.TASK.means$betas)
+# effect size
+cohen_d_ci(PIT.ROI.HED.TASK.means$betas, conf.level = .95)
+
+# ----------------------------- PLOT
+dfG = summaryBy(betas ~ 1, data = PIT.ROI.HED.TASK.means,
+                FUN = function(x) { c(m = mean(x, na.rm = T),
+                                      s = se(x, na.rm = T)) } )
+
+pp <- ggplot(PIT.ROI.HED.TASK.means, aes(x = 0.5, y = betas)) +
+  geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
+  geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, fill = pal[3], width = 0.5) +
+  geom_jitter(alpha = .6, color = pal[3], width = 0.02) +
+  geom_crossbar(data = dfG, aes(y =  betas.m, ymin= betas.m-betas.s, ymax= betas.m+betas.s), 
                 width = 0.2 , alpha = 0.1, color = pal[3])+
   ylab('Beta estimates (a.u.)') +
   xlab('') + 
@@ -448,16 +446,24 @@ pp <- ggplot(HED.TASK, aes(x = 0.5, y = core)) +
 
 ppp <- pp + averaged_theme_ttest 
 
-ppp
-# pdf(file.path(figures_path,'Figure_core_HED.pdf'))
-# print(ppp)
-# dev.off()
+pdf(file.path(figures_path,'Figure_NAc_CA_HED.pdf'))
+print(ppp)
+dev.off()
 
 
 
 
 
-# -------------------------------      DIRECT COMPARAISON DURING PIT IN VS----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+# ------------------------------------------------------------------------------------------------------
+#                                       DIRECT COMPARAISON DURING PIT IN VS
+# ------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------PIT TASK -----------------------------------------------
 
@@ -519,14 +525,16 @@ F_to_eta2(f = c(4.79), df = c(1), df_error = c(23)) # effect sizes (90%CI)
 
 
 intROIHED.BF <- anovaBF(beta ~ ROI_type + ID, data = HED.ROI.COMPARE.means, 
-                        whichRandom = "ID", iterations = 50000)
+                              whichRandom = "ID", iterations = 50000)
 intROIHED.BF <- recompute(intROIHED.BF, iterations = 50000)
 intROIHED.BF
 
 
 
 
-# ----------------------------      HED - PIT behavioral LINK ----------------------
+# --------------------------------------------------------------------------------------------------
+#                                         HED - PIT behavioral LINK 
+# --------------------------------------------------------------------------------------------------
 
 # Behavioral correlation cue triggered effort and Us liking
 scatterplot(PIT.index$deltaCS_R, HED.index$US_lik)
