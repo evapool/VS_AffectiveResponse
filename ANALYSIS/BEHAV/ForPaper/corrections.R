@@ -28,7 +28,7 @@ if(!require(pacman)) {
 
 pacman::p_load(apaTables, MBESS, afex, car, ggplot2, dplyr, plyr, tidyr, 
                reshape, Hmisc, Rmisc,  ggpubr, ez, gridExtra, plotrix, 
-               lsmeans, BayesFactor, effectsize, devtools, misty, mcp)
+               lsmeans, BayesFactor, effectsize, devtools, misty, interactions)
 
 if(!require(devtools)) {
   install.packages("devtools")
@@ -248,15 +248,16 @@ colnames(INST.means) <- c('id','trial','n_grips')
 # --------------------------------------- all trials
 
 # stat
+
 anova.Ins.all <- aov_car(n_grips ~ trial+ Error (id/trial), data = INST.means, anova_table = list(correction = "GG", es = "pes"))
 
 # effect sizes (90%CI)
 F_to_eta2(f = c(1.54), df = c(5.08), df_error = c(116.84))
 
 # Bayes factors
-inst.BF.all <- anovaBF(n_grips ~ trial  + id, data = INST.means, 
+inst.BF.all <- anovaBF(n_grips ~ trial  + id, data = INST.means,
                        whichRandom = "id", iterations = 50000)
-inst.BF.all 
+inst.BF.all
 
 
 
@@ -364,22 +365,22 @@ PIT  <- ddply(PIT, "id", transform, bin = as.numeric(cut2(trialxcondition, g = 5
 
 # define linear contrast
 PIT$trialxcondition=as.numeric(as.character(PIT$trialxcondition))
-
-PIT$c1 <- factor(PIT$trialxcondition-8) # linear
 PIT$c2 <- ifelse(PIT$trialxcondition > 7, "late", "early") # dichotomic
 
 # -------------------------------------- STATS -----------------------------------------------
 
 
 PIT.s <- subset (PIT, condition == 'CSplus'| condition == 'CSminus')
-PIT.s$trialxcondition <- factor(PIT.s$trialxcondition)
-PIT.s$id<- factor(PIT.s$id); PIT.s$condition = as.factor(PIT.s$condition)
+
+
+#PIT.s$trialxcondition <- factor(PIT.s$trialxcondition)
+PIT.s$id<- factor(PIT.s$id); PIT.s$condition = as.factor(PIT.s$condition); PIT.s$c2 = as.factor(PIT.s$c2)
 PIT.means <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$condition), FUN='mean') # extract means
 colnames(PIT.means) <- c('id','condition','n_grips')
 
 
-PIT.trial <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$trialxcondition), FUN='mean') # extract means
-colnames(PIT.trial) <- c('id','trialxcondition','n_grips')
+# PIT.trial <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$trialxcondition), FUN='mean') # extract means
+# colnames(PIT.trial) <- c('id','trialxcondition','n_grips')
 
 
 
@@ -388,9 +389,7 @@ PIT.stat <- aov_car(n_grips ~ condition*trialxcondition + Error (id/condition*tr
 
 # effect sizes (90%CI)
 F_to_eta2(f = c(13.58), df = c(1), df_error = c(23))
-
 F_to_eta2(f = c(1.39), df = c(5.07), df_error = c(116.52))
-
 F_to_eta2(f = c(0.99), df = c(5.31), df_error = c(122.12))
 
 # Bayes factors CS effect
@@ -399,44 +398,84 @@ PIT.BF.CS <- anovaBF(n_grips ~ condition + id, data = PIT.means,
 PIT.BF.CS
 
 # linear constrast that decreases over time
-PIT.stat.c1 <- aov_car(n_grips ~ condition*c1 + Error (id/condition*c1), data = PIT.s, anova_table = list(correction = "GG", es = "pes"))
+mod.lin <- lmer(n_grips ~ condition*trialxcondition + (condition*trialxcondition|id), data = PIT.s, REML=F); anova(mod.lin) # I wouldn't do it with the normal anova but for the making it mor eismilar ot the othe analysis i dit it
+
+F_to_eta2(f = c(2.44), df = c(1), df_error = c(24.00))
+F_to_eta2(f = c(3.12), df = c(1), df_error = c(24.00))
+
+interactions::interact_plot(mod.lin, pred = trialxcondition, modx = condition, interval = TRUE)
+
+linBF = generalTestBF(n_grips ~ condition*trialxcondition + id, data = PIT.s, 
+                      whichRandom = "id", neverExclude = "id", iterations = 50000, whichModels = "all")
+linBF[4]/linBF[1] # trial
+linBF[7]/linBF[4] # inter
 
 # asked by reviewer
-PIT.stat.c2 <- aov_car(n_grips ~ condition*c2 + Error (id/condition*c2), data = PIT.s, anova_table = list(correction = "GG", es = "pes"))
+PIT.stat.c2 <- aov_car(n_grips ~ condition*c2 + Error (id/condition*c2), data = PIT.s, anova_table = list(correction = "GG", es = "pes")); PIT.stat.c2
 
-emmip(PIT.stat.c2, c2 ~ condition) #quick emmeans plot
-
-# effect sizes (90%CI)
+# effect sizes c2 (90%CI)
 F_to_eta2(f = c(13.77), df = c(1), df_error = c(23))
 F_to_eta2(f = c(3.77), df = c(1), df_error = c(23))
 F_to_eta2(f = c(5.44), df = c(1), df_error = c(23))
 
 
-# Bayes factors trial effect
-PIT.BF.trial <- anovaBF(n_grips ~ trialxcondition + id, data = PIT.trial, 
-                        whichRandom = "id", iterations = 50000)
+# interaction
+int.BF <- anovaBF(n_grips ~ condition*c2 + id, data = PIT.s, whichRandom = "id", iterations = 5000)
+int.BF[4]/int.BF[3]
 
-# Bayes factors trial effect
-PIT.BF.int <- anovaBF(n_grips ~ condition*trialxcondition + id, data = PIT.s, 
-                      whichRandom = "id", iterations = 50000)
-PIT.BF.int[4]/ PIT.BF.int[3]
+emms = emmeans(PIT.stat.c2, ~ condition*c2)
 
-
-
-
-# Regression with Multiple Change Points (MCP)
-PIT.p <- subset (PIT, condition == 'CSplus')
+custom <- list("CS- early -late" = c(1,0,-1,0),
+               "CS+ early -late" = c(0,1,0,-1)) 
+contrast(emms, custom)
 
 
-model = list(
-  n_grips ~ 1 + trialxcondition,          # intercept + slope
-  1 + (1|id) ~ 0 + trialxcondition  # joined slope, varying by id
-)
+
+plt = emmip(PIT.stat.c2, condition~ c2, CIs = T) #quick emmeans plot
 
 
-fit = mcp(model, PIT.p, sample = 'both')
-plot(fit, facet_by = "id")
-hypothesis(fit, "cp_1 = 4")
+ppp = plt +
+  ylab('Number of Grips')+
+  xlab('Extinction')+
+  scale_color_manual(labels = c("CS+", "CS-"), values=c("CSplus" = pal[2],"CSminus"=pal[1]), name="Conditioned \n Stimulus")  +
+  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,15, by = 5)), limits = c(0,16.5)) +
+  scale_x_discrete(labels=c("Early", "Late")) +
+  theme_bw(base_size = 32, base_family = "Helvetica")+
+  theme(strip.text.x = element_text(size = 32, face = "bold"),
+        strip.background = element_rect(color="white", fill="white", linetype="solid"),
+        legend.title  = element_text(size = 18),
+        legend.text  = element_text(size = 18),
+        legend.key.size = unit(1.2, "cm"),
+        panel.grid.major.x = element_blank() ,
+        panel.grid.major.y = element_line(size=.2, color="lightgrey") ,
+        panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 32),
+        axis.title.y = element_text(size =  32),
+        axis.line = element_line(size = 0.5),
+        panel.border = element_blank())
+
+
+pdf(file.path(figures_path,'Figure_PIT_early_VS_late.pdf'), paper="a4r")
+print(ppp)
+dev.off()
+
+
+
+
+# 
+# # Regression with Multiple Change Points (MCP)
+# PIT.p <- subset (PIT, condition == 'CSplus')
+# 
+# 
+# model = list(
+#   n_grips ~ 1 + trialxcondition,          # intercept + slope
+#   1 + (1|id) ~ 0 + trialxcondition  # joined slope, varying by id
+# )
+# 
+# 
+# fit = mcp(model, PIT.p, sample = 'both')
+# plot(fit, facet_by = "id")
+# hypothesis(fit, "cp_1 = 4")
 
 
 
@@ -568,6 +607,41 @@ print(ppp)
 dev.off()
 
 
+# early vs late
+# dfs <- summarySEwithin(PIT.s,
+#                        measurevar = "n_grips",
+#                        withinvars = c("condition", "c2"),
+#                        idvar = "id")
+# 
+# dfs$cond <- ifelse(dfs$condition == "CSplus", -0.25, 0.25)
+# PIT.s$cond <- ifelse(PIT.s$condition == "CSplus", -0.25, 0.25)
+# set.seed(666)
+# PIT.s <- PIT.s %>% mutate(condjit = jitter(as.numeric(cond), 0.3),
+#                           grouping = interaction(id, cond))
+# 
+# labels <- c("early" = "Early", "late" = "Late") #for plots
+# 
+# pp <- ggplot(PIT.s, aes(x = cond, y = n_grips, 
+#                         fill = condition, color = condition)) +
+#   geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, aes(fill = condition, color = NA))+
+#   geom_point(aes(x = condjit), alpha = .3,) +
+#   geom_crossbar(data = dfs, aes(y = n_grips, ymin=n_grips-se, ymax=n_grips+se), width = 0.2 , alpha = 0.1)+
+#   ylab('Number of Grips')+
+#   xlab('Extinction')+ 
+#   facet_wrap(~c2, labeller=labeller(c2 =labels)) + 
+#   scale_fill_manual(labels = c("CS+", "CS-"), values=c("CSplus" = pal[2],"CSminus"=pal[1]), name="Conditioned \n Stimulus")  +
+#   scale_color_manual(labels = c("CS+", "CS-"), values=c("CSplus" = pal[2],"CSminus"=pal[1]), name="Conditioned \n Stimulus")  +
+#   scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,40, by = 5)), limits = c(-1,40.5)) +
+#   scale_x_continuous(labels=c("CS+", "CS-"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
+#   theme_bw()
+# 
+# 
+# ppp <- pp + averaged_theme
+# 
+# 
+# pdf(file.path(figures_path,'Figure_PIT_early_VS_late.pdf'))
+# print(ppp)
+# dev.off()
 
 
 
@@ -622,12 +696,13 @@ HED$changeAbs   <- factor(HED$changeAbs)
 
 #------------------------------ pleastness
 HED.s <- subset (HED, condition == 'neutral'| condition == 'chocolate')
+HED.s$trialxcondition        <- as.numeric(HED.s$trialxcondition)
 
 HED.means <- aggregate(HED.s$perceived_liking, by = list(HED.s$id, HED.s$condition), FUN='mean') # extract means
 colnames(HED.means) <- c('id','condition','perceived_liking')
 
-HED.trial <- aggregate(HED.s$perceived_liking, by = list(HED.s$id, HED.s$trialxcondition), FUN='mean') # extract means
-colnames(HED.trial) <- c('id','trialxcondition','perceived_liking')
+# HED.trial <- aggregate(HED.s$perceived_liking, by = list(HED.s$id, HED.s$trialxcondition), FUN='mean') # extract means
+# colnames(HED.trial) <- c('id','trialxcondition','perceived_liking')
 
 # stat
 HED.stat     <- aov_car(perceived_liking ~ condition*trialxcondition + Error (id/condition*trialxcondition), data = HED.s, anova_table = list(correction = "GG", es = "pes"))
@@ -641,14 +716,29 @@ F_to_eta2(f = c(1136.66,2.19,4.29), df = c(1,8.42,8.94), df_error = c(23,193.55,
 HED.BF.c <- anovaBF(perceived_liking ~ condition  + id, data = HED.means, 
                     whichRandom = "id", iterations = 50000)
 
+
+
+# linear constrast that decreases over time
+mod.lin <- lmer(perceived_liking ~ condition*trialxcondition + (condition*trialxcondition|id), data = HED.s, REML=F); anova(mod.lin) # I wouldn't do it with the normal anova but for the making it mor eismilar ot the othe analysis i dit it
+
+F_to_eta2(f = c(1.02), df = c(1), df_error = c(23.992))
+F_to_eta2(f = c(8.20), df = c(1), df_error = c(24.036))
+
+interactions::interact_plot(mod.lin, pred = trialxcondition, modx = condition, interval = TRUE)
+
+linBF = generalTestBF(perceived_liking ~ condition*trialxcondition + id, data = HED.s, 
+                      whichRandom = "id", neverExclude = "id", iterations = 50000, whichModels = "all")
+linBF[4]/linBF[1] # trial
+linBF[7]/linBF[4] # inter
 #trial
 HED.BF.trial <- anovaBF(perceived_liking ~ trialxcondition  + id, data = HED.trial,  whichRandom = "id", iterations = 50000)
 
 
-# interation
-HED.BF <- anovaBF(perceived_liking ~ condition*trialxcondition  + id, data = HED.s, 
-                  whichRandom = "id", iterations = 50000)
+# interaction
+HED.BF <- anovaBF(perceived_liking ~ condition*trialxcondition  + id, data = HED.s, whichRandom = "id", iterations = 50000)
 HED.BF[4]/HED.BF[3]
+
+
 
 # Follow up analysis  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 
