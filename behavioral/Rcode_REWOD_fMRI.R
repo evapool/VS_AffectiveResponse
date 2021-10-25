@@ -224,7 +224,7 @@ PIT.ROI.TASK.PIT.long <- gather(PIT.ROI.TASK.PIT, ROI , beta, VS_DL_right:VS_DL_
 
 PIT.ROI.TASK.PIT.long$ROI_type = 'Pav_ROI'
 
-# -------------------------------- STAT
+# -------------------------------- STAT (to check if there is an interaction with ROI )
 VS_DL_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PIT.ROI.TASK.PIT.long,
                               observed = c("deltaCS_R"), factorize = F, anova_table = list(es = "pes"))
 F_to_eta2(f = c(41.89), df = c(1), df_error = c(22)) # effect sizes (90%CI)
@@ -249,7 +249,7 @@ ppp <- pp + averaged_theme_regression
 
 pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
                                legend.background = element_rect(color = "white")), 
-                   type = "density", alpha = .1, color = NA, fill = pal[2]) 
+                   type = "density", alpha = .1, color = NA, fill = pal[2], margin = 'y') 
 
 pdf(file.path(figures_path,'Figure_VS_DorsoLateral_PIT.pdf'))
 print(pppp)
@@ -298,7 +298,7 @@ ppp <- pp + averaged_theme_regression
 
 pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
                                legend.background = element_rect(color = "white")), 
-                   type = "density", alpha = .1, color = NA, fill = pal[2]) 
+                   type = "density", alpha = .1, color = NA, fill = pal[2], margin = 'y') 
 
 pdf(file.path(figures_path,'Figure_mOFC_PIT.pdf'))
 print(pppp)
@@ -316,7 +316,7 @@ ppp <- pp + averaged_theme_regression
 
 pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
                                legend.background = element_rect(color = "white")), 
-                   type = "density", alpha = .1, color = NA, fill = pal[2]) 
+                   type = "density", alpha = .1, color = NA, fill = pal[2], margin = 'y') 
 
 pdf(file.path(figures_path,'Figure_VS_VentroMedial_PIT.pdf'))
 print(pppp)
@@ -527,7 +527,6 @@ intROIHED.BF
 #  Pavlovian-triggered motivation and sensory pleasure within the core-like and shell-like divisions
 # --------------------------------------------------------------------------------------------------
 
-
 # ------------------------------------- CORE during PIT -----------------------------------------
 
 # Compile database
@@ -555,7 +554,7 @@ ppp <- pp + averaged_theme_regression
 
 pppp  <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
                                   legend.background = element_rect(color = "white")), 
-                      type = "density", alpha = .1, color = NA, fill = pal[2]) 
+                      type = "density", alpha = .1, color = NA, fill = pal[2], margin = 'y') 
 pdf(file.path(figures_path,'Figure_CORE_PIT.pdf'))
 print(pppp)
 dev.off()
@@ -613,8 +612,6 @@ F_to_eta2(f = c(2.04), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
 BF <- lmBF(shell ~ deltaCS_R + ID, data = PIT.ROI, 
            whichRandom = "ID", iterations = 50000); BF
-
-
 
 
 

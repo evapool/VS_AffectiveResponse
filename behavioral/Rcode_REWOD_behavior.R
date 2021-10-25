@@ -219,12 +219,12 @@ print(ppp)
 dev.off()
 
 
+
 # -------------------------------------------------------------------------------------------------
 #                                             INSTRUMENTAL
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------- PREPROC  --------------------------------------------------
-
 
 # define factors
 INST$id                       <- factor(INST$id)
@@ -597,7 +597,7 @@ colnames(HED.trial) <- c('id','trialxcondition','perceived_liking')
 # stat
 HED.stat     <- aov_car(perceived_liking ~ condition*trialxcondition + Error (id/condition*trialxcondition), data = HED.s, anova_table = list(correction = "GG", es = "pes"))
 # effect sizes (90%CI)
-F_to_eta2(f = c(1136.66,2.19,4.29), df = c(1,8.42,8.94), df_error = c(23,193.55,205.52))
+F_to_eta2(f = c(113.66,2.19,4.29), df = c(1,8.42,8.94), df_error = c(23,193.55,205.52))
 
 
 # Bayes factors  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
