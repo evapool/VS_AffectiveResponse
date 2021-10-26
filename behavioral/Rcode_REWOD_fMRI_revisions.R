@@ -1,6 +1,6 @@
-####################################################################################################
 #                                                                                                  #
-#                                                                                                  #                                                 #                                                                                                  #
+#                                                                                                  #                                          
+#                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
 #           and hedonic components of the affective processing of the reward                       #
 #                                                                                                  #
@@ -8,16 +8,16 @@
 #                   Eva R Pool                                                                     #
 #                   David Munoz Tord                                                               #
 #                   Sylvain Delplanque                                                             #
-#                   Yoann Stussi  
-#                   Donato Cereghetti
+#                   Yoann Stussi                                                                   #
+#                   Donato Cereghetti                                                              #
 #                   Patrik Vuilleumier                                                             #
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
 # modified by E.R.P on  NOVEMBER 2021 
-#
+# modified by D.M.T. on October 2021                                                               #
 # TO ADRESS CONCERN: TRY TO REMOVE LEFT VS DL TO TEST FOR POTENTIAL MOVEMENT CONFUNDS
-####################################################################################################
+
 
 
 
@@ -38,12 +38,7 @@ if(!require(devtools)) {
   library(devtools)
 }
 
-se <- function (x,na.rm=TRUE) {
-  if (!is.vector(x)) STOP("'x' must be a vector.")
-  if (!is.numeric(x)) STOP("'x' must be numeric.")
-  if (na.rm) x <- x[stats::complete.cases(x)]
-  sqrt(stats::var(x)/length(x))
-}
+
 
 
 #SETUP
@@ -73,11 +68,10 @@ ROI_PIT.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                             PREPROC
-# -------------------------------------------------------------------------------------------------
+########################################### PREPROCESSING ################################################
 
-#-------------------------------------  PIT   -----------------------------------------------------
+# -------------------------------------- PIT ----------------------------------------
+
 
 # PIT
 PIT.all <- PIT
@@ -102,9 +96,7 @@ HED.s <- subset (HED, condition == 'neutral'| condition == 'chocolate')
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                      BUILD PIT BETA DATABASE
-# -------------------------------------------------------------------------------------------------
+########################################### BUILD PIT BETA DATABASE ################################################
 
 # ------------------------------------- PIT ROI during PIT -----------------------------------------
 
@@ -134,9 +126,7 @@ HED.ROI.TASK.PIT$ROI_type = 'hed_ROI'
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                     BUILD HED BETA DATABASE
-# -------------------------------------------------------------------------------------------------
+########################################### BUILD HED BETA DATABASE ################################################
 
 # ------------------------------------- HED ROI during HED -----------------------------------------
 
@@ -164,9 +154,8 @@ PIT.ROI.HED.TASK.long <- gather(PIT.ROI.HED.TASK, ROI , beta, VS_DL_right, facto
 
 
 
-# ------------------------------------------------------------------------------------------------------
-#                                       DIRECT COMPARAISON DURING PIT IN VS
-# ------------------------------------------------------------------------------------------------------
+########################################### DIRECT COMPARAISON DURING PIT IN VS ################################################
+
 
 # ----------------------------------------------PIT TASK -----------------------------------------------
 

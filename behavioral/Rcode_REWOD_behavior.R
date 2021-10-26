@@ -1,21 +1,21 @@
-####################################################################################################
 #                                                                                                  #
-#                                                                                                  #                                                 #                                                                                                  #
+#                                                                                                  #                       #                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
-#           and hedonic components of the affective processing of the reward                              #
+#           and hedonic components of the affective processing of the reward                       #
 #                                                                                                  #
 #                                                                                                  #
 #                   Eva R Pool                                                                     #
 #                   David Munoz Tord                                                               #
 #                   Sylvain Delplanque                                                             #
-#                   Yoann Stussi 
-#                   Donato Cereghetti
+#                   Yoann Stussi                                                                   #
+#                   Donato Cereghetti                                                              #
 #                   Patrik Vuilleumier                                                             #
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
 # modified by E.R.P on JANUARY 2021                                                                #
-####################################################################################################
+# modified by D.M.T. on October 2021                                                               #
+
 
 
 
@@ -40,13 +40,15 @@ if(!require(devtools)) {
 devtools::source_gist("2a1bb0133ff568cbe28d", 
                       filename = "geom_flat_violin.R")
 
+devtools::source_gist("383aa93ffa161665c0dca1103ef73d9d", 
+                      filename = "effect_CI.R")
+
 
 #SETUP
 
 # Set path
-home_path       <- dirname(rstudioapi::getActiveDocumentContext()$path)
-pos             <- regexpr("VS_AffectiveResponse", home_path) # we want the path to the root folder
-home_path       <- substr(home_path, 1, pos+19)
+home_path       <- dirname(dirname(rstudioapi::documentPath()))
+
 
 # Set working directory
 analysis_path <- file.path(home_path, 'behavioral')
@@ -89,9 +91,7 @@ timeline_theme <- theme_bw(base_size = 32, base_family = "Helvetica")+
 
 pal = viridis::inferno(n=5)
 
-# -------------------------------------------------------------------------------------------------
-#                                             PAVLOVIAN
-# -------------------------------------------------------------------------------------------------
+########################################### PAVLOVIAN ################################################
 
 # -------------------------------------- PREPROCESSING RT ----------------------------------------
 
@@ -220,9 +220,7 @@ dev.off()
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                             INSTRUMENTAL
-# -------------------------------------------------------------------------------------------------
+######################################   INSTRUMENTAL   ######################################
 
 # -------------------------------------- PREPROC  --------------------------------------------------
 
@@ -341,9 +339,7 @@ print(ppp)
 dev.off()
 
 
-# -------------------------------------------------------------------------------------------------
-#                                             PIT
-# -------------------------------------------------------------------------------------------------
+######################################   PIT  ######################################
 
 #--------------------------------------- PREPROC  -----------------------------------------------------
 

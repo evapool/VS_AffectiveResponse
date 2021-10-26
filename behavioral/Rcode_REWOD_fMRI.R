@@ -1,21 +1,21 @@
-####################################################################################################
 #                                                                                                  #
-#                                                                                                  #                                                 #                                                                                                  #
+#                                                                                                  #          
+#                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
-#           and hedonic components of the affective processing of the reward                             #
+#           and hedonic components of the affective processing of the reward                       #
 #                                                                                                  #
 #                                                                                                  #
 #                   Eva R Pool                                                                     #
 #                   David Munoz Tord                                                               #
 #                   Sylvain Delplanque                                                             #
-#                   Yoann Stussi  
-#                   Donato Cereghetti
+#                   Yoann Stussi                                                                   #
+#                   Donato Cereghetti                                                              #
 #                   Patrik Vuilleumier                                                             #
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
 # modified by E.R.P on  JANUARY  2021                                                              #
-####################################################################################################
+# modified by D.M.T. on October 2021                                                               #
 
 
 #--------------------------------------  PRELIMINARY STUFF ----------------------------------------
@@ -27,31 +27,27 @@ if(!require(pacman)) {
 
 pacman::p_load(apaTables, MBESS, afex, car, ggplot2, dplyr, plyr, tidyr, 
                reshape, Hmisc, Rmisc,  ggpubr, ez, gridExtra, plotrix, 
-               lsmeans, BayesFactor, effectsize, devtools,misty,questionr,ggplot, ggExtra,
-               doBy,BayesFactor,BayesianFirstAid)
+               lsmeans, BayesFactor, effectsize, devtools,misty,questionr,ggplot, ggExtra, doBy,BayesFactor, BayesianFirstAid)
 
 if(!require(devtools)) {
   install.packages("devtools")
   library(devtools)
 }
 
-se <- function (x,na.rm=TRUE) {
-  if (!is.vector(x)) STOP("'x' must be a vector.")
-  if (!is.numeric(x)) STOP("'x' must be numeric.")
-  if (na.rm) x <- x[stats::complete.cases(x)]
-  sqrt(stats::var(x)/length(x))
-}
 
 # get tool
 devtools::source_gist("2a1bb0133ff568cbe28d", 
                       filename = "geom_flat_violin.R")
 
-#SETUP
+devtools::source_gist("383aa93ffa161665c0dca1103ef73d9d", 
+                      filename = "effect_CI.R")
+
+
+# SETUP -------------------------------------------------------------------
+
 
 # Set path
-home_path       <- dirname(rstudioapi::getActiveDocumentContext()$path)
-pos             <- regexpr("VS_AffectiveResponse", home_path) # we want the path to the root folder
-home_path       <- substr(home_path, 1, pos+19)
+home_path       <- dirname(dirname(rstudioapi::documentPath()))
 
 
 # Set working directory
@@ -61,8 +57,7 @@ covariateHED_path <- file.path(home_path, 'univariate/HED/group_covariates')
 figures_path <- file.path(analysis_path, 'figures')
 setwd(analysis_path)
 
-# add function directory
-source(paste(analysis_path, "/functions/cohen_d_ci.R", sep = ""))
+
 
 # open datasets
 PAV  <- read.delim(file.path(analysis_path, 'databases/REWOD_PAVCOND_ses_first.txt'), header = T, sep ='') # read in dataset
@@ -113,9 +108,7 @@ averaged_theme_ttest <- theme_bw(base_size = 28, base_family = "Helvetica")+
 pal = viridis::inferno(n=5)
 
 
-# -------------------------------------------------------------------------------------------------
-#                                             PREPROC
-# -------------------------------------------------------------------------------------------------
+########################################### PREPROCESSING ################################################
 
 #-------------------------------------  PIT   -----------------------------------------------------
 
@@ -203,9 +196,7 @@ write.table(diffL, (file.path(covariateHED_path, "Pleasant_Neutral.txt")), row.n
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                              PIT 
-# -------------------------------------------------------------------------------------------------
+########################################### PIT ################################################
 
 # ------------------------------------- PIT ROI during PIT -----------------------------------------
 
@@ -325,9 +316,7 @@ dev.off()
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                             HED
-# -------------------------------------------------------------------------------------------------
+########################################### HEDONIC ################################################
 
 # ------------------------------------- HED ROI during HED -----------------------------------------
 
@@ -455,9 +444,8 @@ print(ppp)
 dev.off()
 
 
-# ------------------------------------------------------------------------------------------------------
-#                                       DIRECT COMPARAISON DURING PIT IN VS
-# ------------------------------------------------------------------------------------------------------
+########################################### DIRECT COMPARAISON DURING PIT IN VS ################################################
+
 
 # ----------------------------------------------PIT TASK -----------------------------------------------
 
@@ -523,9 +511,8 @@ intROIHED.BF <- recompute(intROIHED.BF, iterations = 50000)
 intROIHED.BF
 
 
-# ------------------------------------------------------------------------------------------------
-#  Pavlovian-triggered motivation and sensory pleasure within the core-like and shell-like divisions
-# --------------------------------------------------------------------------------------------------
+########################################### Pavlovian-triggered motivation and sensory pleasure within the core-like and shell-like divisions ################################################
+
 
 # ------------------------------------- CORE during PIT -----------------------------------------
 
@@ -616,19 +603,17 @@ BF <- lmBF(shell ~ deltaCS_R + ID, data = PIT.ROI,
 
 
 
+########################################### HED - PIT behavioral LINK  ################################################
 
-# --------------------------------------------------------------------------------------------------
-#                                         HED - PIT behavioral LINK 
-# --------------------------------------------------------------------------------------------------
 
 # Behavioral correlation cue triggered effort and Us liking
 scatterplot(PIT.index$deltaCS_R, HED.index$US_lik)
 cor.test(PIT.index$deltaCS, HED.index$US_lik, method = 'kendall')
 cor.test(PIT.index$deltaCS_R, HED.index$US_lik, method = 'pearson')
 
-# --------------------------------------------------------------------------------------------------
-#                                       TASK VALIDATION MODELS
-# --------------------------------------------------------------------------------------------------
+########################################### TASK VALIDATION MODELS ################################################
+
+
 
 ROI.val     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_VALIDATION.txt'), header = T, sep =',')
 
@@ -663,5 +648,46 @@ cohen_d_ci(ROI.val$HED_piriform_left, conf.level = .95)
 
 
 
+########################################### PIT PLOT BMS ################################################
+
+
+PIT_BMS <- read.csv(file.path(analysis_path, 'databases/PIT_BMS.csv'))
+PIT_BMS$GLM = as.factor(PIT_BMS$GLM) 
+
+pp = ggplot(PIT_BMS, aes(x = GLM, y = mean, fill = I(pal[2]), color = I(pal[2]))) +
+  geom_bar( stat = "identity", alpha = .3, width=0.5) +
+  geom_errorbar(aes(ymax = mean + sd, ymin = mean - sd), width=0.05,  alpha=1) +
+  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,1, by = 0.2)), limits = c(0,1)) +
+  scale_x_discrete(labels=c("Between", "Between +\n Control", "Within", "Within +\n Control")) +
+  labs(y =  "Exceedance Probability", x = "PIT Model")   +
+  theme_bw()
+ppp <- pp + averaged_theme_regression +     theme(axis.text.x = element_text(size = 18))
+ppp
+
+pdf(file.path(figures_path,'Figure_BMS_PIT.pdf'))
+print(ppp)
+dev.off()
+
+
+########################################### HED PLOT BMS ################################################
+
+
+
+HED_BMS <- read.csv(file.path(analysis_path, 'databases/hedonic_BMS.csv'))
+HED_BMS$GLM = as.factor(HED_BMS$GLM) 
+
+pp = ggplot(HED_BMS, aes(x = GLM, y = mean, fill = I(pal[3]), color = I(pal[3]))) +
+  geom_bar( stat = "identity", alpha = .3, width=0.5) +
+  geom_errorbar(aes(ymax = mean + sd, ymin = mean - sd), width=0.05,  alpha=1) +
+  scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,1, by = 0.2)), limits = c(0,1)) +
+  scale_x_discrete(labels=c("Between", "Between +\n Control", "Within", "Within +\n Control")) +
+  labs(y =  "Exceedance Probability", x = "Hedonic Model")   +
+  theme_bw()
+ppp <- pp + averaged_theme_regression +     theme(axis.text.x = element_text(size = 18))
+ppp
+
+pdf(file.path(figures_path,'Figure_BMS_HED.pdf'))
+print(ppp)
+dev.off()
 
 
