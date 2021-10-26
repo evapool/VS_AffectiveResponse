@@ -1,6 +1,6 @@
-####################################################################################################
 #                                                                                                  #
-#                                                                                                  #                                                 #                                                                                                  #
+#                                                                                                  # 
+#                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
 #           and hedonic components of the affective processing of the reward                       #
 #                                                                                                  #
@@ -8,14 +8,15 @@
 #                   Eva R Pool                                                                     #
 #                   David Munoz Tord                                                               #
 #                   Sylvain Delplanque                                                             #
-#                   Yoann Stussi 
-#                   Donato Cereghetti
+#                   Yoann Stussi                                                                   #
+#                   Donato Cereghetti                                                              #
 #                   Patrik Vuilleumier                                                             #
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
 # modified by E.R.P on JANUARY 2021                                                                #
-####################################################################################################
+# modified by D.M.T. on October 2021                                                               #
+
 
 
 #--------------------------------------  PRELIMINARY STUFF ----------------------------------------
@@ -37,6 +38,9 @@ if(!require(devtools)) {
 # get tool
 devtools::source_gist("2a1bb0133ff568cbe28d", 
                       filename = "geom_flat_violin.R")
+
+devtools::source_gist("383aa93ffa161665c0dca1103ef73d9d", 
+                      filename = "effect_CI.R")
 
 
 #SETUP
@@ -88,9 +92,7 @@ timeline_theme <- theme_bw(base_size = 32, base_family = "Helvetica")+
 pal = viridis::inferno(n=5)
 
 
-# -------------------------------------------------------------------------------------------------
-#                                          PIT
-# -------------------------------------------------------------------------------------------------
+########################################### PIT ################################################
 ## subsetting into 3 differents tasks
 PIT.all <- PIT
 # define factors
@@ -157,9 +159,7 @@ PIT.BF.CSminus  <- recompute(PIT.BF.CSminus, iterations = 50000)
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                          HEDONIC
-# -------------------------------------------------------------------------------------------------
+########################################### HEDONIC ################################################
 
 # define factors
 HED$condition <- factor(HED$condition)
@@ -221,9 +221,7 @@ last.trial.BF <- recompute(last.trial.BF, iterations = 50000)
 
 
 
-# -------------------------------------------------------------------------------------------------
-#                                          INSTRUMENTAL
-# -------------------------------------------------------------------------------------------------
+########################################### INSTRUMENTAL ################################################
 
 # define factors
 INST$id                       <- factor(INST$id)
