@@ -1,5 +1,5 @@
 #                                                                                                  #
-#                                                                                                  #                       #                                                                                                  #
+#                                                                                                  #          #                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
 #           and hedonic components of the affective processing of the reward                       #
 #                                                                                                  #
@@ -29,7 +29,7 @@ if(!require(pacman)) {
 
 pacman::p_load(apaTables, MBESS, afex, car, ggplot2, dplyr, plyr, tidyr, 
                reshape, Hmisc, Rmisc,  ggpubr, ez, gridExtra, plotrix, 
-               lsmeans, BayesFactor, effectsize, devtools,misty)
+               lsmeans, BayesFactor, effectsize, devtools, misty, scales)
 
 if(!require(devtools)) {
   install.packages("devtools")
@@ -53,7 +53,9 @@ home_path       <- dirname(dirname(rstudioapi::documentPath()))
 # Set working directory
 analysis_path <- file.path(home_path, 'behavioral')
 figures_path <- file.path(analysis_path, 'figures')
-setwd(analysis_path)
+
+if (analysis_path != getwd()) #important for when we source !!
+  setwd(analysis_path)
 
 # open datasets
 PAV  <- read.delim(file.path(analysis_path, 'databases/REWOD_PAVCOND_ses_first.txt'), header = T, sep ='') # read in dataset
@@ -133,9 +135,7 @@ F_to_eta2(f = c(6.67), df = c(1), df_error = c(23))
 
 # Bayes factors
 RT.BF <- anovaBF(RT ~ condition  + id, data = PAV.means, 
-                 whichRandom = "id", iterations = 50000)
-RT.BF <- recompute(RT.BF, iterations = 50000)
-RT.BF
+                 whichRandom = "id", iterations = 50000); RT.BF
 
 # -------------------------------------- Liking
 # stat
@@ -146,9 +146,7 @@ F_to_eta2(f = c(6.70), df = c(1), df_error = c(23))
 
 # Bayes factors
 liking.BF <- anovaBF(liking ~ condition  + id, data = PAV.means, 
-                     whichRandom = "id", iterations = 50000)
-liking.BF <- recompute(liking.BF, iterations = 50000)
-liking.BF
+                     whichRandom = "id", iterations = 50000); liking.BF
 
 # -------------------------------------- PLOT -----------------------------------------------
 # rename factor levels for plot
@@ -253,9 +251,7 @@ F_to_eta2(f = c(1.54), df = c(5.08), df_error = c(116.84))
 
 # Bayes factors
 inst.BF.all <- anovaBF(n_grips ~ trial  + id, data = INST.means, 
-                       whichRandom = "id", iterations = 50000)
-inst.BF.all  <- recompute(inst.BF.all  , iterations = 50000)
-inst.BF.all 
+                       whichRandom = "id", iterations = 50000); inst.BF.all 
 
 
 
@@ -271,9 +267,7 @@ F_to_eta2(f = c(24.77), df = c(1), df_error = c(23))
 
 # Bayes factors
 inst.BF <- anovaBF(n_grips ~ trial  + id, data = INST.T, 
-                   whichRandom = "id", iterations = 50000)
-inst.BF <- recompute(inst.BF , iterations = 50000)
-inst.BF 
+                   whichRandom = "id", iterations = 50000); inst.BF 
 
 
 # -------------------------------------- PLOT  ---------------------------------------------------------
@@ -386,21 +380,17 @@ F_to_eta2(f = c(0.99), df = c(5.31), df_error = c(122.12))
 
 # Bayes factors CS effect
 PIT.BF.CS <- anovaBF(n_grips ~ condition + id, data = PIT.means, 
-                     whichRandom = "id", iterations = 50000)
-PIT.BF.CS <- recompute(PIT.BF.CS, iterations = 50000)
-PIT.BF.CS
+                     whichRandom = "id", iterations = 50000); PIT.BF.CS
 
 # Bayes factors trial effect
 PIT.BF.trial <- anovaBF(n_grips ~ trialxcondition + id, data = PIT.trial, 
-                        whichRandom = "id", iterations = 50000)
-PIT.BF.trial <- recompute(PIT.BF.trial, iterations = 50000)
-PIT.BF.trial
+                        whichRandom = "id", iterations = 50000); PIT.BF.trial
 
 # Bayes factors trial effect
 PIT.BF.int <- anovaBF(n_grips ~ condition*trialxcondition + id, data = PIT.s, 
                       whichRandom = "id", iterations = 50000)
-PIT.BF.int  <- recompute(PIT.BF.int, iterations = 50000)
 PIT.BF.int[4]/ PIT.BF.int[3]
+
 # -------------------------------------- PLOTS -----------------------------------------------
 # rename factor levels for plot
 PIT.means$condition  <- dplyr::recode(PIT.means$condition, "CSplus" = "CS+", "CSminus" = "CS-" )
@@ -601,17 +591,14 @@ F_to_eta2(f = c(113.66,2.19,4.29), df = c(1,8.42,8.94), df_error = c(23,193.55,2
 #condition
 HED.BF.c <- anovaBF(perceived_liking ~ condition  + id, data = HED.means, 
                     whichRandom = "id", iterations = 50000)
-HED.BF.c <- recompute(HED.BF.c, iterations = 50000)
 
 #trial
 HED.BF.trial <- anovaBF(perceived_liking ~ trialxcondition  + id, data = HED.trial, 
                         whichRandom = "id", iterations = 50000)
-HED.BF.trial <- recompute(HED.BF.trial, iterations = 50000)
 
 # interation
 HED.BF <- anovaBF(perceived_liking ~ condition*trialxcondition  + id, data = HED.s, 
                   whichRandom = "id", iterations = 50000)
-HED.BF <- recompute(HED.BF, iterations = 50000)
 HED.BF[4]/HED.BF[3]
 
 # Follow up analysis  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨  ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
@@ -632,8 +619,6 @@ F_to_eta2(f = c(97.43), df = c(1.35), df_error = c(31.08))
 # BF
 HED.BF.change <- anovaBF(perceived_liking ~ changeValue  + id, data = HED.change.means, 
                         whichRandom = "id", iterations = 50000)
-HED.BF.change <- recompute(HED.BF.change, iterations = 50000)
-
 
 
 #------------------------------ intensity
@@ -656,19 +641,16 @@ F_to_eta2(f = c(15.87,9.25,0.94), df = c(1,7.90,8.46), df_error = c(23,181.80,19
 #interaction
 INT.BF.i <- anovaBF(perceived_intensity ~ condition*trialxcondition  + id, data = INT.s, 
                     whichRandom = "id", iterations = 50000)
-INT.BF.i <- recompute(INT.BF.i, iterations = 50000)
 
 INT.BF.i[4]/INT.BF.i[3]
 
 #condition
 INT.BF.c <- anovaBF(perceived_intensity ~ condition  + id, data = INT.means, 
                     whichRandom = "id", iterations = 50000)
-INT.BF.c <- recompute(INT.BF.c, iterations = 50000)
 
 #trial
 INT.BF.trial <- anovaBF(perceived_liking ~ trialxcondition  + id, data = HED.trial, 
                         whichRandom = "id", iterations = 50000)
-INT.BF.trial <- recompute(INT.BF.trial, iterations = 50000)
 
 
 
@@ -686,7 +668,6 @@ F_to_eta2(f = c(57.74), df = c(1), df_error = c(23))
 # BF
 INT.BF.changeAbs <- anovaBF(perceived_intensity ~ changeAbs  + id, data = INT.change.means, 
                          whichRandom = "id", iterations = 50000)
-INT.BF.changeAbs <- recompute(INT.BF.changeAbs, iterations = 50000)
 
 # -------------------------------------- PLOTS -----------------------------------------------
 HED.means$condition  <- dplyr::recode(HED.means$condition, "chocolate" = "Rewarding")

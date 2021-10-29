@@ -1,5 +1,5 @@
 #                                                                                                  #
-#                                                                                                  #                                          
+#                                                                                                  #          #                                                                                                  #
 #                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
 #           and hedonic components of the affective processing of the reward                       #
@@ -14,105 +14,28 @@
 #                   David Sander                                                                   #
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
-# modified by E.R.P on  NOVEMBER 2021 
+# modified by E.R.P on  NOVEMBER 2021                                                              #
 # modified by D.M.T. on October 2021                                                               #
-# TO ADRESS CONCERN: TRY TO REMOVE LEFT VS DL TO TEST FOR POTENTIAL MOVEMENT CONFUNDS
+# TO ADRESS CONCERN: TRY TO REMOVE LEFT VS DL TO TEST FOR POTENTIAL MOVEMENT CONFUNDS              #
 
 
-
-
-#--------------------------------------  PRELIMINARY STUFF ----------------------------------------
-#load libraries
-if(!require(pacman)) {
-  install.packages("pacman")
-  library(pacman)
-}
-
-pacman::p_load(apaTables, MBESS, afex, car, ggplot2, dplyr, plyr, tidyr, 
-               reshape, Hmisc, Rmisc,  ggpubr, ez, gridExtra, plotrix, 
-               lsmeans, BayesFactor, effectsize, devtools,misty,questionr,ggplot, ggExtra,
-               doBy,BayesFactor,BayesianFirstAid)
-
-if(!require(devtools)) {
-  install.packages("devtools")
-  library(devtools)
-}
-
-
-
+if(!require(ddpcr)) {
+  install.packages("ddpcr")
+  library(ddpcr)
+}  # to do quiet source
 
 #SETUP
 # Set path
-home_path       <- dirname(rstudioapi::getActiveDocumentContext()$path)
-pos             <- regexpr("VS_AffectiveResponse", home_path) # we want the path to the root folder
-home_path       <- substr(home_path, 1, pos+19)
-
+home_path       <- dirname(dirname(rstudioapi::documentPath()))
 
 # Set working directory
 analysis_path <- file.path(home_path, 'behavioral')
-setwd(analysis_path)
+
+if (analysis_path != getwd()) #important for when we source !!
+  setwd(analysis_path)
 
 
-# open datasets
-PIT  <- read.delim(file.path(analysis_path, 'databases/REWOD_PIT_ses_second.txt'), header = T, sep ='') # read in dataset
-HED  <- read.delim(file.path(analysis_path, 'databases/REWOD_HEDONIC_ses_second.txt'), header = T, sep ='') # read in dataset
-
-
-ROI_HED.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_TASK_Hed.txt'), header = T, sep ='') 
-ROI_HED.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_task_PIT.txt'), header = T, sep ='') 
-ROI_PIT.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_hedonic.txt'), header = T, sep ='') 
-ROI_PIT.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_PIT.txt'), header = T, sep ='') 
-
-
-
-
-
-
-########################################### PREPROCESSING ################################################
-
-# -------------------------------------- PIT ----------------------------------------
-
-
-# PIT
-PIT.all <- PIT
-fac <- c("id", "session", "condition",  "trialxcondition")
-PIT.all[fac] <- lapply(PIT.all[fac], factor)
-PIT <- subset (PIT.all,task == 'PIT') 
-PIT <- subset (PIT, condition == 'CSplus'| condition == 'CSminus')
-PIT.means <- aggregate(PIT$n_grips, by = list(PIT$id, PIT$condition), FUN='mean') # extract means
-colnames(PIT.means) <- c('id','condition','n_grips')
-
-# compute index of interest
-PIT.means <- ddply(PIT.means, .(id), transform, deltaCS = n_grips[condition=="CSplus"] - n_grips[condition=="CSminus"])
-PIT.means <- subset(PIT.means, condition == 'CSplus')
-PIT.means$deltaCS_Z  = scale(PIT.means$deltaCS, scale = F)
-PIT.means$deltaCS_R = rank(PIT.means$deltaCS_Z)
-PIT.index <- rename.variable(PIT.means, 'id', 'ID')
-
-#-------------------------------------- HED -----------------------------------------------------------
-fac <- c("id", "condition",  "trialxcondition")
-HED[fac] <- lapply(HED[fac], factor)
-HED.s <- subset (HED, condition == 'neutral'| condition == 'chocolate')
-
-
-
-########################################### BUILD PIT BETA DATABASE ################################################
-
-# ------------------------------------- PIT ROI during PIT -----------------------------------------
-
-# Compile database
-PIT.ROI.TASK.PIT <- merge(PIT.index, ROI_PIT.CSpCSm, by = 'ID')
-# rename variables for this database
-PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_EFF_VSDL_right_betas', 'VS_DL_right')
-PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_Eff_VSDL_left_betas', 'VS_DL_left')
-
-# remove ROI from CS+ vs CS- independent from effort AND VS DL left to adress possible residual motor confunds
-PIT.ROI.TASK.PIT = PIT.ROI.TASK.PIT %>% select(-one_of('PIT_CS_VS_right_betas','PIT_CS_VS_left_betas','VS_DL_left'))
-PIT.ROI.TASK.PIT$ROI_type = 'Pav_ROI'
-
-# long format for comparison later
-PIT.ROI.TASK.PIT.long <- gather(PIT.ROI.TASK.PIT, ROI , beta, VS_DL_right, factor_key=TRUE)
-PIT.ROI.TASK.PIT.long$ROI_type = 'Pav_ROI'
+quiet(source(file.path(analysis_path, "Rcode_REWOD_fMRI.R")), all=T) # run script quietly
 
 
 
@@ -183,7 +106,6 @@ F_to_eta2(f = c(6.85), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
 intROIPIT.BF <- generalTestBF(beta ~ ROI_type*deltaCS_R + ID, data = PIT.ROI.COMPARE.means, 
                               whichRandom = "ID", iterations = 50000)
-intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 intROIPIT.BF[9]/intROIPIT.BF[8] 
 
 
@@ -214,7 +136,6 @@ F_to_eta2(f = c(4.50), df = c(1), df_error = c(23)) # effect sizes (90%CI)
 
 intROIHED.BF <- anovaBF(beta ~ ROI_type + ID, data = HED.ROI.COMPARE.means, 
                         whichRandom = "ID", iterations = 50000)
-intROIHED.BF <- recompute(intROIHED.BF, iterations = 50000)
 intROIHED.BF
 
 

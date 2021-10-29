@@ -55,8 +55,9 @@ analysis_path <- file.path(home_path, 'behavioral')
 covariatePIT_path <- file.path(home_path, 'univariate/PIT/group_covariates')
 covariateHED_path <- file.path(home_path, 'univariate/HED/group_covariates')
 figures_path <- file.path(analysis_path, 'figures')
-setwd(analysis_path)
 
+if (analysis_path != getwd()) #important for when we source !!
+  setwd(analysis_path)
 
 
 # open datasets
@@ -264,7 +265,6 @@ mOFC_eff.stat             <- aov_car(mOFC ~ deltaCS_R + Error (ID), data = HED.R
 F_to_eta2(f = c(0.06), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 intROIPIT.BF <- lmBF(mOFC ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT, 
                                         whichRandom = "ID", iterations = 50000)
-intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 
 #VS VENTRO MEDIAL
 VS_VM_eff.stat     <- aov_car(VS_VM ~ deltaCS_R + Error (ID), data = HED.ROI.TASK.PIT,
@@ -272,7 +272,6 @@ VS_VM_eff.stat     <- aov_car(VS_VM ~ deltaCS_R + Error (ID), data = HED.ROI.TAS
 F_to_eta2(f = c(0.69), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 intROIPIT.BF <- lmBF(VS_VM ~ deltaCS_R + ID, data = HED.ROI.TASK.PIT, 
                      whichRandom = "ID", iterations = 50000)
-intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 
 
 # -------------------------------- PLOT
@@ -473,7 +472,6 @@ F_to_eta2(f = c(6.58), df = c(1), df_error = c(22)) # effect sizes (90%CI)
 
 intROIPIT.BF <- generalTestBF(beta ~ ROI_type*deltaCS_R + ID, data = PIT.ROI.COMPARE.means, 
                               whichRandom = "ID", iterations = 50000)
-intROIPIT.BF <- recompute(intROIPIT.BF , iterations = 50000)
 intROIPIT.BF[9]/intROIPIT.BF[8] 
 
 
@@ -507,7 +505,6 @@ F_to_eta2(f = c(4.79), df = c(1), df_error = c(23)) # effect sizes (90%CI)
 
 intROIHED.BF <- anovaBF(beta ~ ROI_type + ID, data = HED.ROI.COMPARE.means, 
                               whichRandom = "ID", iterations = 50000)
-intROIHED.BF <- recompute(intROIHED.BF, iterations = 50000)
 intROIHED.BF
 
 
