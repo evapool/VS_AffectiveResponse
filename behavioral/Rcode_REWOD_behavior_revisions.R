@@ -24,9 +24,11 @@ if(!require(ddpcr)) {
 }  # to do quiet source
 
 #SETUP
-# Set path
-home_path       <- dirname(dirname(rstudioapi::documentPath()))
 
+# Set path
+analysis_path <- dirname(rstudioapi::getActiveDocumentContext()$path)
+
+# Set working directory
 if (analysis_path != getwd()) #important for when we source !!
   setwd(analysis_path)
 
@@ -50,6 +52,33 @@ colnames(PIT.half ) <- c('id','half','condition','n_grips')
 PIT.BF.int <- anovaBF(n_grips ~ condition*half + id, data = PIT.half, 
                       whichRandom = "id", iterations = 50000); PIT.BF.int
 PIT.BF.int[4]/ PIT.BF.int[3]
+
+
+# post hoc contrasts
+emms = emmeans(PIT.half.aov, ~ condition*half)
+
+custom <- list("CS- early>late" = c(1,0,-1,0), "CS+ early>late" = c(0,1,0,-1)) 
+
+contrast(emms, custom)
+
+# plot
+plt = ggplot(as_tibble(emms), aes(half, emmean, color = condition, fill = condition)) +
+               geom_point() +
+               geom_line(aes(group = condition), alpha = .5) +
+               geom_crossbar(aes(ymin=emmean-SE, ymax=emmean+SE), width = 0.2 , alpha = 0.1)+
+               ylab('Number of Grips')+
+               xlab('Extinction Phase')+
+               scale_color_manual(labels = c("CS+", "CS-"), values=c("CSplus" = pal[2],"CSminus"=pal[1]), name="Conditioned \n Stimulus")  +
+               scale_fill_manual(labels = c("CS+", "CS-"), values=c("CSplus" = pal[2],"CSminus"=pal[1]), name="Conditioned \n Stimulus")  +
+                scale_y_continuous(expand = c(0, 0), breaks = c(seq.int(0,15, by = 5)), limits = c(0,16.5)) +
+  scale_x_discrete(labels=c("Early", "Late")) +
+               theme_bw() + averaged_theme + theme(panel.grid.major.y = element_line(size=.2, color="lightgrey"))
+
+plt
+
+pdf(file.path(figures_path,'Figure_PIT_phase_extinction.pdf'))
+print(plt)
+dev.off()
 
 # follow up CS plus
 PIT.aov.CSplus <- aov_car(n_grips ~ half + Error (id/half), data = subset(PIT.s, condition == 'CSplus'), anova_table = list(correction = "GG", es = "pes")); PIT.aov.CSplus

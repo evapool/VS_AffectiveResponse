@@ -1,5 +1,6 @@
 #                                                                                                  #
-#                                                                                                  #          #                                                                                                  #
+#                                                                                                  #          
+#                                                                                                  #
 #     Differential contributions of ventral striatum subregions in the motivational                #
 #           and hedonic components of the affective processing of the reward                       #
 #                                                                                                  #
@@ -47,7 +48,7 @@ devtools::source_gist("383aa93ffa161665c0dca1103ef73d9d",
 #SETUP
 
 # Set path
-home_path       <- dirname(dirname(rstudioapi::documentPath()))
+home_path       <-    dirname(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # Set working directory
