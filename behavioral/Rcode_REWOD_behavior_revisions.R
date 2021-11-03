@@ -23,7 +23,6 @@ if(!require(ddpcr)) {
   library(ddpcr)
 }  # to do quiet source
 
-#SETUP
 
 # Set path
 analysis_path <- dirname(rstudioapi::getActiveDocumentContext()$path)

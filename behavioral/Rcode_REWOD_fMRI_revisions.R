@@ -16,8 +16,7 @@
 # Created by D.M.T. on NOVEMBER 2018                                                               #
 # modified by E.R.P on  NOVEMBER 2021                                                              #
 # modified by D.M.T. on October 2021                                                               #
-# TO ADRESS CONCERN: TRY TO REMOVE LEFT VS DL TO TEST FOR POTENTIAL MOVEMENT CONFUNDS              #
-
+# modified by E.R.P  on NOVEMBER  2021                                                             # 
 
 if(!require(ddpcr)) {
   install.packages("ddpcr")
@@ -30,41 +29,47 @@ if(!require(ddpcr)) {
 analysis_path <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
 # Set working directory
-if (analysis_path != getwd()) #important for when we source !!
+if (analysis_path != getwd()) #important for when we source 
   setwd(analysis_path)
 
 
 quiet(source(file.path(analysis_path, "Rcode_REWOD_fMRI.R")), all=T) # run script quietly
 
+# theme for plot
+averaged_theme <- theme_bw(base_size = 24, base_family = "Helvetica")+
+  theme(strip.text.x = element_text(size = 32, face = "bold"),
+        strip.background = element_rect(color="white", fill="white", linetype="solid"),
+        legend.position="none",
+        legend.text  = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 32),
+        axis.title.y = element_text(size =  32),
+        axis.line = element_line(size = 0.5),
+        panel.border = element_blank())
 
+# -------------------------------------- DIRECT COMPARISON CONCERN: NEW PLOT --------------------------------
 
-
-
-# INTERACTION  --------------------------------------------------------
 
 #prepare data
+HED.ROI.TASK.PIT$y = HED.ROI.TASK.PIT$VS_VM; HED.ROI.TASK.PIT$x = HED.ROI.TASK.PIT$deltaCS_R; HED.ROI.TASK.PIT$ROI_type = "VS ventromedial"
+PIT.ROI.TASK.PIT.means$y = PIT.ROI.TASK.PIT.means$effort; PIT.ROI.TASK.PIT.means$x = PIT.ROI.TASK.PIT.means$beta; PIT.ROI.TASK.PIT.means$ROI_type = "VS dorsolateral"
 
-HED.ROI.TASK.PIT$y = HED.ROI.TASK.PIT$NAc_shell_core; HED.ROI.TASK.PIT$x = HED.ROI.TASK.PIT$deltaCS_R; HED.ROI.TASK.PIT$task = "HED"
-#HED.ROI.TASK.PIT$y = HED.ROI.TASK.PIT$mOFC; HED.ROI.TASK.PIT$x = HED.ROI.TASK.PIT$deltaCS_R; HED.ROI.TASK.PIT$task = "HED"
-PIT.ROI.TASK.PIT.means$y = PIT.ROI.TASK.PIT.means$effort; PIT.ROI.TASK.PIT.means$x = PIT.ROI.TASK.PIT.means$beta; PIT.ROI.TASK.PIT.means$task = "PIT"
+DF1 <- HED.ROI.TASK.PIT %>% select(x, y, ID, ROI_type); DF2 <- PIT.ROI.TASK.PIT.means %>% select(x, y, ID, ROI_type); DF <- rbind(DF1, DF2)
 
-DF1 <- HED.ROI.TASK.PIT %>% select(x, y, ID, task); DF2 <- PIT.ROI.TASK.PIT.means %>% select(x, y, ID, task); DF <- rbind(DF1, DF2)
-
-m.inter <- lm(x ~ y*task, data = DF); 
+m.inter <- lm(x ~ y*ROI_type, data = DF); 
 
 # Compare slopes
-m.lst <- lstrends(m.inter, "task", var="y"); pairs(m.lst) #same as doing Anova(m.inter, type = "III")
-#interactions::interact_plot(m.inter, pred = y, modx = task) # quick and dirty plot
-
+m.lst <- lstrends(m.inter, "ROI_type", var="y"); pairs(m.lst) #same as doing Anova(m.inter, type = "III")
 
 # PLOT INTER --------------------------------------------------------------
 
-colfunc <- colorRampPalette(c(pal[2], "blue")); blues = colfunc(10)
-colfunc <- colorRampPalette(c(pal[3], "purple")); reds = colfunc(10)
+colfunc <- colorRampPalette(c(pal[3], "blue")); blues = colfunc(10)
+colfunc <- colorRampPalette(c(pal[2], "purple")); reds = colfunc(10)
 
-#FIG B VS H
+#FIG VS ventromedial and VS dorsolateral for the PIT task
 
-pp <- ggplot(DF, aes(y = y, x = x, color = task, fill = task)) +
+pp <- ggplot(DF, aes(y = y, x = x, color = ROI_type, fill = ROI_type)) +
   geom_point() +
   geom_smooth(method='lm', alpha = 0.2, fullrange=TRUE) +
   labs(y = 'Beta estimates (a.u)', x ='Cue-triggered effort (rank)') +
@@ -75,47 +80,57 @@ pp <- ggplot(DF, aes(y = y, x = x, color = task, fill = task)) +
 
 ppp <- pp + averaged_theme_regression + theme(legend.position=c(0.9, 0.15), legend.text = element_text(size =  18)); ppp
 
-# pppp <- ggMarginal(ppp + theme(legend.position = c(1, 1), legend.justification = c(1, 1),
-#                                legend.background = element_rect(color = "white")), 
-#                    type = "density", alpha = .1, color = NA, fill = pal[2]) 
+pppp <- ggMarginal(ppp, type = "density", alpha = .1, color = NA,   margins = 'y', groupFill = T)
+pppp
+
 # pppp
-pdf(file.path(figures_path,'Figure_inter_BvsH.pdf'))
+pdf(file.path(figures_path,'Figure_interVS_PIT.pdf'))
 print(ppp)
 dev.off()
 
 
 #prepare data
+PIT.ROI.HED.TASK.means$y = PIT.ROI.HED.TASK.means$betas; PIT.ROI.HED.TASK.means$ROI_type= "VS dorsolateral"
+HED.ROI.HED.TASK$y = HED.ROI.HED.TASK$VS;  HED.ROI.HED.TASK$ROI_type = "VS ventromedial"
+DF1 <- PIT.ROI.HED.TASK.means %>% select(y, ID, ROI_type); DF2 <- HED.ROI.HED.TASK %>% select(y, ID, ROI_type); DF <- rbind(DF1, DF2)
 
-PIT.ROI.HED.TASK.means$y = PIT.ROI.HED.TASK.means$betas; PIT.ROI.HED.TASK.means$task = "PIT"
+t.test(DF$y ~ DF$ROI_type,paired = TRUE, var.equal = FALSE)
 
-HED.ROI.HED.TASK$y = HED.ROI.HED.TASK$NAc_shell_core;  HED.ROI.HED.TASK$task = "HED"
-
-DF1 <- PIT.ROI.HED.TASK.means %>% select(y, ID, task); DF2 <- HED.ROI.HED.TASK %>% select(y, ID, task); DF <- rbind(DF1, DF2)
-
-t.test(DF$y ~ DF$task,paired = TRUE, var.equal = FALSE)
 
 #FIG C VS I
-sum1 = summaryBy(y ~ task, data = DF,
+sum1 = summaryBy(y ~ ROI_type, data = DF,
                  FUN = function(x) { c(m = mean(x, na.rm = T),
                                        s = se(x, na.rm = T)) } )
 
-pp <- ggplot(DF, aes(x = task, y = y, color = task, fill = task)) +
-  geom_line(aes(group=ID), color = "grey",  alpha = 0.2) + 
+sum1$ROI <- ifelse(sum1$ROI_type == "VS dorsolateral", -0.25, 0.25)
+DF$ROI <- ifelse(DF$ROI_type == "VS dorsolateral", -0.25, 0.25)
+set.seed(666)
+DF <- DF %>% mutate(ROI_typejit = jitter(as.numeric(ROI), 0.3),
+                                  grouping = interaction(ID, ROI))
+
+
+pp <- ggplot(DF, aes(x = ROI, y = y, 
+                     color = ROI_type, fill = ROI_type)) +
+  geom_line(aes(x = ROI_typejit, group = ID, y = y), alpha = .5, size = 0.5, color = 'gray' ) +
+  
   geom_abline(slope=0, intercept=0, linetype = "dashed", color = "gray") +
   geom_flat_violin(scale = "count", trim = FALSE, alpha = .2, color = NA, width = 0.5) +
-  geom_jitter(alpha = .6,  width = 0.02) +
+  geom_point(aes(x = ROI_typejit), alpha = .3) +
   geom_crossbar(data = sum1, aes(y =  y.m, ymin= y.m-y.s, ymax= y.m+y.s), 
-                width = 0.2 , alpha = 0.1)+
+                width = 0.2 , alpha = 0.1) +
   ylab('Beta estimates (a.u.)') +
   xlab('') +   
   scale_fill_manual(values=c(reds[4],blues[3]), name = NULL, guide = NULL) +
   scale_color_manual(values=c(reds[4],blues[3]), name = NULL) +
+  scale_x_continuous(labels=c("VS dorsolateral", "VS ventromedial"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
   theme_bw()+ guides(color=guide_legend(override.aes=list(fill=NA)))
 
 
-ppp <- pp + averaged_theme_ttest + theme(legend.position=c(0.9, 0.15), legend.text = element_text(size =  18)); ppp
 
-pdf(file.path(figures_path,'Figure_inter_CvsI.pdf'))
+
+ppp <- pp + averaged_theme; ppp
+
+pdf(file.path(figures_path,'Figure_interVS_HED.pdf'))
 print(ppp)
 dev.off()
 

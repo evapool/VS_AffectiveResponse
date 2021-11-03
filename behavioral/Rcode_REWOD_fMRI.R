@@ -15,8 +15,8 @@
 #                                                                                                  #
 # Created by D.M.T. on NOVEMBER 2018                                                               #
 # modified by E.R.P on  JANUARY  2021                                                              #
-# modified by D.M.T. on October 2021                                                               #
-
+# modified by D.M.T. on October  2021                                                              #
+# modified by E.R.P  on NOVEMBER  2021                                                             # 
 
 #--------------------------------------  PRELIMINARY STUFF ----------------------------------------
 #load libraries
@@ -56,7 +56,7 @@ covariatePIT_path <- file.path(home_path, 'univariate/PIT/group_covariates')
 covariateHED_path <- file.path(home_path, 'univariate/HED/group_covariates')
 figures_path <- file.path(analysis_path, 'figures')
 
-if (analysis_path != getwd()) #important for when we source !!
+if (analysis_path != getwd()) # important for when we source 
   setwd(analysis_path)
 
 
@@ -72,9 +72,29 @@ ROI_HED.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_Hed_
 ROI_PIT.lik     <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_hedonic.txt'), header = T, sep ='') 
 ROI_PIT.CSpCSm  <- read.delim(file.path(analysis_path, 'databases/Betas_ROI_PIT_TASK_PIT.txt'), header = T, sep ='') 
 
+# remove variable we do not use
+ROI_PIT.CSpCSm = ROI_PIT.CSpCSm%>% select(-one_of('PIT_CS_VS_right_betas','PIT_CS_VS_left_betas')) # remove ROI defined based on the CS+ vs CS- constrast without considering effort
+ROI_PIT.lik = ROI_PIT.lik%>% select(-one_of('PIT_CS_VS_right_betas','PIT_CS_VS_left_betas')) # remove ROI defined based on the CS+ vs CS- constrast without considering effort
+
+ROI_HED.lik    =  ROI_HED.lik%>% select(-one_of('HED_VS_small_betas')) # remove ROI that did not survive correction
+ROI_HED.CSpCSm =  ROI_HED.CSpCSm%>% select(-one_of('HED_VS_small_betas')) # remove ROI that did not survive correction
+
+# rename variable for clarity
+ROI_PIT.CSpCSm  <- rename.variable(ROI_PIT.CSpCSm, 'PIT_EFF_VSDL_right_betas', 'VS_DL_right') # now that we only have ROI based on the same constrast we do no need to specify the constrast name in the name variable
+ROI_PIT.CSpCSm <- rename.variable(ROI_PIT.CSpCSm, 'PIT_Eff_VSDL_left_betas', 'VS_DL_left')
+
+ROI_PIT.lik  <- rename.variable(ROI_PIT.lik, 'PIT_EFF_VSDL_right_betas', 'VS_DL_right') # now that we only have ROI based on the same constrast we do no need to specify the constrast name in the name variable
+ROI_PIT.lik <- rename.variable(ROI_PIT.lik, 'PIT_Eff_VSDL_left_betas', 'VS_DL_left')
+
+# rename for clarity
+ROI_HED.lik  <- rename.variable(ROI_HED.lik, 'HED_VS_VM_betas', 'VS_VM') # simply remove betas form the name
+ROI_HED.lik  <- rename.variable(ROI_HED.lik, 'HED_mOFC_betas', 'mOFC') # simply remove betas form the name
+ROI_HED.CSpCSm  <- rename.variable(ROI_HED.CSpCSm, 'HED_mOFC_betas', 'mOFC') # simply remove betas form the name
+ROI_HED.CSpCSm  <- rename.variable(ROI_HED.CSpCSm, 'HED_VS_VM_betas', 'VS_VM') # simply remove betas form the name
+
 # get betas from ROI defined by Cartmell et al., 2019
 HED.TASK     <- read.csv(file.path(analysis_path, 'databases/Betas_TASK_HED.csv')) 
-PIT.TASK   <- read.csv(file.path(analysis_path, 'databases/Betas_TASK_PIT.csv'),) 
+PIT.TASK   <- read.csv(file.path(analysis_path, 'databases/Betas_TASK_PIT.csv')) 
 
 
 # themes for plots
@@ -203,18 +223,11 @@ write.table(diffL, (file.path(covariateHED_path, "Pleasant_Neutral.txt")), row.n
 
 # Compile database
 PIT.ROI.TASK.PIT <- merge(PIT.index, ROI_PIT.CSpCSm, by = 'ID')
-# rename variables for this database
-PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_EFF_VSDL_right_betas', 'VS_DL_right')
-PIT.ROI.TASK.PIT <- rename.variable(PIT.ROI.TASK.PIT, 'PIT_Eff_VSDL_left_betas', 'VS_DL_left')
-
-# remove ROI from CS+ vs CS- independent from effort
-PIT.ROI.TASK.PIT = PIT.ROI.TASK.PIT %>% select(-one_of('PIT_CS_VS_right_betas','PIT_VS_left_betas'))
 
 # long format for left and right
 PIT.ROI.TASK.PIT.long <- gather(PIT.ROI.TASK.PIT, ROI , beta, VS_DL_right:VS_DL_left, factor_key=TRUE)
 
-
-PIT.ROI.TASK.PIT.long$ROI_type = 'Pav_ROI'
+PIT.ROI.TASK.PIT.long$ROI_type = 'PIT_ROI'
 
 # -------------------------------- STAT (to check if there is an interaction with ROI )
 VS_DL_eff.stat     <- aov_car(beta ~ deltaCS_R + ROI + Error (ID/ROI), data = PIT.ROI.TASK.PIT.long,
@@ -252,10 +265,6 @@ dev.off()
 
 # ------------------------------------- HED ROI during PIT -----------------------------------------
 HED.ROI.TASK.PIT <- merge(PIT.index, ROI_HED.CSpCSm, by = 'ID')
-
-# rename variables for this database
-HED.ROI.TASK.PIT <- rename.variable(HED.ROI.TASK.PIT, 'HED_VS_VM_betas', 'VS_VM')
-HED.ROI.TASK.PIT <- rename.variable(HED.ROI.TASK.PIT, 'HED_mOFC_betas', 'mOFC')
 HED.ROI.TASK.PIT$ROI_type = 'hed_ROI'
 
 
@@ -321,18 +330,13 @@ dev.off()
 
 HED.ROI.HED.TASK <- ROI_HED.lik
 
-# rename variables for this database
-HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_VS_VM_betas', 'VS_VM')
-HED.ROI.HED.TASK <- rename.variable(HED.ROI.HED.TASK, 'HED_mOFC_betas', 'mOFC')
 
 #------------------------------- STAT
-t.test(HED.ROI.HED.TASK$VS_VM)
 # BF
 ttestBF(HED.ROI.HED.TASK$VS_VM)
 # effect size
 cohen_d_ci(HED.ROI.HED.TASK$VS_VM, conf.level = .95)
 
-t.test(HED.ROI.HED.TASK$mOFC)
 # BF
 ttestBF(HED.ROI.HED.TASK$mOFC)
 
@@ -395,19 +399,11 @@ dev.off()
 
 PIT.ROI.HED.TASK <- merge(PIT.index, ROI_PIT.lik, by = 'ID')
 
-# rename variables for this database
-PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_EFF_VSDL_right_betas', 'VS_DL_right')
-PIT.ROI.HED.TASK <- rename.variable(PIT.ROI.HED.TASK, 'PIT_Eff_VSDL_left_betas', 'VS_DL_left')
-
-# remove ROI from CS+ vs CS- independent from effort
-PIT.ROI.HED.TASK %>% select(-one_of('PIT_CS_VS_right_betas','PIT_CS_VS_left_betas'))
-
-
 # long format for left and right
 PIT.ROI.HED.TASK.long <- gather(PIT.ROI.HED.TASK, ROI , beta, VS_DL_right:VS_DL_left, factor_key=TRUE)
 
 
-# -------------------------------- STAT
+# -------------------------------- STAT 
 VS_DL_lik.stat     <- aov_car(beta ~ ROI + Error (ID/ROI), data = PIT.ROI.HED.TASK.long, factorize = F, anova_table = list(es = "pes")) 
 
 # since there is no ROI effect let's compute the main effect on the average
@@ -449,7 +445,7 @@ dev.off()
 # ----------------------------------------------PIT TASK -----------------------------------------------
 
 CM.HED.ROI.PIT = HED.ROI.TASK.PIT
-CM.HED.ROI.PIT = CM.HED.ROI.PIT %>% select(-one_of('mOFC','HED_VS_small_betas'))
+CM.HED.ROI.PIT = CM.HED.ROI.PIT %>% select(-one_of('mOFC'))
 CM.HED.ROI.PIT <- rename.variable(CM.HED.ROI.PIT, 'VS_VM', 'beta')
 
 # select only the variable of interest
@@ -460,6 +456,7 @@ PIT.ROI.COMPARE <- join (CM.HED.ROI.PIT, CM.PIT.ROI.PIT, type = 'full')
 
 PIT.ROI.COMPARE.means <- aggregate(PIT.ROI.COMPARE$beta, 
                                    by = list(PIT.ROI.COMPARE$ID,PIT.ROI.COMPARE$ROI_type, PIT.ROI.COMPARE$deltaCS_R), FUN='mean') # extract means
+
 colnames(PIT.ROI.COMPARE.means) <- c('ID','ROI_type','deltaCS_R','beta')
 
 PIT.ROI.COMPARE.means$ROI_type = factor(PIT.ROI.COMPARE.means$ROI_type)
