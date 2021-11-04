@@ -36,14 +36,14 @@ quiet(source(file.path(analysis_path, "Rcode_REWOD_fMRI.R")), all=T) # run scrip
 
 # theme for plot
 averaged_theme <- theme_bw(base_size = 24, base_family = "Helvetica")+
-  theme(strip.text.x = element_text(size = 32, face = "bold"),
+  theme(strip.text.x = element_text(size = 28, face = "bold"),
         strip.background = element_rect(color="white", fill="white", linetype="solid"),
         legend.position="none",
         legend.text  = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        axis.title.x = element_text(size = 32),
-        axis.title.y = element_text(size =  32),
+        axis.title.x = element_text(size = 28),
+        axis.title.y = element_text(size =  28),
         axis.line = element_line(size = 0.5),
         panel.border = element_blank())
 
@@ -75,7 +75,7 @@ pp <- ggplot(DF, aes(y = y, x = x, color = ROI_type, fill = ROI_type)) +
   theme_bw()+ guides(color=guide_legend(override.aes=list(fill=NA)))
 
 
-ppp <- pp + averaged_theme_regression + theme(legend.position=c(0.9, 0.15), legend.text = element_text(size =  18)); ppp
+ppp <- pp + averaged_theme_regression + theme(legend.position=c(0.8, 0.15), legend.text = element_text(size =  18)); ppp
 
 pppp <- ggMarginal(ppp, type = "density", alpha = .1, color = NA,   margins = 'y', groupFill = T) 
 
@@ -115,10 +115,10 @@ pp <- ggplot(DF, aes(x = ROI, y = y,
   geom_crossbar(data = sum1, aes(y =  y.m, ymin= y.m-y.s, ymax= y.m+y.s), 
                 width = 0.2 , alpha = 0.1) +
   ylab('Beta estimates (a.u.)') +
-  xlab('') +   
+  xlab('VS subregion') +   
   scale_fill_manual(values=c(reds[4],blues[3]), name = NULL, guide = NULL) +
   scale_color_manual(values=c(reds[4],blues[3]), name = NULL) +
-  scale_x_continuous(labels=c("VS dorsolateral", "VS ventromedial"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
+  scale_x_continuous(labels=c("dorsolateral", "ventromedial"),breaks = c(-.25,.25), limits = c(-.5,.5)) +
   theme_bw()+ guides(color=guide_legend(override.aes=list(fill=NA)))
 
  
