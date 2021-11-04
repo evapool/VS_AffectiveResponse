@@ -484,7 +484,7 @@ CM.HED.ROI.HED$ROI_type = 'hed_ROI'
 
 # select only the variable of interest
 CM.PIT.ROI.PIT = select(PIT.ROI.HED.TASK.long, 'ID','deltaCS_R','beta')
-CM.PIT.ROI.PIT$ROI_type = 'pav_ROI'
+CM.PIT.ROI.PIT$ROI_type = 'PIT_ROI'
 
 HED.ROI.COMPARE <- join (CM.HED.ROI.PIT, CM.PIT.ROI.PIT, type = 'full')
 
