@@ -81,7 +81,7 @@ pppp <- ggMarginal(ppp, type = "density", alpha = .1, color = NA,   margins = 'y
 
 # print figure
 pdf(file.path(figures_path,'Figure_interVS_PIT.pdf'))
-print(ppp)
+print(pppp)
 dev.off()
 
 
