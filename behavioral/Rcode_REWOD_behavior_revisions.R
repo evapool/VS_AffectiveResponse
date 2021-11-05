@@ -165,6 +165,9 @@ estimate.INST = summaryBy(n_grips ~ trial, data = INST.T,
 estimate.PIT = summaryBy(n_grips ~ condition, data = PIT.means,
                           FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
 
-estimate.HED = summaryBy(perceived_liking ~ condition, data = HED.means,
+estimate.HED.liking = summaryBy(perceived_liking ~ condition, data = HED.means,
                          FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
+
+estimate.HED.intensity= summaryBy(perceived_intensity ~ condition, data = INT.means,
+                                FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
 
