@@ -28,7 +28,7 @@ if(!require(ddpcr)) {
 analysis_path <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
 # Set working directory
-if (analysis_path != getwd()) #important for when we source !!
+if (analysis_path != getwd()) # important for when we source 
   setwd(analysis_path)
 
 quiet(source(file.path(analysis_path, "Rcode_REWOD_behavior.R")), all=T) # run script quietly
@@ -45,7 +45,7 @@ PIT.half.aov <- aov_car(n_grips ~ condition*half + Error (id/condition*half), da
 F_to_eta2(f = c(7.43), df = c(1), df_error = c(23))
 
 # Bayes factors trial effect
-PIT.half <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$half,PIT.s$condition), FUN='mean',) # extract means
+PIT.half <- aggregate(PIT.s$n_grips, by = list(PIT.s$id, PIT.s$half,PIT.s$condition), FUN='mean') # extract means
 colnames(PIT.half ) <- c('id','half','condition','n_grips')
 
 PIT.BF.int <- anovaBF(n_grips ~ condition*half + id, data = PIT.half, 
@@ -94,12 +94,11 @@ PIT.BF.CSminus <- anovaBF(n_grips ~ half + id, subset(PIT.half, condition == "CS
                          whichRandom = "id", iterations = 50000); PIT.BF.CSminus
 
 
-########################################### HEDONIC ################################################
+# -------------------------------------- REWARD SATURATION CONCERN --------------------------------
 
 # define factors
 HED = subset (HED, condition != 'empty')
 
-# -------------------------------------- REWARD SATURATION CONCERN --------------------------------
 HED.s <- subset (HED, condition == 'chocolate') # select the reward condition only
 
 # get the right coefficient to code the linear constrast
@@ -135,11 +134,7 @@ last.trial.BF <- anovaBF(perceived_liking ~ condition   + id, data = last.trial,
 
 
 
-
-########################################### INSTRUMENTAL ################################################
-
-
-# ----------------------------------- REWARD SATURATION CONCERN -----------------------------------
+# ----------------------------------- REWARD SATURATION CONCERN INSTRUMENTAL ANALYSIS -----------------------------------
 
 # do a linear constrast only for the answer to reviewers 
 INST.aov     <- aov_car(n_grips ~ trial+ Error (id/trial) , data = INST, anova_table = list(correction = "GG", es = "pes")); INST.aov
@@ -155,9 +150,21 @@ INST.emm     <- emmeans(INST.aov, ~ trial , model = "multivariate")
 INST.linear  <- contrast(INST.emm, "poly"); INST.linear # look only at the linear contrast here
 
 
+# ---------------------- CONCERN: ADD MEAN AND SD TO ANALYSIS SECTION ----------------------------------
 
 
+estimate.PAV.RT = summaryBy( RT ~ condition, data = PAV.means,
+                                   FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
 
+estimate.PAV.liking = summaryBy( liking ~ condition, data = PAV.means,
+                             FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
 
+estimate.INST = summaryBy(n_grips ~ trial, data = INST.T,
+                                 FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
 
+estimate.PIT = summaryBy(n_grips ~ condition, data = PIT.means,
+                          FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
+
+estimate.HED = summaryBy(perceived_liking ~ condition, data = HED.means,
+                         FUN = function(x) { c(m = mean(x), s = sd(x), n = length(x)) } )
 
